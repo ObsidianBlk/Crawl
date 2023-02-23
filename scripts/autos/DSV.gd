@@ -1,6 +1,6 @@
 # (D)ictionary (S)chema (V)erifier
 # Author: Bryan Miller
-# Version: 0.0.3
+# Version: 0.0.4
 #
 # The intent of this script is to allow users to validate the data contained in
 # a dictionary against a specially formatted schema dictionary.
@@ -239,6 +239,31 @@ static func _FindSchemaFrom(d : Dictionary, refs : RefSchema, return_source_if_n
 	
 	return {}
 
+
+static func _ScrapeKeysOfType(schema : Dictionary, refs : RefSchema, base_path : String, key_type_defs : Dictionary) -> int:
+	for key in schema.keys():
+		if typeof(key) == TYPE_STRING or typeof(key) == TYPE_STRING_NAME:
+			if key.begins_with("!"):
+				if key.begins_with("!KEY_OF_TYPE_"):
+					if not &"type" in schema[key]:
+						printerr("SCHEMA ERROR [", base_path, ".", key, "]: Key-type for entry missing required 'type' property.")
+						return ERR_INVALID_DECLARATION
+					if ALLOWED_KEY_TYPES.find(schema[key][&"type"]) < 0:
+						printerr("SCHEMA ERROR [", base_path, ".", key, "]: Key-type 'type' property invalid value.")
+						return ERR_INVALID_DECLARATION
+					if schema[key][&"type"] in key_type_defs:
+						printerr("SCHEMA ERROR [", base_path, ".", key, "]: Key-type definition previously defined.")
+						return ERR_ALREADY_IN_USE
+					
+					# def[key] needs either the property "ref" or "def" and return a non-empty dictionary.
+					var key_schema = _FindSchemaFrom(schema[key], refs, false)
+					if key_schema.is_empty():
+						printerr("SCHEMA ERROR [", base_path, ".", key, "]: Schema definition does not exist or referencing undefined sub-schema.")
+						return ERR_DOES_NOT_EXIST
+					key_type_defs[schema[key][&"type"]] = schema[key][&"def"]
+	return OK
+
+
 static func _VerifyDictionaryValue(val : Dictionary, def : Dictionary, state : Dictionary) -> int:
 	var base_path : String = "ROOT" if not &"path" in state else state[&"path"]
 	var refs : RefSchema = null if not &"refs" in state else state[&"refs"]
@@ -251,6 +276,11 @@ static func _VerifyDictionaryValue(val : Dictionary, def : Dictionary, state : D
 				if res != OK:
 					printerr("VALIDATION WARNING: Schema redefining sub-schema \"", key, "\". Validation may be effected.")
 	
+	var key_type_defs : Dictionary = {} # May or may not be used.
+	var res : int = _ScrapeKeysOfType(def, refs, base_path, key_type_defs)
+	if not res == OK:
+		return res
+	
 	# Determines if only validation should fail if dictionary has keys other than the ones defined.
 	# By default, this is true.
 	var only_def : bool = true
@@ -259,34 +289,18 @@ static func _VerifyDictionaryValue(val : Dictionary, def : Dictionary, state : D
 	
 	if only_def:
 		for vkey in val.keys():
+			if typeof(vkey) in key_type_defs:
+				continue # This key is a valid type.
+			
 			if not vkey in def:
 				printerr("VALIDATION ERROR [", base_path, "]: Object key \"", vkey, "\" not defined in Schema.")
 				return ERR_CANT_RESOLVE
 	
-	var key_type_defs : Dictionary = {} # May or may not be used.
-	
 	for key in def.keys():
 		if typeof(key) == TYPE_STRING or typeof(key) == TYPE_STRING_NAME:
 			if key.begins_with("!"):
-				if key.begins_with("!KEY_OF_TYPE_"):
-					if not &"type" in def[key]:
-						printerr("SCHEMA ERROR [", base_path, ".", key, "]: Key-type for entry missing required 'type' property.")
-						return ERR_INVALID_DECLARATION
-					if ALLOWED_KEY_TYPES.find(def[&"type"]) < 0:
-						printerr("SCHEMA ERROR [", base_path, ".", key, "]: Key-type 'type' property invalid value.")
-						return ERR_INVALID_DECLARATION
-					if def[key][&"type"] in key_type_defs:
-						printerr("SCHEMA ERROR [", base_path, ".", key, "]: Key-type definition previously defined.")
-						return ERR_ALREADY_IN_USE
-					
-					# def[key] needs either the property "ref" or "def" and return a non-empty dictionary.
-					var schema = _FindSchemaFrom(def[key], refs, false)
-					if schema.is_empty():
-						printerr("SCHEMA ERROR [", base_path, ".", key, "]: Schema definition does not exist or referencing undefined sub-schema.")
-						return ERR_DOES_NOT_EXIST
-					key_type_defs[def[key][&"type"]] = def[key][&"def"]
-				continue # These are state directives. We don't process these at this point
-		
+				continue
+	
 		var path : String = key
 		if base_path != "ROOT":
 			path = "%s.%s"%[base_path, key]
@@ -303,7 +317,7 @@ static func _VerifyDictionaryValue(val : Dictionary, def : Dictionary, state : D
 			printerr("SCHEMA ERROR [", base_path, "]: Schema definition does not exist or referencing undefined sub-schema.")
 			return ERR_DOES_NOT_EXIST
 		
-		var res : int = _VerifyValAgainstSchema(val[key], schema, key, base_path, {&"path":path, &"refs":refs})
+		res = _VerifyValAgainstSchema(val[key], schema, key, base_path, {&"path":path, &"refs":refs})
 		if res != OK:
 			return res
 
@@ -317,7 +331,7 @@ static func _VerifyDictionaryValue(val : Dictionary, def : Dictionary, state : D
 				if typeof(key) == ktype:
 					# Validate the value against the key_type_defs schema!
 					var path : String = "%s.%s"%[base_path, key]
-					var res : int = _VerifyValAgainstSchema(val[key], key_type_defs[ktype], key, base_path, {
+					res = _VerifyValAgainstSchema(val[key], key_type_defs[ktype], key, base_path, {
 						&"path":path, &"refs":refs
 					})
 					if res != OK:

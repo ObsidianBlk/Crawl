@@ -13,104 +13,21 @@ signal cell_changed(position)
 # ------------------------------------------------------------------------------
 # Constants and ENUMs
 # ------------------------------------------------------------------------------
-enum EDGE {North=0, East=1, South=2, West=3}
+enum SURFACE {North=0x01, East=0x02, South=0x04, West=0x08, Ground=0x10, Ceiling=0x20}
 
 const RESOURCE_GROUND_DEFAULT : int = 0
 const RESOURCE_CEILING_DEFAULT : int = 0
 const RESOURCE_EDGE_DEFAULT : int = 0
 
-const EDGE_SCHEMA : Dictionary = {
-	&"blocking":{&"req":true, &"type":TYPE_BOOL},
-	&"rid":{&"req":true, &"type":TYPE_INT, &"min":0}
-}
 
 const CELL_SCHEMA : Dictionary = {
-	&"ground_rid":{&"req":true, &"type":TYPE_INT, &"min":0},
-	&"ceiling_rid":{&"req":true, &"type":TYPE_INT, &"min":0},
-	EDGE.North:{&"req":true, &"type":TYPE_DICTIONARY, &"def":EDGE_SCHEMA},
-	EDGE.South:{&"req":true, &"type":TYPE_DICTIONARY, &"def":EDGE_SCHEMA},
-	EDGE.East:{&"req":true, &"type":TYPE_DICTIONARY, &"def":EDGE_SCHEMA},
-	EDGE.West:{&"req":true, &"type":TYPE_DICTIONARY, &"def":EDGE_SCHEMA},
+	&"blocking":{&"req":true, &"type":TYPE_INT, &"min":0, &"max":0x3F},
+	&"rid":{&"req":true, &"type":TYPE_ARRAY, &"item":{&"type":TYPE_INT, &"min":0}}
 }
 
 const GRID_SCHEMA : Dictionary = {
-#	&"!REFS": {
-#		&"edge":{&"type":TYPE_DICTIONARY, &"def":EDGE_SCHEMA},
-#		&"cell":{&"type":TYPE_DICTIONARY, &"def":{
-#			&"ground_rid":{&"req":true, &"type":TYPE_INT, &"min":0},
-#			&"ceiling_rid":{&"req":true, &"type":TYPE_INT, &"min":0},
-#			EDGE.North:{&"req":true, &"ref":&"edge"},
-#			EDGE.South:{&"req":true, &"ref":&"edge"},
-#			EDGE.East:{&"req":true, &"ref":&"edge"},
-#			EDGE.West:{&"req":true, &"ref":&"edge"},
-#		}}
-#	},
-	&"!KEY_OF_TYPE_V2I":{&"type":TYPE_VECTOR2I, &"def":CELL_SCHEMA}#&"ref":&"cell"}
+	&"!KEY_OF_TYPE_V3I":{&"type":TYPE_VECTOR3I, &"def":CELL_SCHEMA}
 }
-
-# ------------------------------------------------------------------------------
-# Sub Class(es)
-# ------------------------------------------------------------------------------
-class Cell:
-	# --- Private Variables
-	var _parent : CrawlMap = null
-	var _position : Vector2i = Vector2i.ZERO
-	var _data : Dictionary = {}
-	
-	# --- Constructor
-	func _init(position : Vector2i = Vector2i.ZERO, parent : CrawlMap = null) -> void:
-		if parent != null:
-			if parent.has_cell(position):
-				_data = parent._grid[position]
-				_parent = parent
-				_position = position
-		if _data.is_empty():
-			_data = {
-				&"ground_rid": RESOURCE_GROUND_DEFAULT,
-				&"ceiling_rid": RESOURCE_CEILING_DEFAULT,
-				EDGE.North:{
-					&"blocking": false,
-					&"rid": RESOURCE_EDGE_DEFAULT
-				},
-				EDGE.South:{
-					&"blocking": false,
-					&"rid": RESOURCE_EDGE_DEFAULT
-				},
-				EDGE.East:{
-					&"blocking": false,
-					&"rid": RESOURCE_EDGE_DEFAULT
-				},
-				EDGE.West:{
-					&"blocking": false,
-					&"rid": RESOURCE_EDGE_DEFAULT
-				}
-			}
-	
-	# --- Private Methods
-	
-	# --- Public Methods
-	func remove() -> void:
-		if _parent == null:
-			printerr("CrawlMap Cell not associated with a CrawlMap resource.")
-			return
-		_parent.remove_cell(_position)
-		if _parent.has_cell(_position):
-			printerr("Failed to remove cell from CrawlMap resource.")
-		
-		_parent = null
-		_position = Vector2i.ZERO
-	
-	func copy_to(position : Vector2i) -> CrawlMap.Cell:
-		if _parent == null:
-			printerr("CrawlMap Cell not associated with a CrawlMap resource.")
-			return null
-		
-		if _parent.copy_cell(_position, position) != OK:
-			printerr("Failed to copy cell to position ", position)
-			return null
-		
-		return _parent.get_cell(position)
-	
 
 
 # ------------------------------------------------------------------------------
@@ -173,40 +90,55 @@ func _get_property_list() -> Array:
 
 func _CreateDefaultCell() -> Dictionary:
 	return {
-		&"ground_rid": RESOURCE_GROUND_DEFAULT,
-		&"ceiling_rid": RESOURCE_CEILING_DEFAULT,
-		EDGE.North:{
-			&"blocking": false,
-			&"rid": RESOURCE_EDGE_DEFAULT
-		},
-		EDGE.South:{
-			&"blocking": false,
-			&"rid": RESOURCE_EDGE_DEFAULT
-		},
-		EDGE.East:{
-			&"blocking": false,
-			&"rid": RESOURCE_EDGE_DEFAULT
-		},
-		EDGE.West:{
-			&"blocking": false,
-			&"rid": RESOURCE_EDGE_DEFAULT
-		}
+		&"blocking": 0x30,
+		&"rid": [
+			RESOURCE_EDGE_DEFAULT,
+			RESOURCE_EDGE_DEFAULT,
+			RESOURCE_EDGE_DEFAULT,
+			RESOURCE_EDGE_DEFAULT,
+			RESOURCE_GROUND_DEFAULT,
+			RESOURCE_CEILING_DEFAULT
+		]
 	}
 
-func _CloneEdge(edge : Dictionary) -> Dictionary:
-	return {
-		&"blocking": edge[&"blocking"],
-		&"rid": edge[&"rid"]
-	}
+func _CalcNeighborFrom(position : Vector3i, surface : SURFACE) -> Vector3i:
+	match surface:
+		SURFACE.North:
+			return position + Vector3i.FORWARD
+		SURFACE.East:
+			return position + Vector3i.RIGHT
+		SURFACE.South:
+			return position + Vector3i.BACK
+		SURFACE.West:
+			return position + Vector3i.LEFT
+		SURFACE.Ground:
+			return position + Vector3i.DOWN
+		SURFACE.Ceiling:
+			return position + Vector3i.UP
+	return position
+
+func _CalcAdjacentSurface(surface : SURFACE) -> SURFACE:
+	match surface:
+		SURFACE.North:
+			return SURFACE.South
+		SURFACE.East:
+			return SURFACE.West
+		SURFACE.South:
+			return SURFACE.North
+		SURFACE.West:
+			return SURFACE.East
+		SURFACE.Ground:
+			return SURFACE.Ceiling
+		SURFACE.Ceiling:
+			return SURFACE.Ground
+	return surface
+
 
 func _CloneCell(cell : Dictionary, ncell : Dictionary = {}) -> Dictionary:
-	ncell[&"ground_rid"] = cell[&"ground_rid"]
-	ncell[&"ceiling_rid"] = cell[&"ceiling_rid"]
-	ncell[EDGE.North] = _CloneEdge(cell[EDGE.North])
-	ncell[EDGE.South] = _CloneEdge(cell[EDGE.South])
-	ncell[EDGE.East] = _CloneEdge(cell[EDGE.East])
-	ncell[EDGE.West] = _CloneEdge(cell[EDGE.West])
-	
+	ncell[&"blocking"] = cell[&"blocking"]
+	ncell[&"rid"] = []
+	for rid in cell[&"rid"]:
+		ncell[&"rid"] = rid
 	return ncell
 
 func _CloneGrid() -> Dictionary:
@@ -224,7 +156,7 @@ func clone() -> CrawlMap:
 	cm.grid = _CloneGrid()
 	return cm
 
-func add_cell(position : Vector2i) -> int:
+func add_cell(position : Vector3i) -> int:
 	if position in _grid:
 		return ERR_ALREADY_EXISTS
 	_grid[position] = _CreateDefaultCell()
@@ -232,49 +164,62 @@ func add_cell(position : Vector2i) -> int:
 	cell_changed.emit(position)
 	return OK
 
-func has_cell(position : Vector2i) -> bool:
+func has_cell(position : Vector3i) -> bool:
 	return position in _grid
 
-func get_cell(position : Vector2i) -> CrawlMap.Cell:
-	if position in _grid:
-		return CrawlMap.Cell.new(position, self)
-	return null
 
-func copy_cell(from_position : Vector2i, to_position : Vector2i) -> int:
-	if not from_position in _grid:
-		return ERR_DOES_NOT_EXIST
-	if to_position in _grid:
-		_CloneCell(_grid[from_position], _grid[to_position])
-	else:
-		_grid[to_position] = _CloneCell(_grid[from_position])
-		cell_added.emit(to_position)
-	cell_changed.emit(to_position)
+func copy_cell(from_position : Vector3i, to_position : Vector3i) -> int:
+	if from_position != to_position: # Nothing to do if from and to are the same.
+		if not from_position in _grid:
+			return ERR_DOES_NOT_EXIST
+		if to_position in _grid:
+			_CloneCell(_grid[from_position], _grid[to_position])
+		else:
+			_grid[to_position] = _CloneCell(_grid[from_position])
+			cell_added.emit(to_position)
+		cell_changed.emit(to_position)
 	return OK
 
-func remove_cell(position : Vector2i) -> void:
+func remove_cell(position : Vector3i) -> void:
 	if not position in _grid: return
 	_grid.erase(position)
 	cell_removed.emit(position)
 
-func set_cell_surfaces(position : Vector2i, ground_resource_id : int, ceiling_resource_id : int) -> void:
+func set_cell_surface(position : Vector3i, surface : SURFACE, blocking : bool, resource_id : int) -> void:
 	if not position in _grid:
 		printerr("CrawlMap Error: No cell at position ", position)
 		return
-	_grid[position][&"ground_rid"] = ground_resource_id
-	_grid[position][&"ceiling_rid"] = ceiling_resource_id
+	# TODO: Update this method supporting the new cell layout.
+	#_grid[position][surface][&"blocking"] = blocking
+	#_grid[position][surface][&"rid"] = resource_id
 
-func set_cell_edge(position : Vector2i, edge : EDGE, blocking : bool, resource_id : int) -> void:
+func set_cell_surface_blocking(position : Vector3i, surface : SURFACE, blocking : bool) -> void:
 	if not position in _grid:
 		printerr("CrawlMap Error: No cell at position ", position)
 		return
-	_grid[position][edge][&"blocking"] = blocking
-	_grid[position][edge][&"rid"] = resource_id
+	if blocking:
+		_grid[position][&"blocking"] = _grid[position][&"blocking"] | surface
+	else:
+		_grid[position][&"blocking"] = (_grid[position][&"blocking"] & (~surface)) & 0x3F
 
-func set_cell_edge_blocking(position : Vector2i, edge : EDGE, blocking : bool) -> void:
+func set_cell_surface_resource_id(position : Vector3i, surface : SURFACE, resource_id) -> void:
 	if not position in _grid:
 		printerr("CrawlMap Error: No cell at position ", position)
 		return
-	_grid[position][edge][&"blocking"] = blocking
+	if resource_id < 0:
+		printerr("CrawlMap Error: Given resource ID out of range.")
+		return
+	
+	var idx : int = SURFACE.values().find(surface)
+	if idx >= 0:
+		_grid[position][&"rid"][idx] = resource_id
+
+func is_cell_surface_blocking(position : Vector3i, surface : SURFACE) -> bool:
+	var nposition : Vector3i = _CalcNeighborFrom(position, surface)
+	if nposition != position: # If this isn't true, there was probably a problem. Assume blocking.
+		if nposition in _grid:
+			return _grid[nposition][&"blocking"] & surface != 0
+	return true
 
 # ------------------------------------------------------------------------------
 # Handler Methods
