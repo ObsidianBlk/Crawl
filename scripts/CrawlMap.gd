@@ -13,15 +13,15 @@ signal cell_changed(position)
 # ------------------------------------------------------------------------------
 # Constants and ENUMs
 # ------------------------------------------------------------------------------
-enum SURFACE {North=0x01, East=0x02, South=0x04, West=0x08, Ground=0x10, Ceiling=0x20}
+enum SURFACE {Ground=0x01, Ceiling=0x02, North=0x04, East=0x08, South=0x10, West=0x20}
 
 const RESOURCE_GROUND_DEFAULT : int = 0
 const RESOURCE_CEILING_DEFAULT : int = 0
-const RESOURCE_EDGE_DEFAULT : int = 0
+const RESOURCE_WALL_DEFAULT : int = 0
 
 
 const CELL_SCHEMA : Dictionary = {
-	&"blocking":{&"req":true, &"type":TYPE_INT, &"min":0, &"max":0x3F},
+	&"blocking":{&"req":true, &"type":TYPE_INT, &"min":0, &"max":0x0F},
 	&"rid":{&"req":true, &"type":TYPE_ARRAY, &"item":{&"type":TYPE_INT, &"min":0}}
 }
 
@@ -90,14 +90,12 @@ func _get_property_list() -> Array:
 
 func _CreateDefaultCell() -> Dictionary:
 	return {
-		&"blocking": 0x30,
+		&"blocking": 0x0F,
 		&"rid": [
-			RESOURCE_EDGE_DEFAULT,
-			RESOURCE_EDGE_DEFAULT,
-			RESOURCE_EDGE_DEFAULT,
-			RESOURCE_EDGE_DEFAULT,
 			RESOURCE_GROUND_DEFAULT,
-			RESOURCE_CEILING_DEFAULT
+			RESOURCE_CEILING_DEFAULT,
+			RESOURCE_WALL_DEFAULT,
+			RESOURCE_WALL_DEFAULT,
 		]
 	}
 
@@ -147,6 +145,45 @@ func _CloneGrid() -> Dictionary:
 		ngrid[key] = _CloneCell(_grid[key])
 	return ngrid
 
+func _CalcBlocking(block_val : int, surface : SURFACE, block : bool) -> int:
+	if block:
+		return (block_val | surface) & 0x0F
+	return (block_val & (~surface)) & 0x0F
+
+func _SetCellSurface(position : Vector3i, surface : SURFACE, data : Dictionary) -> void:
+	if surface == SURFACE.West or surface == SURFACE.South: # These surfaces get set in another cell.
+		position = _CalcNeighborFrom(position, surface)
+		surface = _CalcAdjacentSurface(surface)
+		if not position in _grid:
+			add_cell(position)
+	
+	var changed : bool = false
+	if &"blocking" in data:
+		_grid[position][&"blocking"] = _CalcBlocking(_grid[position][&"blocking"], surface, data[&"blocking"])
+		changed = true
+	if &"resource_id" in data:
+		var idx : int = SURFACE.values().find(surface)
+		if idx >= 0:
+			_grid[position][&"rid"][idx] = data[&"resource_id"]
+		changed = true
+	
+	if changed:
+		cell_changed.emit(position)
+
+
+func _GetCellSurface(position : Vector3i, surface : SURFACE) -> Dictionary:
+	if surface == SURFACE.West or surface == SURFACE.South: # These surfaces get set in another cell.
+		position = _CalcNeighborFrom(position, surface)
+		surface = _CalcAdjacentSurface(surface)
+		if not position in _grid:
+			return {}
+	
+	var idx : int = SURFACE.values().find(surface)
+	return {
+		&"blocking": _grid[position][&"blocking"] & surface != 0,
+		&"resource_id": _grid[position][&"rid"][idx]
+	}
+
 # ------------------------------------------------------------------------------
 # Public Methods
 # ------------------------------------------------------------------------------
@@ -189,18 +226,16 @@ func set_cell_surface(position : Vector3i, surface : SURFACE, blocking : bool, r
 	if not position in _grid:
 		printerr("CrawlMap Error: No cell at position ", position)
 		return
-	# TODO: Update this method supporting the new cell layout.
-	#_grid[position][surface][&"blocking"] = blocking
-	#_grid[position][surface][&"rid"] = resource_id
+	if resource_id < 0:
+		printerr("CrawlMap Error: Given resource ID out of range.")
+		return
+	_SetCellSurface(position, surface, {&"blocking":blocking, &"resource_id":resource_id})
 
 func set_cell_surface_blocking(position : Vector3i, surface : SURFACE, blocking : bool) -> void:
 	if not position in _grid:
 		printerr("CrawlMap Error: No cell at position ", position)
 		return
-	if blocking:
-		_grid[position][&"blocking"] = _grid[position][&"blocking"] | surface
-	else:
-		_grid[position][&"blocking"] = (_grid[position][&"blocking"] & (~surface)) & 0x3F
+	_SetCellSurface(position, surface, {&"blocking":blocking})
 
 func set_cell_surface_resource_id(position : Vector3i, surface : SURFACE, resource_id) -> void:
 	if not position in _grid:
@@ -210,15 +245,18 @@ func set_cell_surface_resource_id(position : Vector3i, surface : SURFACE, resour
 		printerr("CrawlMap Error: Given resource ID out of range.")
 		return
 	
-	var idx : int = SURFACE.values().find(surface)
-	if idx >= 0:
-		_grid[position][&"rid"][idx] = resource_id
+	_SetCellSurface(position, surface, {&"resource_id":resource_id})
+
+func get_cell_surface_resource_id(position : Vector3i, surface : SURFACE) -> int:
+	var info : Dictionary = _GetCellSurface(position, surface)
+	if not info.is_empty():
+		return info[&"resource_id"]
+	return -1
 
 func is_cell_surface_blocking(position : Vector3i, surface : SURFACE) -> bool:
-	var nposition : Vector3i = _CalcNeighborFrom(position, surface)
-	if nposition != position: # If this isn't true, there was probably a problem. Assume blocking.
-		if nposition in _grid:
-			return _grid[nposition][&"blocking"] & surface != 0
+	var info : Dictionary = _GetCellSurface(position, surface)
+	if not info.is_empty():
+		return info[&"blocking"]
 	return true
 
 # ------------------------------------------------------------------------------

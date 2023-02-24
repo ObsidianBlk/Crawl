@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3 uid="uid://bc3t1kta78uyf"]
+
+[ext_resource type="Script" path="res://scenes/crawl_map_view/crawl_cell/CrawlCell.gd" id="1_q4emb"]
+
+[node name="CrawlCell" type="Node3D"]
+script = ExtResource("1_q4emb")
+
+[node name="MultiMeshInstance3D" type="MultiMeshInstance3D" parent="."]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]

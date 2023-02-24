@@ -1,0 +1,3 @@
+[gd_scene format=3 uid="uid://b4kugyrq8jxcl"]
+
+[node name="CrawlMapView" type="Node3D"]
