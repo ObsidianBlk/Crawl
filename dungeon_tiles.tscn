@@ -1,0 +1,5 @@
+[gd_scene load_steps=2 format=3 uid="uid://cpav05isxqo83"]
+
+[ext_resource type="PackedScene" uid="uid://diem24j2hd8yw" path="res://assets/models/dungeon_tiles.glb" id="1_0g4sw"]
+
+[node name="dungeon_tiles" instance=ExtResource("1_0g4sw")]
