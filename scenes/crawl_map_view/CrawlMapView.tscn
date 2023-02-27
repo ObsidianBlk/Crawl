@@ -1,3 +1,8 @@
-[gd_scene format=3 uid="uid://b4kugyrq8jxcl"]
+[gd_scene load_steps=2 format=3 uid="uid://b4kugyrq8jxcl"]
+
+[ext_resource type="Script" path="res://scenes/crawl_map_view/CrawlMapView.gd" id="1_p7ahv"]
 
 [node name="CrawlMapView" type="Node3D"]
+script = ExtResource("1_p7ahv")
+
+[node name="CellContainer" type="Node3D" parent="."]

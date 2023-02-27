@@ -9,6 +9,7 @@ signal cell_added(position)
 signal cell_removed(position)
 signal cell_changed(position)
 
+signal focus_changed(focus_position)
 
 # ------------------------------------------------------------------------------
 # Constants and ENUMs
@@ -35,8 +36,13 @@ const GRID_SCHEMA : Dictionary = {
 # "Export" Variables
 # ------------------------------------------------------------------------------
 var _grid : Dictionary = {}
-var _start_cell : Vector2i = Vector2i.ZERO
+var _start_cell : Vector3i = Vector3i.ZERO
 
+
+# ------------------------------------------------------------------------------
+# Variables
+# ------------------------------------------------------------------------------
+var _focus_cell : Vector3i = Vector3i.ZERO
 
 # ------------------------------------------------------------------------------
 # Override Methods
@@ -58,7 +64,9 @@ func _set(property : StringName, value : Variant) -> bool:
 					_grid = value
 					success = true
 		&"start_cell":
-			if typeof(value) == TYPE_VECTOR2I:
+			if typeof(value) == TYPE_VECTOR3I:
+				if not value in _grid:
+					printerr("CrawlMap Warning: Assigned start cell, ", value, ", is not currently defined in the grid.")
 				_start_cell = value
 				success = true
 	
@@ -78,7 +86,7 @@ func _get_property_list() -> Array:
 		},
 		{
 			name = "start_cell",
-			type = TYPE_VECTOR2I,
+			type = TYPE_VECTOR3I,
 			usage = PROPERTY_USAGE_DEFAULT
 		},
 	]
@@ -219,26 +227,24 @@ func set_cell_surface(position : Vector3i, surface : SURFACE, blocking : bool, r
 	if not position in _grid:
 		printerr("CrawlMap Error: No cell at position ", position)
 		return
-	if resource_id < 0:
-		printerr("CrawlMap Error: Given resource ID out of range.")
-		return
-	_SetCellSurface(position, surface, {&"blocking":blocking, &"resource_id":resource_id})
+	_SetCellSurface(position, surface, {&"blocking":blocking, &"resource_id":resource_id if resource_id >= 0 else -1})
 
-func set_cell_surface_blocking(position : Vector3i, surface : SURFACE, blocking : bool) -> void:
+func set_cell_surface_blocking(position : Vector3i, surface : SURFACE, blocking : bool, bi_directional : bool = false) -> void:
 	if not position in _grid:
 		printerr("CrawlMap Error: No cell at position ", position)
 		return
 	_SetCellSurface(position, surface, {&"blocking":blocking})
+	if bi_directional:
+		var pos : Vector3i = _CalcNeighborFrom(position, surface)
+		var surf : SURFACE = _CalcAdjacentSurface(surface)
+		set_cell_surface_blocking(pos, surf, blocking, false)
 
 func set_cell_surface_resource_id(position : Vector3i, surface : SURFACE, resource_id) -> void:
 	if not position in _grid:
 		printerr("CrawlMap Error: No cell at position ", position)
 		return
-	if resource_id < 0:
-		printerr("CrawlMap Error: Given resource ID out of range.")
-		return
 	
-	_SetCellSurface(position, surface, {&"resource_id":resource_id})
+	_SetCellSurface(position, surface, {&"resource_id":resource_id if resource_id >= 0 else -1})
 
 func get_cell(position : Vector3i, surface : SURFACE) -> Dictionary:
 	if not position in _grid:
@@ -269,10 +275,53 @@ func is_cell_surface_blocking(position : Vector3i, surface : SURFACE) -> bool:
 	if position in _grid:
 		var info : Dictionary = _GetCellSurface(position, surface)
 		if not info.is_empty():
-			return info[&"blocking"]
+			return info[&"blocking"] & surface > 0
 	else:
 		printerr("CrawlMap Error: No cell at position ", position)
 	return true
+
+func set_focus_cell(focus : Vector3i) -> void:
+	var old_focus : Vector3i = _focus_cell
+	if _grid.is_empty() or focus in _grid:
+		_focus_cell = focus
+	elif not _focus_cell in _grid:
+		if _start_cell in _grid:
+			_focus_cell = _start_cell
+		else:
+			_focus_cell = _grid.keys()[0]
+	if _focus_cell != old_focus:
+		focus_changed.emit(_focus_cell)
+
+func get_focus_cell() -> Vector3i:
+	if not _grid.is_empty() and not _focus_cell in _grid:
+		return _grid.keys()[0]
+	return _focus_cell
+
+func fill_room(position : Vector3i, size : Vector3i, ground_rid : int, ceiling_rid : int, wall_rid : int) -> void:
+	# Readjusting position for possible negative size values.
+	position.x += size.x if size.x < 0 else 0
+	position.y += size.y if size.y < 0 else 0
+	position.z += size.z if size.z < 0 else 0
+	
+	size = abs(size)
+	var target : Vector3i = position + size
+	
+	var _set_surface : Callable = func(pos : Vector3i, surf : SURFACE, blocking : bool, rid : int) -> void:
+		if not pos in _grid: return
+		set_cell_surface(pos, surf, blocking, rid if blocking else -1)
+	
+	for k in range(position.z, target.z):
+		for j in range(position.y, target.y):
+			for i in range(position.x, target.x):
+				var pos : Vector3i = Vector3i(i,j,k)
+				if not pos in _grid:
+					add_cell(pos)
+					_set_surface.call(pos, SURFACE.Ground, j == position.y, ground_rid)
+					_set_surface.call(pos, SURFACE.Ceiling, j + 1 == target.y, ceiling_rid)
+					_set_surface.call(pos, SURFACE.North, k + 1 == target.z, wall_rid)
+					_set_surface.call(pos, SURFACE.South, k == position.z, wall_rid)
+					_set_surface.call(pos, SURFACE.East, i == position.x, wall_rid)
+					_set_surface.call(pos, SURFACE.West, i + 1 == target.x, wall_rid)
 
 # ------------------------------------------------------------------------------
 # Handler Methods

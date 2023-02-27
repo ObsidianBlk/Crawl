@@ -1,0 +1,18 @@
+[gd_scene load_steps=3 format=3 uid="uid://teo1susxy05g"]
+
+[ext_resource type="Script" path="res://objects/player/Player.gd" id="1_0duse"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_idpsr"]
+
+[node name="Player" type="Node3D"]
+script = ExtResource("1_0duse")
+
+[node name="Reference" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+mesh = SubResource("CapsuleMesh_idpsr")
+
+[node name="Gimble" type="Node3D" parent="."]
+
+[node name="Camera3D" type="Camera3D" parent="Gimble"]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 1.8, -2)
+current = true

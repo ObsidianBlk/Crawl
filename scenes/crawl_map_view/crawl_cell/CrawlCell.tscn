@@ -1,31 +1,57 @@
-[gd_scene load_steps=3 format=3 uid="uid://bc3t1kta78uyf"]
+[gd_scene load_steps=8 format=3 uid="uid://bc3t1kta78uyf"]
 
 [ext_resource type="Script" path="res://scenes/crawl_map_view/crawl_cell/CrawlCell.gd" id="1_q4emb"]
 
-[sub_resource type="PlaneMesh" id="PlaneMesh_lsubo"]
+[sub_resource type="PlaneMesh" id="PlaneMesh_kx41u"]
+resource_local_to_scene = true
+size = Vector2(3, 3)
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_xtnho"]
+resource_local_to_scene = true
+size = Vector2(3, 3)
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_5mfk0"]
+resource_local_to_scene = true
+size = Vector2(3, 3)
+orientation = 2
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_nqw2s"]
+resource_local_to_scene = true
+size = Vector2(3, 3)
+orientation = 0
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_2x1cc"]
+resource_local_to_scene = true
+size = Vector2(3, 3)
+orientation = 2
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_5jm1y"]
+resource_local_to_scene = true
+size = Vector2(3, 3)
+orientation = 0
 
 [node name="CrawlCell" type="Node3D"]
 script = ExtResource("1_q4emb")
 
 [node name="Ground" type="MeshInstance3D" parent="."]
-mesh = SubResource("PlaneMesh_lsubo")
+mesh = SubResource("PlaneMesh_kx41u")
 
 [node name="Ceiling" type="MeshInstance3D" parent="."]
-transform = Transform3D(-1, 8.74228e-08, 0, -8.74228e-08, -1, 0, 0, 0, 1, 0, 2, 0)
-mesh = SubResource("PlaneMesh_lsubo")
+transform = Transform3D(-1, 8.74228e-08, 0, -8.74228e-08, -1, 0, 0, 0, 1, 0, 3, 0)
+mesh = SubResource("PlaneMesh_xtnho")
 
 [node name="Wall_North" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 1, 1)
-mesh = SubResource("PlaneMesh_lsubo")
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 1.5, 1.5)
+mesh = SubResource("PlaneMesh_5mfk0")
 
 [node name="Wall_East" type="MeshInstance3D" parent="."]
-transform = Transform3D(-4.37114e-08, 1, 4.37114e-08, 0, -4.37114e-08, 1, 1, 4.37114e-08, 1.91069e-15, -1, 1, 0)
-mesh = SubResource("PlaneMesh_lsubo")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.5, 1.5, 0)
+mesh = SubResource("PlaneMesh_nqw2s")
 
 [node name="Wall_South" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 1, -1)
-mesh = SubResource("PlaneMesh_lsubo")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, -1.5)
+mesh = SubResource("PlaneMesh_2x1cc")
 
 [node name="Wall_West" type="MeshInstance3D" parent="."]
-transform = Transform3D(-4.37114e-08, -1, -4.37114e-08, 0, -4.37114e-08, 1, -1, 4.37114e-08, 1.91069e-15, 1, 1, 0)
-mesh = SubResource("PlaneMesh_lsubo")
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 1.5, 1.5, 0)
+mesh = SubResource("PlaneMesh_5jm1y")

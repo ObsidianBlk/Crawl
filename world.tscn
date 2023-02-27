@@ -1,3 +1,31 @@
-[gd_scene format=3 uid="uid://didgemhb0iu8x"]
+[gd_scene load_steps=7 format=3 uid="uid://didgemhb0iu8x"]
 
-[node name="World" type="Node2D"]
+[ext_resource type="Script" path="res://world.gd" id="1_g38f3"]
+[ext_resource type="PackedScene" uid="uid://b4kugyrq8jxcl" path="res://scenes/crawl_map_view/CrawlMapView.tscn" id="1_hvida"]
+[ext_resource type="PackedScene" uid="uid://teo1susxy05g" path="res://objects/player/Player.tscn" id="3_fr7am"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_bcq50"]
+
+[sub_resource type="Sky" id="Sky_vhu50"]
+sky_material = SubResource("ProceduralSkyMaterial_bcq50")
+
+[sub_resource type="Environment" id="Environment_ewkx7"]
+background_mode = 2
+background_color = Color(0.733333, 0.647059, 0.564706, 1)
+sky = SubResource("Sky_vhu50")
+ambient_light_source = 3
+ambient_light_color = Color(0.521569, 0.368627, 0.0784314, 1)
+
+[node name="World" type="Node3D"]
+script = ExtResource("1_g38f3")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_ewkx7")
+
+[node name="CrawlMapView" parent="." instance=ExtResource("1_hvida")]
+
+[node name="Player" parent="." instance=ExtResource("3_fr7am")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 0)
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+visible = false
