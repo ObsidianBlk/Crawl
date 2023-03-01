@@ -29,13 +29,14 @@ var _is_ready : bool = false
 # Setters
 # ------------------------------------------------------------------------------
 func set_map(nmap : CrawlMap) -> void:
-	if nmap != map and map != null:
-		if map.cell_added.is_connected(_on_map_cell_changed):
-			map.cell_added.disconnect(_on_map_cell_changed)
-		if map.cell_changed.is_connected(_on_map_cell_changed):
-			map.cell_changed.disconnect(_on_map_cell_changed)
-		if map.cell_removed.is_connected(_on_map_cell_changed):
-			map.cell_removed.disconnect(_on_map_cell_changed)
+	if nmap != map:
+		if map != null:
+			if map.cell_added.is_connected(_on_map_cell_changed):
+				map.cell_added.disconnect(_on_map_cell_changed)
+			if map.cell_changed.is_connected(_on_map_cell_changed):
+				map.cell_changed.disconnect(_on_map_cell_changed)
+			if map.cell_removed.is_connected(_on_map_cell_changed):
+				map.cell_removed.disconnect(_on_map_cell_changed)
 		
 		map = nmap
 		

@@ -11,8 +11,17 @@ script = ExtResource("1_0duse")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 mesh = SubResource("CapsuleMesh_idpsr")
 
-[node name="Gimble" type="Node3D" parent="."]
+[node name="Facing" type="Node3D" parent="."]
 
-[node name="Camera3D" type="Camera3D" parent="Gimble"]
-transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 1.8, -2)
+[node name="Gimble_Yaw" type="Node3D" parent="Facing"]
+
+[node name="Gimble_Pitch" type="Node3D" parent="Facing/Gimble_Yaw"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.8, 0)
+
+[node name="Camera3D" type="Camera3D" parent="Facing/Gimble_Yaw/Gimble_Pitch"]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 0, -2)
 current = true
+
+[node name="SpotLight3D" type="SpotLight3D" parent="Facing/Gimble_Yaw/Gimble_Pitch"]
+transform = Transform3D(1, 0, 0, 0, -1, 8.74228e-08, 0, -8.74228e-08, -1, 0, 0, -2)
+light_color = Color(0.72549, 0.639216, 0.6, 1)

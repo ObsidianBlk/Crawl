@@ -110,21 +110,24 @@ func _CreateDefaultCell() -> Dictionary:
 		]
 	}
 
-func _CalcNeighborFrom(position : Vector3i, surface : SURFACE) -> Vector3i:
+func _CalcDirectionFromSurface(surface) -> Vector3i:
 	match surface:
 		SURFACE.North:
-			return position + Vector3i.FORWARD
+			return Vector3i(0,0,1)
 		SURFACE.East:
-			return position + Vector3i.RIGHT
+			return Vector3i(-1,0,0)
 		SURFACE.South:
-			return position + Vector3i.BACK
+			return Vector3i(0,0,-1)
 		SURFACE.West:
-			return position + Vector3i.LEFT
+			return Vector3i(1,0,0)
 		SURFACE.Ground:
-			return position + Vector3i.DOWN
+			return Vector3i(0,-1,0)
 		SURFACE.Ceiling:
-			return position + Vector3i.UP
-	return position
+			return Vector3i(0,1,0)
+	return Vector3i.ZERO
+
+func _CalcNeighborFrom(position : Vector3i, surface : SURFACE) -> Vector3i:
+	return position + _CalcDirectionFromSurface(surface)
 
 func _CalcAdjacentSurface(surface : SURFACE) -> SURFACE:
 	match surface:
@@ -264,7 +267,7 @@ func get_cell_surface_resource_id(position : Vector3i, surface : SURFACE) -> int
 func get_cell_surface_resource_ids(position : Vector3i) -> Array:
 	if position in _grid:
 		var rids : Array = []
-		for rid in _grid[position][&"rids"]:
+		for rid in _grid[position][&"rid"]:
 			rids.append(rid)
 		return rids
 	else:
@@ -275,7 +278,7 @@ func is_cell_surface_blocking(position : Vector3i, surface : SURFACE) -> bool:
 	if position in _grid:
 		var info : Dictionary = _GetCellSurface(position, surface)
 		if not info.is_empty():
-			return info[&"blocking"] & surface > 0
+			return info[&"blocking"]
 	else:
 		printerr("CrawlMap Error: No cell at position ", position)
 	return true
@@ -297,6 +300,22 @@ func get_focus_cell() -> Vector3i:
 		return _grid.keys()[0]
 	return _focus_cell
 
+func get_surface_from_direction(dir : Vector3) -> SURFACE:
+	dir = dir.normalized()
+	var deg45 : float = deg_to_rad(45.0)
+	if dir.angle_to(Vector3(0,0,1)) < deg45:
+		return SURFACE.North
+	if dir.angle_to(Vector3(-1,0,0)) < deg45:
+		return SURFACE.East
+	if dir.angle_to(Vector3(0,0,-1)) < deg45:
+		return SURFACE.South
+	if dir.angle_to(Vector3(1,0,0)) < deg45:
+		return SURFACE.West
+	if dir.angle_to(Vector3(0,1,0)) < deg45:
+		return SURFACE.Ceiling
+	return SURFACE.Ground
+	
+
 func fill_room(position : Vector3i, size : Vector3i, ground_rid : int, ceiling_rid : int, wall_rid : int) -> void:
 	# Readjusting position for possible negative size values.
 	position.x += size.x if size.x < 0 else 0
@@ -305,6 +324,8 @@ func fill_room(position : Vector3i, size : Vector3i, ground_rid : int, ceiling_r
 	
 	size = abs(size)
 	var target : Vector3i = position + size
+	
+	print("From: ", position, " | To: ", target)
 	
 	var _set_surface : Callable = func(pos : Vector3i, surf : SURFACE, blocking : bool, rid : int) -> void:
 		if not pos in _grid: return

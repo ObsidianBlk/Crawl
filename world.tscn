@@ -10,11 +10,17 @@
 sky_material = SubResource("ProceduralSkyMaterial_bcq50")
 
 [sub_resource type="Environment" id="Environment_ewkx7"]
-background_mode = 2
-background_color = Color(0.733333, 0.647059, 0.564706, 1)
+background_mode = 1
 sky = SubResource("Sky_vhu50")
 ambient_light_source = 3
-ambient_light_color = Color(0.521569, 0.368627, 0.0784314, 1)
+ambient_light_color = Color(0.72549, 0.639216, 0.6, 1)
+ambient_light_sky_contribution = 0.0
+ambient_light_energy = 0.2
+tonemap_mode = 3
+fog_enabled = true
+fog_light_color = Color(0.72549, 0.639216, 0.6, 1)
+volumetric_fog_enabled = true
+volumetric_fog_albedo = Color(0.72549, 0.639216, 0.6, 1)
 
 [node name="World" type="Node3D"]
 script = ExtResource("1_g38f3")

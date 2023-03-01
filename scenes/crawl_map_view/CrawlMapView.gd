@@ -112,6 +112,7 @@ func _UpdateCells(origin : Vector3i) -> void:
 					cell.map = map
 					cell.map_position = pos
 					add_child(cell)
+					#print("Position : ", pos * CELL_SIZE)
 					cell.position = pos * CELL_SIZE
 
 # ------------------------------------------------------------------------------
