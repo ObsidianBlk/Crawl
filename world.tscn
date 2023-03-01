@@ -4,29 +4,33 @@
 [ext_resource type="PackedScene" uid="uid://b4kugyrq8jxcl" path="res://scenes/crawl_map_view/CrawlMapView.tscn" id="1_hvida"]
 [ext_resource type="PackedScene" uid="uid://teo1susxy05g" path="res://objects/player/Player.tscn" id="3_fr7am"]
 
-[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_bcq50"]
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_ppa24"]
+sky_top_color = Color(0.72549, 0.639216, 0.6, 1)
+sky_horizon_color = Color(0.647059, 0.654902, 0.670588, 1)
 
-[sub_resource type="Sky" id="Sky_vhu50"]
-sky_material = SubResource("ProceduralSkyMaterial_bcq50")
+[sub_resource type="Sky" id="Sky_twb7l"]
+sky_material = SubResource("ProceduralSkyMaterial_ppa24")
 
-[sub_resource type="Environment" id="Environment_ewkx7"]
-background_mode = 1
-sky = SubResource("Sky_vhu50")
+[sub_resource type="Environment" id="Environment_07ts1"]
+background_mode = 2
+sky = SubResource("Sky_twb7l")
 ambient_light_source = 3
 ambient_light_color = Color(0.72549, 0.639216, 0.6, 1)
-ambient_light_sky_contribution = 0.0
+ambient_light_sky_contribution = 0.2
 ambient_light_energy = 0.2
 tonemap_mode = 3
+ssao_enabled = true
+ssil_enabled = true
+glow_enabled = true
 fog_enabled = true
 fog_light_color = Color(0.72549, 0.639216, 0.6, 1)
 volumetric_fog_enabled = true
+volumetric_fog_density = 0.2
 volumetric_fog_albedo = Color(0.72549, 0.639216, 0.6, 1)
+volumetric_fog_temporal_reprojection_enabled = false
 
 [node name="World" type="Node3D"]
 script = ExtResource("1_g38f3")
-
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
-environment = SubResource("Environment_ewkx7")
 
 [node name="CrawlMapView" parent="." instance=ExtResource("1_hvida")]
 
@@ -35,3 +39,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 0)
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 visible = false
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_07ts1")
