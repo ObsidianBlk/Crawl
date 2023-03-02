@@ -24,7 +24,8 @@ const RESOURCE_WALL_DEFAULT : int = 0
 
 const CELL_SCHEMA : Dictionary = {
 	&"blocking":{&"req":true, &"type":TYPE_INT, &"min":0, &"max":0x3F},
-	&"rid":{&"req":true, &"type":TYPE_ARRAY, &"item":{&"type":TYPE_INT, &"min":0}}
+	&"rid":{&"req":true, &"type":TYPE_ARRAY, &"item":{&"type":TYPE_INT, &"min":0}},
+	&"visited":{&"req":true, &"type":TYPE_BOOL}
 }
 
 const GRID_SCHEMA : Dictionary = {
@@ -35,13 +36,14 @@ const GRID_SCHEMA : Dictionary = {
 # ------------------------------------------------------------------------------
 # "Export" Variables
 # ------------------------------------------------------------------------------
+var _resources : Dictionary = {}
 var _grid : Dictionary = {}
 var _start_cell : Vector3i = Vector3i.ZERO
-
 
 # ------------------------------------------------------------------------------
 # Variables
 # ------------------------------------------------------------------------------
+var _next_rid : int = 1
 var _focus_cell : Vector3i = Vector3i.ZERO
 
 # ------------------------------------------------------------------------------
@@ -100,6 +102,7 @@ func _get_property_list() -> Array:
 func _CreateDefaultCell() -> Dictionary:
 	return {
 		&"blocking": 0x3F,
+		&"visited":false,
 		&"rid": [
 			RESOURCE_WALL_DEFAULT,
 			RESOURCE_WALL_DEFAULT,
@@ -148,6 +151,7 @@ func _CalcAdjacentSurface(surface : SURFACE) -> SURFACE:
 
 func _CloneCell(cell : Dictionary, ncell : Dictionary = {}) -> Dictionary:
 	ncell[&"blocking"] = cell[&"blocking"]
+	ncell[&"visited"] = cell[&"visited"]
 	ncell[&"rid"] = []
 	for rid in cell[&"rid"]:
 		ncell[&"rid"] = rid
@@ -197,6 +201,37 @@ func clone() -> CrawlMap:
 	cm.grid = _CloneGrid()
 	return cm
 
+func add_resource(resource : StringName) -> int:
+	if resource in _resources:
+		return ERR_ALREADY_IN_USE
+	_resources[resource] = _next_rid
+	_next_rid += 1
+	return OK
+
+func has_resource(resource : StringName) -> bool:
+	return resource in _resources
+
+func get_resources() -> Array:
+	return _resources.keys()
+
+func clear_unused_resources() -> void:
+	var nr : Dictionary = {}
+	var highest_rid : int = 0
+	for cell in _grid.keys():
+		for rid in _grid[cell][&"rid"]:
+			if rid < 0:
+				continue
+			var key = _resources.find_key(rid)
+			if key == null:
+				continue
+			if key in nr:
+				continue
+			nr[key] = _resources[key]
+			if rid > highest_rid:
+				highest_rid = rid + 1
+	_resources = nr
+	_next_rid = highest_rid
+
 func add_cell(position : Vector3i) -> int:
 	if position in _grid:
 		return ERR_ALREADY_EXISTS
@@ -242,12 +277,27 @@ func set_cell_surface_blocking(position : Vector3i, surface : SURFACE, blocking 
 		var surf : SURFACE = _CalcAdjacentSurface(surface)
 		set_cell_surface_blocking(pos, surf, blocking, false)
 
-func set_cell_surface_resource_id(position : Vector3i, surface : SURFACE, resource_id) -> void:
+func set_cell_surface_resource_id(position : Vector3i, surface : SURFACE, resource_id : int) -> void:
 	if not position in _grid:
 		printerr("CrawlMap Error: No cell at position ", position)
 		return
 	
-	_SetCellSurface(position, surface, {&"resource_id":resource_id if resource_id >= 0 else -1})
+	if resource_id < 0 or _resources.find_key(resource_id) != null:
+		_SetCellSurface(position, surface, {&"resource_id":resource_id if resource_id >= 0 else -1})
+
+func set_cell_surface_resource(position : Vector3i, surface : SURFACE, resource : StringName) -> void:
+	if not position in _grid:
+		printerr("CrawlMap Error: No cell at position ", position)
+		return
+	
+	var rid : int = -1
+	if resource in _resources:
+		rid = _resources[resource]
+	else:
+		rid = _next_rid
+		_resources[resource] = rid
+		_next_rid += 1
+	_SetCellSurface(position, surface, {&"resource_id":rid})
 
 func get_cell(position : Vector3i, surface : SURFACE) -> Dictionary:
 	if not position in _grid:
@@ -264,12 +314,35 @@ func get_cell_surface_resource_id(position : Vector3i, surface : SURFACE) -> int
 		printerr("CrawlMap Error: No cell at position ", position)
 	return -1
 
+func get_cell_surface_resource(position : Vector3i, surface : SURFACE) -> StringName:
+	if position in _grid:
+		var info : Dictionary = _GetCellSurface(position, surface)
+		if not info.is_empty():
+			var key = _resources.find_key(info[&"resource_id"])
+			if key != null:
+				return key
+	else:
+		printerr("CrawlMap Error: No cell at position ", position)
+	return &""
+
 func get_cell_surface_resource_ids(position : Vector3i) -> Array:
 	if position in _grid:
 		var rids : Array = []
 		for rid in _grid[position][&"rid"]:
 			rids.append(rid)
 		return rids
+	else:
+		printerr("CrawlMap Error: No cell at position ", position)
+	return []
+
+func get_cell_surface_resources(position : Vector3i) -> Array:
+	if position in _grid:
+		var resources : Array = []
+		for rid in _grid[position][&"rid"]:
+			var key = _resources.find_key(rid)
+			if key != null:
+				resources.append(key)
+		return resources
 	else:
 		printerr("CrawlMap Error: No cell at position ", position)
 	return []
@@ -282,6 +355,24 @@ func is_cell_surface_blocking(position : Vector3i, surface : SURFACE) -> bool:
 	else:
 		printerr("CrawlMap Error: No cell at position ", position)
 	return true
+
+func get_used_cells(visited_only : bool = false) -> Array:
+	var list : Array = _grid.keys()
+	if visited_only:
+		list = list.filter(func(pos : Vector3i): return _grid[pos][&"visited"])
+	return list
+
+func get_used_cells_from(position : Vector3i, visited_only : bool = false, limit_to_layer : bool = false, cell_range : int = 0) -> Array:
+	var cells : Array = []
+	for cell in _grid.keys():
+		if limit_to_layer and cell.y != position.y:
+			continue
+		if cell_range > 0 and Vector3(position).distance_to(Vector3(cell)) > float(cell_range):
+			continue
+		if visited_only and not _grid[cell][&"visited"]:
+			continue
+		cells.append(cell)
+	return cells
 
 func set_focus_cell(focus : Vector3i) -> void:
 	var old_focus : Vector3i = _focus_cell
@@ -324,8 +415,6 @@ func fill_room(position : Vector3i, size : Vector3i, ground_rid : int, ceiling_r
 	
 	size = abs(size)
 	var target : Vector3i = position + size
-	
-	print("From: ", position, " | To: ", target)
 	
 	var _set_surface : Callable = func(pos : Vector3i, surf : SURFACE, blocking : bool, rid : int) -> void:
 		if not pos in _grid: return
