@@ -16,12 +16,18 @@ const MAX_MOVE_QUEUE_SIZE : int = 4
 # Export Variables
 # ------------------------------------------------------------------------------
 @export var map : CrawlMap = null
+@export_range(0.0, 180.0) var max_yaw : float = 60.0
+@export_range(0.0, 180.0) var rest_yaw : float = 30.0
+@export_range(0.0, 180.0) var max_pitch : float = 60.0
+@export_range(0.0, 180.0) var rest_pitch : float = 30.0
 
 
 # ------------------------------------------------------------------------------
 # Variables
 # ------------------------------------------------------------------------------
 var _map_position : Vector3i = Vector3i.ZERO
+
+var _freelook_enabled : bool = false
 
 var _move_queue : Array = []
 var _tween : Tween = null
@@ -41,7 +47,25 @@ func _ready() -> void:
 	if ref != null:
 		ref.queue_free() # This only exists to be able to see the player in the editor.
 
+func _process(delta : float) -> void:
+	_SettleLookAngle(delta)
+
 func _unhandled_input(event : InputEvent) -> void:
+	if _freelook_enabled:
+		if is_instance_of(event, InputEventMouseMotion):
+			var ppd : float = 200.0 # TODO: Make this a const or an export.
+			_gimble_yaw_node.rotation_degrees.y = clamp(
+				_gimble_yaw_node.rotation_degrees.y + (-event.velocity.x / ppd),
+				-max_yaw, max_yaw
+			)
+			_gimble_pitch_node.rotation_degrees.x = clamp(
+				_gimble_pitch_node.rotation_degrees.x + (event.velocity.y / ppd),
+				-max_pitch, max_pitch
+			)
+	
+	if event.is_action("free_look"):
+		_freelook_enabled = event.is_pressed()
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED if _freelook_enabled else Input.MOUSE_MODE_VISIBLE
 	if event.is_action_pressed("move_foreward"):
 		_MoveHorz(Vector3(0,0,1))
 	if event.is_action_pressed("move_backward"):
@@ -59,6 +83,23 @@ func _unhandled_input(event : InputEvent) -> void:
 # ------------------------------------------------------------------------------
 # Private Methods
 # ------------------------------------------------------------------------------
+func _LerpLookAngle(deg : float, rest_deg : float, _delta : float) -> float:
+	var target : float = rest_deg if _freelook_enabled else 0.0
+	if abs(deg) > target:
+		var sn : float = sign(deg)
+		deg = lerp(deg, sn * target, 0.5)
+		if abs(deg) <= target + 0.01:
+			return sn * target
+	return deg
+
+func _SettleLookAngle(delta : float) -> void:
+	_gimble_yaw_node.rotation_degrees.y = _LerpLookAngle(
+		_gimble_yaw_node.rotation_degrees.y, rest_yaw, delta
+	)
+	_gimble_pitch_node.rotation_degrees.x = _LerpLookAngle(
+		_gimble_pitch_node.rotation_degrees.x, rest_pitch, delta
+	)
+
 func _AddToMoveQueue(callback : Callable) -> void:
 	if _move_queue.size() < MAX_MOVE_QUEUE_SIZE:
 		_move_queue.append(callback)
@@ -109,7 +150,6 @@ func _on_movement_tween_finished() -> void:
 	# rotation of the direction in the _MoveHorz() method or if it
 	# occures during the tween of the _facing_node.rotation.y value.
 	position = floor(position + Vector3(0.5, 0.5, 0.5))
-	print("Position: ", position / CELL_SIZE)
 	
 	if _move_queue.size() > 0:
 		var move : Callable = _move_queue.pop_front()
