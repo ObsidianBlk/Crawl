@@ -18,8 +18,8 @@ const MAX_MOVE_QUEUE_SIZE : int = 4
 @export var map : CrawlMap = null
 @export_range(0.0, 180.0) var max_yaw : float = 60.0
 @export_range(0.0, 180.0) var rest_yaw : float = 30.0
-@export_range(0.0, 180.0) var max_pitch : float = 60.0
-@export_range(0.0, 180.0) var rest_pitch : float = 30.0
+@export_range(0.0, 180.0) var max_pitch : float = 30.0
+@export_range(0.0, 180.0) var rest_pitch : float = 15.0
 
 
 # ------------------------------------------------------------------------------
@@ -53,7 +53,7 @@ func _process(delta : float) -> void:
 func _unhandled_input(event : InputEvent) -> void:
 	if _freelook_enabled:
 		if is_instance_of(event, InputEventMouseMotion):
-			var ppd : float = 200.0 # TODO: Make this a const or an export.
+			var ppd : float = 400.0 # TODO: Make this a const or an export.
 			_gimble_yaw_node.rotation_degrees.y = clamp(
 				_gimble_yaw_node.rotation_degrees.y + (-event.velocity.x / ppd),
 				-max_yaw, max_yaw
@@ -87,7 +87,7 @@ func _LerpLookAngle(deg : float, rest_deg : float, _delta : float) -> float:
 	var target : float = rest_deg if _freelook_enabled else 0.0
 	if abs(deg) > target:
 		var sn : float = sign(deg)
-		deg = lerp(deg, sn * target, 0.5)
+		deg = lerp(deg, sn * target, 0.25)
 		if abs(deg) <= target + 0.01:
 			return sn * target
 	return deg
