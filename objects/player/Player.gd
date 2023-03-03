@@ -1,6 +1,12 @@
 extends Node3D
 
 
+
+# ------------------------------------------------------------------------------
+# Signals
+# ------------------------------------------------------------------------------
+signal map_position_changed(map_position)
+
 # ------------------------------------------------------------------------------
 # Constants
 # ------------------------------------------------------------------------------
@@ -150,6 +156,8 @@ func _on_movement_tween_finished() -> void:
 	# rotation of the direction in the _MoveHorz() method or if it
 	# occures during the tween of the _facing_node.rotation.y value.
 	position = floor(position + Vector3(0.5, 0.5, 0.5))
+	map_position_changed.emit(Vector3i(position / CELL_SIZE))
+	print(position / CELL_SIZE)
 	
 	if _move_queue.size() > 0:
 		var move : Callable = _move_queue.pop_front()

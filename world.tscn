@@ -1,8 +1,9 @@
-[gd_scene load_steps=7 format=3 uid="uid://didgemhb0iu8x"]
+[gd_scene load_steps=8 format=3 uid="uid://didgemhb0iu8x"]
 
 [ext_resource type="Script" path="res://world.gd" id="1_g38f3"]
 [ext_resource type="PackedScene" uid="uid://b4kugyrq8jxcl" path="res://scenes/crawl_map_view/CrawlMapView.tscn" id="1_hvida"]
 [ext_resource type="PackedScene" uid="uid://teo1susxy05g" path="res://objects/player/Player.tscn" id="3_fr7am"]
+[ext_resource type="Script" path="res://scripts/nodes/CrawlMiniMap.gd" id="4_so4om"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_ppa24"]
 sky_top_color = Color(0.72549, 0.639216, 0.6, 1)
@@ -38,7 +39,17 @@ script = ExtResource("1_g38f3")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 0)
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
-visible = false
+
+[node name="CrawlMiniMap" type="Control" parent="CanvasLayer"]
+custom_minimum_size = Vector2(304, 144)
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("4_so4om")
+selection_color = null
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_07ts1")
+
+[connection signal="map_position_changed" from="Player" to="CanvasLayer/CrawlMiniMap" method="set_origin"]
