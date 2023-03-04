@@ -109,14 +109,15 @@ func _draw() -> void:
 	
 	for cy in range(-(cell_range.y + 1), cell_range.y):
 		for cx in range(-(cell_range.x + 1), cell_range.x):
-			var screen_position : Vector2 = Vector2(ox - (cx * cell_size), oy - (cy * cell_size))
-			if _sel_enabled and _sel_visible and selection_region.has_point(Vector2i(cx, cy)):
-				draw_rect(Rect2(screen_position, Vector2(cell_size, cell_size)), selection_color)
+			if _sel_enabled and _sel_visible and selection_region.has_point(Vector2i(origin.x, origin.z) + Vector2i(cx, cy)):
+				var screen_position : Vector2 = Vector2(ox - (cx * cell_size), oy - (cy * cell_size))
+				if canvas_region.encloses(Rect2(screen_position, Vector2(cell_size, cell_size))):
+					draw_rect(Rect2(screen_position, Vector2(cell_size, cell_size)), selection_color)
 				continue
 			
 			var map_position : Vector3i = origin + Vector3i(cx, 0, cy)
 			if map.has_cell(map_position):
-				#var screen_position : Vector2 = Vector2(ox - (cx * cell_size), oy - (cy * cell_size))
+				var screen_position : Vector2 = Vector2(ox - (cx * cell_size), oy - (cy * cell_size))
 				if canvas_region.encloses(Rect2(screen_position, Vector2(cell_size, cell_size))):
 					_DrawCell(map_position, screen_position)
 	

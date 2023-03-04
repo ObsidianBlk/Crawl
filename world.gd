@@ -20,4 +20,4 @@ func _ready() -> void:
 	cmm.origin = Vector3i(0,1,0)
 	player.map = cm
 	
-	cmm.start_selection(Vector3i(-3,1,-3))
+	#cmm.start_selection(Vector3i(-3,1,-3))
