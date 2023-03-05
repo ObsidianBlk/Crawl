@@ -30,7 +30,13 @@ var _cell_update_requested : bool = false
 # ------------------------------------------------------------------------------
 func set_map(cmap : CrawlMap) -> void:
 	if cmap != map:
+		if map != null:
+			if map.focus_changed.is_connected(_UpdateCells):
+				map.focus_changed.disconnect(_UpdateCells)
 		map = cmap
+		if map != null:
+			if not map.focus_changed.is_connected(_UpdateCells):
+				map.focus_changed.connect(_UpdateCells)
 		_map_changed = true
 		_cell_update_requested = true
 
@@ -69,18 +75,18 @@ func _UpdateCells(origin : Vector3i) -> void:
 		return true
 	
 	var _store_min_max : Callable = func(position : Vector3i) -> void:
-		if min_pos[0] == NAN or min_pos[0] > position.x:
+		if is_nan(min_pos[0]) or min_pos[0] > position.x:
 			min_pos[0] = position.x
-		if min_pos[1] == NAN or min_pos[1] > position.y:
+		if is_nan(min_pos[1]) or min_pos[1] > position.y:
 			min_pos[1] = position.y
-		if min_pos[2] == NAN or min_pos[2] > position.z:
+		if is_nan(min_pos[2]) or min_pos[2] > position.z:
 			min_pos[2] = position.z
 		
-		if max_pos[0] == NAN or max_pos[0] < position.x:
+		if is_nan(max_pos[0]) or max_pos[0] < position.x:
 			max_pos[0] = position.x
-		if max_pos[1] == NAN or max_pos[1] < position.y:
+		if is_nan(max_pos[1]) or max_pos[1] < position.y:
 			max_pos[1] = position.y
-		if max_pos[2] == NAN or max_pos[2] < position.z:
+		if is_nan(max_pos[2]) or max_pos[2] < position.z:
 			max_pos[2] = position.z
 	
 	var _position_handled : Callable = func(position : Vector3i) -> bool:
@@ -96,11 +102,12 @@ func _UpdateCells(origin : Vector3i) -> void:
 	# Actual work!
 	for child in cell_container.get_children():
 		if not is_instance_of(child, CrawlCell): continue
-		_store_min_max.call(child.map_position)
 		if not _position_in_bounds.call(child.map_position):
 			child.queue_free()
+			continue
 		elif _map_changed:
 			child.map = map
+		_store_min_max.call(child.map_position)
 	_map_changed = false
 
 	for x in range(origin.x - unit_radius, (origin.x + unit_radius) + 1):
@@ -111,7 +118,7 @@ func _UpdateCells(origin : Vector3i) -> void:
 					var cell : CrawlCell = CRAWLCELL.instantiate()
 					cell.map = map
 					cell.map_position = pos
-					add_child(cell)
+					cell_container.add_child(cell)
 					#print("Position : ", pos * CELL_SIZE)
 					cell.position = pos * CELL_SIZE
 

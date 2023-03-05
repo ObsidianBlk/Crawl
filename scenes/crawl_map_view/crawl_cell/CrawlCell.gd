@@ -77,6 +77,12 @@ func _ClearCell() -> void:
 	mesh_wall_east.visible = false
 	mesh_wall_west.visible = false
 
+func _SetMeshMaterial(mesh : MeshInstance3D, surface : CrawlMap.SURFACE) -> void:
+	if not mesh.visible: return
+	var mat : Material = RLT.load(map.get_cell_surface_resource(map_position, surface))
+	if mat != null:
+		mesh.mesh.material = mat
+
 func _BuildCell() -> void:
 	if map == null or not map.has_cell(map_position):
 		_ClearCell()
@@ -84,11 +90,22 @@ func _BuildCell() -> void:
 	
 	var rids : Array = map.get_cell_surface_resource_ids(map_position)
 	mesh_ground.visible = rids[CrawlMap.SURFACE_INDEX.Ground] >= 0
+	_SetMeshMaterial(mesh_ground, CrawlMap.SURFACE.Ground)
+	
 	mesh_ceiling.visible = rids[CrawlMap.SURFACE_INDEX.Ceiling] >= 0
+	_SetMeshMaterial(mesh_ceiling, CrawlMap.SURFACE.Ceiling)
+	
 	mesh_wall_north.visible = rids[CrawlMap.SURFACE_INDEX.North] >= 0
+	_SetMeshMaterial(mesh_wall_north, CrawlMap.SURFACE.North)
+	
 	mesh_wall_south.visible = rids[CrawlMap.SURFACE_INDEX.South] >= 0
+	_SetMeshMaterial(mesh_wall_south, CrawlMap.SURFACE.South)
+	
 	mesh_wall_east.visible = rids[CrawlMap.SURFACE_INDEX.East] >= 0
+	_SetMeshMaterial(mesh_wall_east, CrawlMap.SURFACE.East)
+	
 	mesh_wall_west.visible = rids[CrawlMap.SURFACE_INDEX.West] >= 0
+	_SetMeshMaterial(mesh_wall_west, CrawlMap.SURFACE.West)
 	
 
 # ------------------------------------------------------------------------------

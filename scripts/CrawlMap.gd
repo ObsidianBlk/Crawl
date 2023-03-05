@@ -33,6 +33,10 @@ const GRID_SCHEMA : Dictionary = {
 	&"!KEY_OF_TYPE_V3I":{&"type":TYPE_VECTOR3I, &"def":CELL_SCHEMA}
 }
 
+const RESOURCES_SCHEMA : Dictionary = {
+	&"!KEY_OF_TYPE_sn":{&"type":TYPE_STRING_NAME, &"def":{&"type":TYPE_INT, &"min":-1}}
+}
+
 
 # ------------------------------------------------------------------------------
 # "Export" Variables
@@ -44,7 +48,7 @@ var _start_cell : Vector3i = Vector3i.ZERO
 # ------------------------------------------------------------------------------
 # Variables
 # ------------------------------------------------------------------------------
-var _next_rid : int = 1
+var _next_rid : int = 0
 var _focus_cell : Vector3i = Vector3i.ZERO
 
 # ------------------------------------------------------------------------------
@@ -54,6 +58,8 @@ func _get(property : StringName) -> Variant:
 	match property:
 		&"grid":
 			return _grid
+		&"resources":
+			return _resources
 		&"start_cell":
 			return _start_cell
 	return null
@@ -65,6 +71,15 @@ func _set(property : StringName, value : Variant) -> bool:
 			if typeof(value) == TYPE_DICTIONARY:
 				if DSV.verify(value, GRID_SCHEMA) == OK:
 					_grid = value
+					success = true
+		&"resources":
+			if typeof(value) == TYPE_DICTIONARY:
+				if DSV.verify(value, RESOURCES_SCHEMA) == OK:
+					_resources = value
+					_next_rid = 0
+					for key in _resources.keys():
+						if _resources[key] > _next_rid:
+							_next_rid = _resources[key] + 1
 					success = true
 		&"start_cell":
 			if typeof(value) == TYPE_VECTOR3I:
@@ -84,6 +99,11 @@ func _get_property_list() -> Array:
 		},
 		{
 			name = "grid",
+			type = TYPE_DICTIONARY,
+			usage = PROPERTY_USAGE_STORAGE
+		},
+		{
+			name = "resources",
 			type = TYPE_DICTIONARY,
 			usage = PROPERTY_USAGE_STORAGE
 		},
@@ -169,7 +189,7 @@ func _CalcBlocking(block_val : int, surface : SURFACE, block : bool) -> int:
 		return (block_val | surface) & 0x3F
 	return (block_val & (~surface)) & 0x3F
 
-func _SetCellSurface(position : Vector3i, surface : SURFACE, data : Dictionary) -> void:
+func _SetCellSurface(position : Vector3i, surface : SURFACE, data : Dictionary, bi_directional : bool) -> void:
 	var changed : bool = false
 	if &"blocking" in data:
 		_grid[position][&"blocking"] = _CalcBlocking(_grid[position][&"blocking"], surface, data[&"blocking"])
@@ -182,6 +202,11 @@ func _SetCellSurface(position : Vector3i, surface : SURFACE, data : Dictionary) 
 	
 	if changed:
 		cell_changed.emit(position)
+	
+	if bi_directional:
+		var pos : Vector3i = _CalcNeighborFrom(position, surface)
+		var surf : SURFACE = _CalcAdjacentSurface(surface)
+		_SetCellSurface(pos, surf, data, false)
 
 
 func _GetCellSurface(position : Vector3i, surface : SURFACE) -> Dictionary:
@@ -211,6 +236,15 @@ func add_resource(resource : StringName) -> int:
 
 func has_resource(resource : StringName) -> bool:
 	return resource in _resources
+
+func get_resource_id(resource : StringName) -> int:
+	if resource in _resources:
+		return _resources[resource]
+	return -1
+
+func get_resource_name_from_id(resource_id) -> StringName:
+	var key = _resources.find_key(resource_id)
+	return key if key != null else &""
 
 func get_resources() -> Array:
 	return _resources.keys()
@@ -262,43 +296,56 @@ func remove_cell(position : Vector3i) -> void:
 	_grid.erase(position)
 	cell_removed.emit(position)
 
-func set_cell_surface(position : Vector3i, surface : SURFACE, blocking : bool, resource_id : int) -> void:
+func set_cell_surface(position : Vector3i, surface : SURFACE, blocking : bool, resource_id : Variant, bi_directional : bool = false) -> void:
 	if not position in _grid:
 		printerr("CrawlMap Error: No cell at position ", position)
 		return
-	_SetCellSurface(position, surface, {&"blocking":blocking, &"resource_id":resource_id if resource_id >= 0 else -1})
+	
+	var data : Dictionary = {
+		&"blocking": blocking
+	}
+	if typeof(resource_id) == TYPE_INT:
+		if resource_id < 0 or _resources.find_key(resource_id) != null:
+			data[&"resource_id"] = resource_id
+	elif typeof(resource_id) == TYPE_STRING_NAME or typeof(resource_id) == TYPE_STRING:
+		if resource_id in _resources:
+			data[&"resource_id"] = _resources[resource_id]
+		else:
+			var rid : int = _next_rid
+			_resources[StringName(resource_id)] = rid
+			_next_rid += 1
+			data[&"resource_id"] = rid
+	
+	_SetCellSurface(position, surface, data, bi_directional)
 
 func set_cell_surface_blocking(position : Vector3i, surface : SURFACE, blocking : bool, bi_directional : bool = false) -> void:
 	if not position in _grid:
 		printerr("CrawlMap Error: No cell at position ", position)
 		return
-	_SetCellSurface(position, surface, {&"blocking":blocking})
-	if bi_directional:
-		var pos : Vector3i = _CalcNeighborFrom(position, surface)
-		var surf : SURFACE = _CalcAdjacentSurface(surface)
-		set_cell_surface_blocking(pos, surf, blocking, false)
+	_SetCellSurface(position, surface, {&"blocking":blocking}, bi_directional)
 
-func set_cell_surface_resource_id(position : Vector3i, surface : SURFACE, resource_id : int) -> void:
+
+func set_cell_surface_resource(position : Vector3i, surface : SURFACE, resource_id : Variant, bi_directional : bool = false) -> void:
 	if not position in _grid:
 		printerr("CrawlMap Error: No cell at position ", position)
 		return
-	
-	if resource_id < 0 or _resources.find_key(resource_id) != null:
-		_SetCellSurface(position, surface, {&"resource_id":resource_id if resource_id >= 0 else -1})
 
-func set_cell_surface_resource(position : Vector3i, surface : SURFACE, resource : StringName) -> void:
-	if not position in _grid:
-		printerr("CrawlMap Error: No cell at position ", position)
-		return
+	var data : Dictionary = {}
+	if typeof(resource_id) == TYPE_INT:
+		if resource_id < 0 or _resources.find_key(resource_id) != null:
+			data[&"resource_id"] = resource_id
+	elif typeof(resource_id) == TYPE_STRING_NAME or typeof(resource_id) == TYPE_STRING:
+		if resource_id in _resources:
+			data[&"resource_id"] = _resources[resource_id]
+		else:
+			var rid : int = _next_rid
+			_resources[StringName(resource_id)] = rid
+			_next_rid += 1
+			data[&"resource_id"] = rid
 	
-	var rid : int = -1
-	if resource in _resources:
-		rid = _resources[resource]
-	else:
-		rid = _next_rid
-		_resources[resource] = rid
-		_next_rid += 1
-	_SetCellSurface(position, surface, {&"resource_id":rid})
+	if not data.is_empty():
+		_SetCellSurface(position, surface, data, bi_directional)
+
 
 func get_cell(position : Vector3i, surface : SURFACE) -> Dictionary:
 	if not position in _grid:
@@ -406,9 +453,16 @@ func get_surface_from_direction(dir : Vector3) -> SURFACE:
 	if dir.angle_to(Vector3(0,1,0)) < deg45:
 		return SURFACE.Ceiling
 	return SURFACE.Ground
-	
 
-func fill_room(position : Vector3i, size : Vector3i, ground_rid : int, ceiling_rid : int, wall_rid : int) -> void:
+func dig(position : Vector3i, direction : SURFACE) -> void:
+	if not position in _grid:
+		add_cell(position)
+	var neighbor_position : Vector3i = _CalcNeighborFrom(position, direction)
+	if not neighbor_position in _grid:
+		add_cell(neighbor_position)
+	set_cell_surface(position, direction, false, -1, true)
+
+func dig_room(position : Vector3i, size : Vector3i, ground_rid : int, ceiling_rid : int, wall_rid : int) -> void:
 	# Readjusting position for possible negative size values.
 	position.x += size.x if size.x < 0 else 0
 	position.y += size.y if size.y < 0 else 0

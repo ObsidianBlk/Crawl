@@ -22,6 +22,7 @@ const MAX_MOVE_QUEUE_SIZE : int = 4
 # Export Variables
 # ------------------------------------------------------------------------------
 @export var map : CrawlMap = null
+@export var digging_enabled : bool = false
 @export_range(0.0, 180.0) var max_yaw : float = 60.0
 @export_range(0.0, 180.0) var rest_yaw : float = 30.0
 @export_range(0.0, 180.0) var max_pitch : float = 30.0
@@ -68,6 +69,21 @@ func _unhandled_input(event : InputEvent) -> void:
 				_gimble_pitch_node.rotation_degrees.x + (event.velocity.y / ppd),
 				-max_pitch, max_pitch
 			)
+		else:
+			if event.is_action("freelook_up") or event.is_action("freelook_down"):
+				var strength : float = event.get_action_strength("freelook_up") - event.get_action_strength("freelook_down")
+				_gimble_pitch_node.rotation_degrees.x = strength * rest_pitch
+#				_gimble_pitch_node.rotation_degrees.x = clamp(
+#					_gimble_pitch_node.rotation_degrees.x + (strength * 10.0),
+#					-max_pitch, max_pitch
+#				)
+			elif event.is_action("freelook_left") or event.is_action("freelook_right"):
+				var strength : float = event.get_action_strength("freelook_left") - event.get_action_strength("freelook_right")
+				_gimble_yaw_node.rotation_degrees.y = strength * rest_yaw
+#				_gimble_yaw_node.rotation_degrees.y = clamp(
+#					_gimble_yaw_node.rotation_degrees.y + (strength * 10.0),
+#					-max_yaw, max_yaw
+#				)
 	
 	if event.is_action("free_look"):
 		_freelook_enabled = event.is_pressed()
@@ -84,6 +100,8 @@ func _unhandled_input(event : InputEvent) -> void:
 		_Turn(COUNTERCLOCKWISE)
 	if event.is_action_pressed("turn_right"):
 		_Turn(CLOCKWISE)
+	if event.is_action_pressed("dig") and digging_enabled:
+		_Dig(Vector3(0,0,1))
 
 
 # ------------------------------------------------------------------------------
@@ -130,6 +148,11 @@ func _MoveHorz(dir : Vector3) -> void:
 	_tween.tween_property(self, "position", position + target, 0.4)
 	_tween.finished.connect(_on_movement_tween_finished)
 
+func _Dig(dir : Vector3) -> void:
+	dir = dir.rotated(Vector3.UP, _facing_node.rotation.y)
+	var surf : CrawlMap.SURFACE = map.get_surface_from_direction(dir)
+	map.dig(Vector3i(position / CELL_SIZE), surf)
+
 func _Turn(dir : float) -> void:
 	if _tween != null:
 		_AddToMoveQueue(_Turn.bind(dir))
@@ -157,7 +180,9 @@ func _on_movement_tween_finished() -> void:
 	# occures during the tween of the _facing_node.rotation.y value.
 	position = floor(position + Vector3(0.5, 0.5, 0.5))
 	map_position_changed.emit(Vector3i(position / CELL_SIZE))
-	print(position / CELL_SIZE)
+	if map != null:
+		map.set_focus_cell(Vector3i(position / CELL_SIZE))
+	#print(position / CELL_SIZE)
 	
 	if _move_queue.size() > 0:
 		var move : Callable = _move_queue.pop_front()

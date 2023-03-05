@@ -1,0 +1,27 @@
+[gd_scene load_steps=3 format=3 uid="uid://o8kshn4skpm3"]
+
+[ext_resource type="Script" path="res://objects/surface_viewer/SurfaceViewer.gd" id="1_6vrf6"]
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_1e3w8"]
+resource_local_to_scene = true
+orientation = 2
+
+[node name="SurfaceViewer" type="SubViewportContainer"]
+stretch = true
+script = ExtResource("1_6vrf6")
+
+[node name="SubViewport" type="SubViewport" parent="."]
+transparent_bg = true
+handle_input_locally = false
+size = Vector2i(2, 2)
+render_target_update_mode = 4
+
+[node name="Surface" type="MeshInstance3D" parent="SubViewport"]
+mesh = SubResource("PlaneMesh_1e3w8")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="SubViewport"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2.39942)
+
+[node name="Camera3D" type="Camera3D" parent="SubViewport"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1.32964)
+current = true

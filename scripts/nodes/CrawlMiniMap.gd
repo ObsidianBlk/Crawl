@@ -4,6 +4,11 @@ class_name CrawlMiniMap
 
 
 # ------------------------------------------------------------------------------
+# Signals
+# ------------------------------------------------------------------------------
+signal cell_pressed(cell_position)
+
+# ------------------------------------------------------------------------------
 # Constants
 # ------------------------------------------------------------------------------
 const SELECTION_BLINK_INTERVAL : float = 0.08
@@ -24,9 +29,13 @@ const SELECTION_BLINK_INTERVAL : float = 0.08
 # ------------------------------------------------------------------------------
 # Variables
 # ------------------------------------------------------------------------------
+var _mouse_entered : bool = false
+var _last_mouse_position : Vector2 = Vector2.ZERO
+
 var _sel_start : Vector3i = Vector3i.ZERO
 var _sel_enabled : bool = false
 var _sel_visible : bool = false
+
 
 # ------------------------------------------------------------------------------
 # Setters
@@ -83,7 +92,6 @@ func _draw() -> void:
 		Vector2i(_sel_start.x, _sel_start.z), 
 		Vector2i(origin.x, origin.z)
 	)
-	print("Sel Region: ", selection_region)
 	
 	if background_texture != null:
 		draw_texture_rect(background_texture, Rect2(Vector2.ZERO, canvas_size), true)
@@ -126,14 +134,18 @@ func _draw() -> void:
 		pass
 	
 	draw_circle(Vector2(ox, oy) + (Vector2(0.5, 0.5) * cell_size), cell_size * 0.5, Color.TOMATO)
-	
+
+func _gui_input(event : InputEvent) -> void:
+	if _mouse_entered:
+		if is_instance_of(event, InputEventMouseMotion):
+			_last_mouse_position = get_local_mouse_position()
 
 func _notification(what : int) -> void:
 	match what:
 		NOTIFICATION_MOUSE_ENTER:
-			pass
+			_mouse_entered = true
 		NOTIFICATION_MOUSE_EXIT:
-			pass
+			_mouse_entered = false
 		NOTIFICATION_FOCUS_ENTER:
 			pass
 		NOTIFICATION_FOCUS_EXIT:
