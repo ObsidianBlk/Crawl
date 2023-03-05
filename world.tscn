@@ -36,7 +36,7 @@ script = ExtResource("1_g38f3")
 [node name="CrawlMapView" parent="." instance=ExtResource("1_hvida")]
 
 [node name="Player" parent="." instance=ExtResource("3_fr7am")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, 0)
 digging_enabled = true
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]

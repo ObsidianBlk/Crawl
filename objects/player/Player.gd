@@ -14,7 +14,7 @@ const DEG90 : float = 1.570796
 const CLOCKWISE : float = -1.0
 const COUNTERCLOCKWISE : float = 1.0
 
-const CELL_SIZE : float = 3.0
+const CELL_SIZE : float = 5.0
 
 const MAX_MOVE_QUEUE_SIZE : int = 4
 

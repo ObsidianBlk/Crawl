@@ -5,7 +5,7 @@ extends Node3D
 # Constants and ENUMs
 # ------------------------------------------------------------------------------
 const CRAWLCELL : PackedScene = preload("res://scenes/crawl_map_view/crawl_cell/CrawlCell.tscn")
-const CELL_SIZE : float = 3.0
+const CELL_SIZE : float = 5.0
 
 # ------------------------------------------------------------------------------
 # Export Variables
@@ -60,67 +60,38 @@ func _process(_delta : float) -> void:
 func _UpdateCells(origin : Vector3i) -> void:
 	if cell_container == null: return
 	
-	var min_pos : Array = [NAN, NAN, NAN]
-	var max_pos : Array = [NAN, NAN, NAN]
+	var rad : Vector3 = Vector3(unit_radius, unit_radius, unit_radius)
+	var bounds : AABB = AABB(Vector3(origin) - rad, rad*2)
+	var stored_pos : Array = []
+	var available_cells : Array = []
 	
-	# --------------
-	# Helper lambdas
-	var _position_in_bounds : Callable = func(position : Vector3i) -> bool:
-		if position.x < origin.x - unit_radius or position.x > origin.x + unit_radius:
-			return false
-		if position.y < origin.y - unit_radius or position.y > origin.y + unit_radius:
-			return false
-		if position.z < origin.z - unit_radius or position.z > origin.z + unit_radius:
-			return false
-		return true
-	
-	var _store_min_max : Callable = func(position : Vector3i) -> void:
-		if is_nan(min_pos[0]) or min_pos[0] > position.x:
-			min_pos[0] = position.x
-		if is_nan(min_pos[1]) or min_pos[1] > position.y:
-			min_pos[1] = position.y
-		if is_nan(min_pos[2]) or min_pos[2] > position.z:
-			min_pos[2] = position.z
-		
-		if is_nan(max_pos[0]) or max_pos[0] < position.x:
-			max_pos[0] = position.x
-		if is_nan(max_pos[1]) or max_pos[1] < position.y:
-			max_pos[1] = position.y
-		if is_nan(max_pos[2]) or max_pos[2] < position.z:
-			max_pos[2] = position.z
-	
-	var _position_handled : Callable = func(position : Vector3i) -> bool:
-		if not (position.x >= min_pos[0] and position.x <= max_pos[0]):
-			return false
-		if not (position.y >= min_pos[1] and position.y <= max_pos[1]):
-			return false
-		if not (position.z >= min_pos[2] and position.x <= max_pos[2]):
-			return false
-		return true
-
-	# -------
-	# Actual work!
 	for child in cell_container.get_children():
 		if not is_instance_of(child, CrawlCell): continue
-		if not _position_in_bounds.call(child.map_position):
-			child.queue_free()
+		if not bounds.has_point(Vector3(child.map_position)):
+			available_cells.append(child)
 			continue
-		elif _map_changed:
+		if _map_changed:
 			child.map = map
-		_store_min_max.call(child.map_position)
+		stored_pos.append(child.map_position)
 	_map_changed = false
-
+	
 	for x in range(origin.x - unit_radius, (origin.x + unit_radius) + 1):
 		for y in range(origin.y - unit_radius, (origin.y + unit_radius) + 1):
 			for z in range(origin.z - unit_radius, (origin.z + unit_radius) + 1):
 				var pos : Vector3i = Vector3i(x,y,z)
-				if not _position_handled.call(pos):
-					var cell : CrawlCell = CRAWLCELL.instantiate()
-					cell.map = map
-					cell.map_position = pos
-					cell_container.add_child(cell)
-					#print("Position : ", pos * CELL_SIZE)
-					cell.position = pos * CELL_SIZE
+				if not stored_pos.has(pos):
+					if available_cells.size() > 0:
+						var cell : CrawlCell = available_cells.pop_back()
+						cell.map_position = pos
+						cell.position = pos * CELL_SIZE
+					else:
+						var cell : CrawlCell = CRAWLCELL.instantiate()
+						cell.map = map
+						cell.map_position = pos
+						cell_container.add_child(cell)
+						#print("Position : ", pos * CELL_SIZE)
+						cell.position = pos * CELL_SIZE
+
 
 # ------------------------------------------------------------------------------
 # Handler Methods
