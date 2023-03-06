@@ -267,12 +267,18 @@ func clear_unused_resources() -> void:
 	_resources = nr
 	_next_rid = highest_rid
 
-func add_cell(position : Vector3i) -> int:
+func add_cell(position : Vector3i, open_to_adjacent : bool = false) -> int:
 	if position in _grid:
 		return ERR_ALREADY_EXISTS
 	_grid[position] = _CreateDefaultCell()
 	cell_added.emit(position)
-	cell_changed.emit(position)
+	if open_to_adjacent:
+		for surface in SURFACE.values():
+			var neighbor_position : Vector3i = _CalcNeighborFrom(position, surface)
+			if neighbor_position in _grid:
+				dig(position, surface)
+	else:
+		cell_changed.emit(position)
 	return OK
 
 func has_cell(position : Vector3i) -> bool:

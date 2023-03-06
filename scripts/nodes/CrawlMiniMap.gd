@@ -24,6 +24,7 @@ const SELECTION_BLINK_INTERVAL : float = 0.08
 @export var wall_color : Color = Color.DARK_OLIVE_GREEN:		set = set_wall_color
 @export var cell_color : Color = Color.DARK_SALMON:				set = set_cell_color
 @export var selection_color : Color = Color.WHITE
+@export var ignore_focus : bool = true:							set = set_ignore_focus
 
 
 # ------------------------------------------------------------------------------
@@ -32,9 +33,10 @@ const SELECTION_BLINK_INTERVAL : float = 0.08
 var _mouse_entered : bool = false
 var _last_mouse_position : Vector2 = Vector2.ZERO
 
-var _sel_start : Vector3i = Vector3i.ZERO
-var _sel_enabled : bool = false
-var _sel_visible : bool = false
+var _area_start : Vector3i = Vector3i.ZERO
+var _area_enabled : bool = false
+
+var _selectors_visible : bool = false
 
 
 # ------------------------------------------------------------------------------
@@ -77,19 +79,26 @@ func set_cell_color(c : Color) -> void:
 		cell_color = c
 		queue_redraw()
 
+func set_ignore_focus(i : bool) -> void:
+	if ignore_focus != i:
+		ignore_focus = i
+		if _mouse_entered == ignore_focus:
+			_mouse_entered = false
+			queue_redraw()
 
 # ------------------------------------------------------------------------------
 # Override Methods
 # ------------------------------------------------------------------------------
 func _ready() -> void:
-	queue_redraw()
+	_on_selection_blink()
 
 func _draw() -> void:
 	var canvas_size : Vector2 = get_size()
 	var canvas_region : Rect2 = Rect2(Vector2.ZERO, canvas_size)
 	
-	var selection_region : Rect2i = _CalcSelectionRegion(
-		Vector2i(_sel_start.x, _sel_start.z), 
+	# Area region. May not be needed :)
+	var area_region : Rect2i = _CalcSelectionRegion(
+		Vector2i(_area_start.x, _area_start.z), 
 		Vector2i(origin.x, origin.z)
 	)
 	
@@ -115,23 +124,27 @@ func _draw() -> void:
 	
 	var cell_range : Vector2i = Vector2i(floor(cell_count.x * 0.5), floor(cell_count.y * 0.5))
 	
+	# The mouse's map position. May not be needed :)
+	var mouse_position : Vector2i = Vector2i(_last_mouse_position / cell_size) - cell_range
+	
 	for cy in range(-(cell_range.y + 1), cell_range.y):
 		for cx in range(-(cell_range.x + 1), cell_range.x):
-			if _sel_enabled and _sel_visible and selection_region.has_point(Vector2i(origin.x, origin.z) + Vector2i(cx, cy)):
-				var screen_position : Vector2 = Vector2(ox - (cx * cell_size), oy - (cy * cell_size))
+			var map_position : Vector3i = origin + Vector3i(cx, 0, cy)
+			var screen_position : Vector2 = Vector2(ox - (cx * cell_size), oy - (cy * cell_size))
+			
+			# Drawing area selector one cell at a time.
+			if _selectors_visible and _area_enabled and area_region.has_point(Vector2i(origin.x, origin.z) + Vector2i(cx, cy)):
 				if canvas_region.encloses(Rect2(screen_position, Vector2(cell_size, cell_size))):
 					draw_rect(Rect2(screen_position, Vector2(cell_size, cell_size)), selection_color)
-				continue
-			
-			var map_position : Vector3i = origin + Vector3i(cx, 0, cy)
-			if map.has_cell(map_position):
-				var screen_position : Vector2 = Vector2(ox - (cx * cell_size), oy - (cy * cell_size))
+				
+			# Otherwise draw the cell as normal
+			elif map.has_cell(map_position):
 				if canvas_region.encloses(Rect2(screen_position, Vector2(cell_size, cell_size))):
 					_DrawCell(map_position, screen_position)
-	
-	# Drawing Selection, if it's enabled and visible...
-	if _sel_enabled && _sel_visible:
-		pass
+			
+			# Draw mouse cursor if mouse in the scene...
+			if _selectors_visible and _mouse_entered and mouse_position == Vector2i(-cx, -cy):
+				draw_rect(Rect2(screen_position, Vector2(cell_size, cell_size)), selection_color, false, 1.0)
 	
 	draw_circle(Vector2(ox, oy) + (Vector2(0.5, 0.5) * cell_size), cell_size * 0.5, Color.TOMATO)
 
@@ -139,11 +152,12 @@ func _gui_input(event : InputEvent) -> void:
 	if _mouse_entered:
 		if is_instance_of(event, InputEventMouseMotion):
 			_last_mouse_position = get_local_mouse_position()
+			queue_redraw()
 
 func _notification(what : int) -> void:
 	match what:
 		NOTIFICATION_MOUSE_ENTER:
-			_mouse_entered = true
+			_mouse_entered = not ignore_focus
 		NOTIFICATION_MOUSE_EXIT:
 			_mouse_entered = false
 		NOTIFICATION_FOCUS_ENTER:
@@ -202,20 +216,17 @@ func _CalcSelectionRegion(from : Vector2i, to : Vector2i) -> Rect2i:
 # Public Methods
 # ------------------------------------------------------------------------------
 func start_selection(position : Vector3i) -> void:
-	_sel_start = position
-	_sel_enabled = true
-	_on_selection_blink()
+	_area_start = position
+	_area_enabled = true
 
 func end_selection() -> void:
-	_sel_enabled = false
-	_sel_visible = false
+	_area_enabled = false
 
 # ------------------------------------------------------------------------------
 # Handler Methods
 # ------------------------------------------------------------------------------
 func _on_selection_blink() -> void:
-	if _sel_enabled:
-		_sel_visible = not _sel_visible
-		var timer : SceneTreeTimer = get_tree().create_timer(SELECTION_BLINK_INTERVAL)
-		timer.timeout.connect(_on_selection_blink)
+	_selectors_visible = not _selectors_visible
+	var timer : SceneTreeTimer = get_tree().create_timer(SELECTION_BLINK_INTERVAL)
+	timer.timeout.connect(_on_selection_blink)
 	queue_redraw()
