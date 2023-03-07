@@ -15,8 +15,6 @@ signal focus_changed(focus_position)
 # ------------------------------------------------------------------------------
 # Constants and ENUMs
 # ------------------------------------------------------------------------------
-enum SURFACE {North=0x01, East=0x02, South=0x04, West=0x08, Ground=0x10, Ceiling=0x20}
-enum SURFACE_INDEX {North=0, East=1, South=2, West=3, Ground=4, Ceiling=5}
 
 const RESOURCE_GROUND_DEFAULT : int = 0
 const RESOURCE_CEILING_DEFAULT : int = 0
@@ -134,40 +132,9 @@ func _CreateDefaultCell() -> Dictionary:
 		]
 	}
 
-func _CalcDirectionFromSurface(surface) -> Vector3i:
-	match surface:
-		SURFACE.North:
-			return Vector3i(0,0,1)
-		SURFACE.East:
-			return Vector3i(-1,0,0)
-		SURFACE.South:
-			return Vector3i(0,0,-1)
-		SURFACE.West:
-			return Vector3i(1,0,0)
-		SURFACE.Ground:
-			return Vector3i(0,-1,0)
-		SURFACE.Ceiling:
-			return Vector3i(0,1,0)
-	return Vector3i.ZERO
 
-func _CalcNeighborFrom(position : Vector3i, surface : SURFACE) -> Vector3i:
-	return position + _CalcDirectionFromSurface(surface)
-
-func _CalcAdjacentSurface(surface : SURFACE) -> SURFACE:
-	match surface:
-		SURFACE.North:
-			return SURFACE.South
-		SURFACE.East:
-			return SURFACE.West
-		SURFACE.South:
-			return SURFACE.North
-		SURFACE.West:
-			return SURFACE.East
-		SURFACE.Ground:
-			return SURFACE.Ceiling
-		SURFACE.Ceiling:
-			return SURFACE.Ground
-	return surface
+func _CalcNeighborFrom(position : Vector3i, surface : CrawlGlobals.SURFACE) -> Vector3i:
+	return position + CrawlGlobals.Get_Direction_From_Surface(surface)
 
 
 func _CloneCell(cell : Dictionary, ncell : Dictionary = {}) -> Dictionary:
@@ -184,18 +151,18 @@ func _CloneGrid() -> Dictionary:
 		ngrid[key] = _CloneCell(_grid[key])
 	return ngrid
 
-func _CalcBlocking(block_val : int, surface : SURFACE, block : bool) -> int:
+func _CalcBlocking(block_val : int, surface : CrawlGlobals.SURFACE, block : bool) -> int:
 	if block:
 		return (block_val | surface) & 0x3F
 	return (block_val & (~surface)) & 0x3F
 
-func _SetCellSurface(position : Vector3i, surface : SURFACE, data : Dictionary, bi_directional : bool) -> void:
+func _SetCellSurface(position : Vector3i, surface : CrawlGlobals.SURFACE, data : Dictionary, bi_directional : bool) -> void:
 	var changed : bool = false
 	if &"blocking" in data:
 		_grid[position][&"blocking"] = _CalcBlocking(_grid[position][&"blocking"], surface, data[&"blocking"])
 		changed = true
 	if &"resource_id" in data:
-		var idx : int = SURFACE.values().find(surface)
+		var idx : int = CrawlGlobals.SURFACE.values().find(surface)
 		if idx >= 0:
 			_grid[position][&"rid"][idx] = data[&"resource_id"]
 		changed = true
@@ -205,12 +172,12 @@ func _SetCellSurface(position : Vector3i, surface : SURFACE, data : Dictionary, 
 	
 	if bi_directional:
 		var pos : Vector3i = _CalcNeighborFrom(position, surface)
-		var surf : SURFACE = _CalcAdjacentSurface(surface)
+		var surf : CrawlGlobals.SURFACE = CrawlGlobals.Get_Adjacent_Surface(surface)
 		_SetCellSurface(pos, surf, data, false)
 
 
-func _GetCellSurface(position : Vector3i, surface : SURFACE) -> Dictionary:
-	var idx : int = SURFACE.values().find(surface)
+func _GetCellSurface(position : Vector3i, surface : CrawlGlobals.SURFACE) -> Dictionary:
+	var idx : int = CrawlGlobals.SURFACE.values().find(surface)
 	if idx >= 0:
 		return {
 			&"blocking": _grid[position][&"blocking"] & surface != 0,
@@ -273,7 +240,7 @@ func add_cell(position : Vector3i, open_to_adjacent : bool = false) -> int:
 	_grid[position] = _CreateDefaultCell()
 	cell_added.emit(position)
 	if open_to_adjacent:
-		for surface in SURFACE.values():
+		for surface in CrawlGlobals.SURFACE.values():
 			var neighbor_position : Vector3i = _CalcNeighborFrom(position, surface)
 			if neighbor_position in _grid:
 				dig(position, surface)
@@ -302,7 +269,7 @@ func remove_cell(position : Vector3i) -> void:
 	_grid.erase(position)
 	cell_removed.emit(position)
 
-func set_cell_surface(position : Vector3i, surface : SURFACE, blocking : bool, resource_id : Variant, bi_directional : bool = false) -> void:
+func set_cell_surface(position : Vector3i, surface : CrawlGlobals.SURFACE, blocking : bool, resource_id : Variant, bi_directional : bool = false) -> void:
 	if not position in _grid:
 		printerr("CrawlMap Error: No cell at position ", position)
 		return
@@ -324,14 +291,14 @@ func set_cell_surface(position : Vector3i, surface : SURFACE, blocking : bool, r
 	
 	_SetCellSurface(position, surface, data, bi_directional)
 
-func set_cell_surface_blocking(position : Vector3i, surface : SURFACE, blocking : bool, bi_directional : bool = false) -> void:
+func set_cell_surface_blocking(position : Vector3i, surface : CrawlGlobals.SURFACE, blocking : bool, bi_directional : bool = false) -> void:
 	if not position in _grid:
 		printerr("CrawlMap Error: No cell at position ", position)
 		return
 	_SetCellSurface(position, surface, {&"blocking":blocking}, bi_directional)
 
 
-func set_cell_surface_resource(position : Vector3i, surface : SURFACE, resource_id : Variant, bi_directional : bool = false) -> void:
+func set_cell_surface_resource(position : Vector3i, surface : CrawlGlobals.SURFACE, resource_id : Variant, bi_directional : bool = false) -> void:
 	if not position in _grid:
 		printerr("CrawlMap Error: No cell at position ", position)
 		return
@@ -353,13 +320,13 @@ func set_cell_surface_resource(position : Vector3i, surface : SURFACE, resource_
 		_SetCellSurface(position, surface, data, bi_directional)
 
 
-func get_cell(position : Vector3i, surface : SURFACE) -> Dictionary:
+func get_cell(position : Vector3i, surface : CrawlGlobals.SURFACE) -> Dictionary:
 	if not position in _grid:
 		printerr("CrawlMap Error: No cell at position ", position)
 		return {}
 	return _GetCellSurface(position, surface)
 
-func get_cell_surface_resource_id(position : Vector3i, surface : SURFACE) -> int:
+func get_cell_surface_resource_id(position : Vector3i, surface : CrawlGlobals.SURFACE) -> int:
 	if position in _grid:
 		var info : Dictionary = _GetCellSurface(position, surface)
 		if not info.is_empty():
@@ -368,7 +335,7 @@ func get_cell_surface_resource_id(position : Vector3i, surface : SURFACE) -> int
 		printerr("CrawlMap Error: No cell at position ", position)
 	return -1
 
-func get_cell_surface_resource(position : Vector3i, surface : SURFACE) -> StringName:
+func get_cell_surface_resource(position : Vector3i, surface : CrawlGlobals.SURFACE) -> StringName:
 	if position in _grid:
 		var info : Dictionary = _GetCellSurface(position, surface)
 		if not info.is_empty():
@@ -401,7 +368,7 @@ func get_cell_surface_resources(position : Vector3i) -> Array:
 		printerr("CrawlMap Error: No cell at position ", position)
 	return []
 
-func is_cell_surface_blocking(position : Vector3i, surface : SURFACE) -> bool:
+func is_cell_surface_blocking(position : Vector3i, surface : CrawlGlobals.SURFACE) -> bool:
 	if position in _grid:
 		var info : Dictionary = _GetCellSurface(position, surface)
 		if not info.is_empty():
@@ -445,22 +412,22 @@ func get_focus_cell() -> Vector3i:
 		return _grid.keys()[0]
 	return _focus_cell
 
-func get_surface_from_direction(dir : Vector3) -> SURFACE:
-	dir = dir.normalized()
-	var deg45 : float = deg_to_rad(45.0)
-	if dir.angle_to(Vector3(0,0,1)) < deg45:
-		return SURFACE.North
-	if dir.angle_to(Vector3(-1,0,0)) < deg45:
-		return SURFACE.East
-	if dir.angle_to(Vector3(0,0,-1)) < deg45:
-		return SURFACE.South
-	if dir.angle_to(Vector3(1,0,0)) < deg45:
-		return SURFACE.West
-	if dir.angle_to(Vector3(0,1,0)) < deg45:
-		return SURFACE.Ceiling
-	return SURFACE.Ground
+#func get_surface_from_direction(dir : Vector3) -> SURFACE:
+#	dir = dir.normalized()
+#	var deg45 : float = deg_to_rad(45.0)
+#	if dir.angle_to(Vector3(0,0,1)) < deg45:
+#		return SURFACE.North
+#	if dir.angle_to(Vector3(-1,0,0)) < deg45:
+#		return SURFACE.East
+#	if dir.angle_to(Vector3(0,0,-1)) < deg45:
+#		return SURFACE.South
+#	if dir.angle_to(Vector3(1,0,0)) < deg45:
+#		return SURFACE.West
+#	if dir.angle_to(Vector3(0,1,0)) < deg45:
+#		return SURFACE.Ceiling
+#	return SURFACE.Ground
 
-func dig(position : Vector3i, direction : SURFACE) -> void:
+func dig(position : Vector3i, direction : CrawlGlobals.SURFACE) -> void:
 	if not position in _grid:
 		add_cell(position)
 	var neighbor_position : Vector3i = _CalcNeighborFrom(position, direction)
@@ -477,7 +444,7 @@ func dig_room(position : Vector3i, size : Vector3i, ground_rid : int, ceiling_ri
 	size = abs(size)
 	var target : Vector3i = position + size
 	
-	var _set_surface : Callable = func(pos : Vector3i, surf : SURFACE, blocking : bool, rid : int) -> void:
+	var _set_surface : Callable = func(pos : Vector3i, surf : CrawlGlobals.SURFACE, blocking : bool, rid : int) -> void:
 		if not pos in _grid: return
 		set_cell_surface(pos, surf, blocking, rid if blocking else -1)
 	
@@ -487,12 +454,12 @@ func dig_room(position : Vector3i, size : Vector3i, ground_rid : int, ceiling_ri
 				var pos : Vector3i = Vector3i(i,j,k)
 				if not pos in _grid:
 					add_cell(pos)
-					_set_surface.call(pos, SURFACE.Ground, j == position.y, ground_rid)
-					_set_surface.call(pos, SURFACE.Ceiling, j + 1 == target.y, ceiling_rid)
-					_set_surface.call(pos, SURFACE.North, k + 1 == target.z, wall_rid)
-					_set_surface.call(pos, SURFACE.South, k == position.z, wall_rid)
-					_set_surface.call(pos, SURFACE.East, i == position.x, wall_rid)
-					_set_surface.call(pos, SURFACE.West, i + 1 == target.x, wall_rid)
+					_set_surface.call(pos, CrawlGlobals.SURFACE.Ground, j == position.y, ground_rid)
+					_set_surface.call(pos, CrawlGlobals.SURFACE.Ceiling, j + 1 == target.y, ceiling_rid)
+					_set_surface.call(pos, CrawlGlobals.SURFACE.North, k + 1 == target.z, wall_rid)
+					_set_surface.call(pos, CrawlGlobals.SURFACE.South, k == position.z, wall_rid)
+					_set_surface.call(pos, CrawlGlobals.SURFACE.East, i == position.x, wall_rid)
+					_set_surface.call(pos, CrawlGlobals.SURFACE.West, i + 1 == target.x, wall_rid)
 
 # ------------------------------------------------------------------------------
 # Handler Methods

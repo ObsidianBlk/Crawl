@@ -136,8 +136,8 @@ func _MoveHorz(dir : Vector3) -> void:
 	dir = dir.rotated(Vector3.UP, _facing_node.rotation.y)
 	
 	var can_move : bool = false
-	var surf : CrawlMap.SURFACE = map.get_surface_from_direction(dir)
-	if surf != CrawlMap.SURFACE.Ground and surf != CrawlMap.SURFACE.Ceiling:
+	var surf : CrawlGlobals.SURFACE = CrawlGlobals.Get_Surface_From_Direction(dir)
+	if surf != CrawlGlobals.SURFACE.Ground and surf != CrawlGlobals.SURFACE.Ceiling:
 		can_move = not map.is_cell_surface_blocking(Vector3i(position / CELL_SIZE), surf)
 	#print("Facing:")
 	if not can_move: return
@@ -150,7 +150,7 @@ func _MoveHorz(dir : Vector3) -> void:
 
 func _Dig(dir : Vector3) -> void:
 	dir = dir.rotated(Vector3.UP, _facing_node.rotation.y)
-	var surf : CrawlMap.SURFACE = map.get_surface_from_direction(dir)
+	var surf : CrawlGlobals.SURFACE = CrawlGlobals.Get_Surface_From_Direction(dir)
 	map.dig(Vector3i(position / CELL_SIZE), surf)
 
 func _Turn(dir : float) -> void:

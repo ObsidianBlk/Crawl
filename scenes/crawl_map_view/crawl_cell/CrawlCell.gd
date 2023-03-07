@@ -77,7 +77,7 @@ func _ClearCell() -> void:
 	mesh_wall_east.visible = false
 	mesh_wall_west.visible = false
 
-func _SetMeshMaterial(mesh : MeshInstance3D, surface : CrawlMap.SURFACE) -> void:
+func _SetMeshMaterial(mesh : MeshInstance3D, surface : CrawlGlobals.SURFACE) -> void:
 	if not mesh.visible: return
 	var mat : Material = RLT.load(map.get_cell_surface_resource(map_position, surface))
 	if mat != null:
@@ -89,23 +89,23 @@ func _BuildCell() -> void:
 		return
 	
 	var rids : Array = map.get_cell_surface_resource_ids(map_position)
-	mesh_ground.visible = rids[CrawlMap.SURFACE_INDEX.Ground] >= 0
-	_SetMeshMaterial(mesh_ground, CrawlMap.SURFACE.Ground)
+	mesh_ground.visible = rids[CrawlGlobals.Get_Surface_Index(CrawlGlobals.SURFACE.Ground)] >= 0
+	_SetMeshMaterial(mesh_ground, CrawlGlobals.SURFACE.Ground)
 	
-	mesh_ceiling.visible = rids[CrawlMap.SURFACE_INDEX.Ceiling] >= 0
-	_SetMeshMaterial(mesh_ceiling, CrawlMap.SURFACE.Ceiling)
+	mesh_ceiling.visible = rids[CrawlGlobals.Get_Surface_Index(CrawlGlobals.SURFACE.Ceiling)] >= 0
+	_SetMeshMaterial(mesh_ceiling, CrawlGlobals.SURFACE.Ceiling)
 	
-	mesh_wall_north.visible = rids[CrawlMap.SURFACE_INDEX.North] >= 0
-	_SetMeshMaterial(mesh_wall_north, CrawlMap.SURFACE.North)
+	mesh_wall_north.visible = rids[CrawlGlobals.Get_Surface_Index(CrawlGlobals.SURFACE.North)] >= 0
+	_SetMeshMaterial(mesh_wall_north, CrawlGlobals.SURFACE.North)
 	
-	mesh_wall_south.visible = rids[CrawlMap.SURFACE_INDEX.South] >= 0
-	_SetMeshMaterial(mesh_wall_south, CrawlMap.SURFACE.South)
+	mesh_wall_south.visible = rids[CrawlGlobals.Get_Surface_Index(CrawlGlobals.SURFACE.South)] >= 0
+	_SetMeshMaterial(mesh_wall_south, CrawlGlobals.SURFACE.South)
 	
-	mesh_wall_east.visible = rids[CrawlMap.SURFACE_INDEX.East] >= 0
-	_SetMeshMaterial(mesh_wall_east, CrawlMap.SURFACE.East)
+	mesh_wall_east.visible = rids[CrawlGlobals.Get_Surface_Index(CrawlGlobals.SURFACE.East)] >= 0
+	_SetMeshMaterial(mesh_wall_east, CrawlGlobals.SURFACE.East)
 	
-	mesh_wall_west.visible = rids[CrawlMap.SURFACE_INDEX.West] >= 0
-	_SetMeshMaterial(mesh_wall_west, CrawlMap.SURFACE.West)
+	mesh_wall_west.visible = rids[CrawlGlobals.Get_Surface_Index(CrawlGlobals.SURFACE.West)] >= 0
+	_SetMeshMaterial(mesh_wall_west, CrawlGlobals.SURFACE.West)
 	
 
 # ------------------------------------------------------------------------------

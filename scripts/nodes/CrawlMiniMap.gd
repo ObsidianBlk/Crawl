@@ -38,6 +38,7 @@ var _area_enabled : bool = false
 
 var _selectors_visible : bool = false
 
+var _label : Label = null
 
 # ------------------------------------------------------------------------------
 # Setters
@@ -90,6 +91,7 @@ func set_ignore_focus(i : bool) -> void:
 # Override Methods
 # ------------------------------------------------------------------------------
 func _ready() -> void:
+	#_label = Label.new()
 	_on_selection_blink()
 
 func _draw() -> void:
@@ -177,25 +179,25 @@ func _notification(what : int) -> void:
 # ------------------------------------------------------------------------------
 func _DrawCell(map_position : Vector3i, screen_position : Vector2) -> void:
 	draw_rect(Rect2(screen_position, Vector2(cell_size * 0.9, cell_size * 0.9)), cell_color)
-	if map.is_cell_surface_blocking(map_position, CrawlMap.SURFACE.North):
+	if map.is_cell_surface_blocking(map_position, CrawlGlobals.SURFACE.North):
 		draw_line(
 			screen_position,
 			screen_position + Vector2(cell_size, 0),
 			wall_color, 1.0, true
 		)
-	if map.is_cell_surface_blocking(map_position, CrawlMap.SURFACE.South):
+	if map.is_cell_surface_blocking(map_position, CrawlGlobals.SURFACE.South):
 		draw_line(
 			screen_position + Vector2(0, cell_size),
 			screen_position + Vector2(cell_size, cell_size),
 			wall_color, 1.0, true
 		)
-	if map.is_cell_surface_blocking(map_position, CrawlMap.SURFACE.East):
+	if map.is_cell_surface_blocking(map_position, CrawlGlobals.SURFACE.East):
 		draw_line(
 			screen_position + Vector2(cell_size, 0),
 			screen_position + Vector2(cell_size, cell_size),
 			wall_color, 1.0, true
 		)
-	if map.is_cell_surface_blocking(map_position, CrawlMap.SURFACE.West):
+	if map.is_cell_surface_blocking(map_position, CrawlGlobals.SURFACE.West):
 		draw_line(
 			screen_position,
 			screen_position + Vector2(0, cell_size),
