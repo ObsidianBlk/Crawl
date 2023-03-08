@@ -1,9 +1,10 @@
-[gd_scene load_steps=8 format=3 uid="uid://didgemhb0iu8x"]
+[gd_scene load_steps=9 format=3 uid="uid://didgemhb0iu8x"]
 
 [ext_resource type="Script" path="res://world.gd" id="1_g38f3"]
 [ext_resource type="PackedScene" uid="uid://b4kugyrq8jxcl" path="res://scenes/crawl_map_view/CrawlMapView.tscn" id="1_hvida"]
 [ext_resource type="PackedScene" uid="uid://teo1susxy05g" path="res://objects/player/Player.tscn" id="3_fr7am"]
 [ext_resource type="Script" path="res://scripts/nodes/CrawlMiniMap.gd" id="4_so4om"]
+[ext_resource type="PackedScene" uid="uid://7srgn1hfh0fq" path="res://ui/options_bar/OptionsBar.tscn" id="5_ea7cc"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_ppa24"]
 sky_top_color = Color(0.72549, 0.639216, 0.6, 1)
@@ -44,10 +45,19 @@ digging_enabled = true
 [node name="CrawlMiniMap" type="Control" parent="CanvasLayer"]
 custom_minimum_size = Vector2(304, 144)
 layout_mode = 3
-anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -152.0
+offset_top = -144.0
+offset_right = 152.0
+grow_horizontal = 2
+grow_vertical = 0
 script = ExtResource("4_so4om")
+
+[node name="OptionsBar" parent="CanvasLayer" instance=ExtResource("5_ea7cc")]
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_07ts1")

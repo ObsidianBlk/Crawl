@@ -1,0 +1,78 @@
+[gd_scene load_steps=3 format=3 uid="uid://7srgn1hfh0fq"]
+
+[ext_resource type="Script" path="res://ui/options_bar/OptionsBar.gd" id="1_8mhv4"]
+[ext_resource type="Texture2D" uid="uid://ccrsme6ixxdg8" path="res://assets/icons/arrow_down.svg" id="1_474y3"]
+
+[node name="OptionsBar" type="PanelContainer"]
+anchors_preset = 10
+anchor_right = 1.0
+grow_horizontal = 2
+script = ExtResource("1_8mhv4")
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="HBC" type="HBoxContainer" parent="Margin"]
+layout_mode = 2
+
+[node name="VizToggle" type="Button" parent="Margin/HBC"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 0
+icon = ExtResource("1_474y3")
+flat = true
+
+[node name="VSeparator" type="VSeparator" parent="Margin/HBC"]
+layout_mode = 2
+
+[node name="Graphics" type="VBoxContainer" parent="Margin/HBC"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Margin/HBC/Graphics"]
+layout_mode = 2
+text = "Graphics"
+
+[node name="HSeparator" type="HSeparator" parent="Margin/HBC/Graphics"]
+layout_mode = 2
+
+[node name="GOP_SSAO" type="CheckButton" parent="Margin/HBC/Graphics"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Toggle Screen Space Ambient Occlusion"
+text = "SSAO"
+
+[node name="GOP_SSIL" type="CheckButton" parent="Margin/HBC/Graphics"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Toggle Screen Space Indirect Lighting"
+text = "SSIL"
+
+[node name="GOP_Fog" type="CheckButton" parent="Margin/HBC/Graphics"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Toggle Environmental Fog"
+text = "Fog"
+
+[node name="GOP_VFog" type="CheckButton" parent="Margin/HBC/Graphics"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Toggle Volumetric Fog"
+text = "V. Fog"
+
+[node name="VSeparator2" type="VSeparator" parent="Margin/HBC"]
+layout_mode = 2
+
+[node name="Controls" type="VBoxContainer" parent="Margin/HBC"]
+layout_mode = 2
+
+[node name="SaveSettings" type="Button" parent="Margin/HBC/Controls"]
+layout_mode = 2
+text = "SAVE"
+
+[connection signal="pressed" from="Margin/HBC/VizToggle" to="." method="_on_viz_toggle_pressed"]
+[connection signal="pressed" from="Margin/HBC/Controls/SaveSettings" to="." method="_on_save_settings_pressed"]
