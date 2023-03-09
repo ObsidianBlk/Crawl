@@ -11,9 +11,11 @@ signal facing_changed(from, to)
 # ------------------------------------------------------------------------------
 # Export Variables
 # ------------------------------------------------------------------------------
+@export var type : StringName = &""
 @export var position : Vector3i = Vector3i.ZERO:						set = set_position
 @export var facing : CrawlGlobals.SURFACE = CrawlGlobals.SURFACE.North:	set = set_facing
 @export var blocking : int = 0x3F
+@export var meta : Dictionary = {}
 
 
 # ------------------------------------------------------------------------------
@@ -36,6 +38,9 @@ func set_facing(f : CrawlGlobals.SURFACE) -> void:
 		facing = f
 		facing_changed.emit(old, facing)
 
+# ------------------------------------------------------------------------------
+# Override Methods
+# ------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
 # Private Methods
@@ -58,6 +63,17 @@ func set_map(map : CrawlMap) -> void:
 
 func get_map() -> CrawlMap:
 	return _map
+
+func set_blocking(surface : CrawlGlobals.SURFACE, enable : bool) -> void:
+	var i : int = CrawlGlobals.SURFACE.values().find(surface)
+	if enable:
+		blocking = blocking | (1 << i)
+	else:
+		blocking = blocking & (~(1 << i))
+
+func is_blocking(surface : CrawlGlobals.SURFACE) -> bool:
+	var i : int = CrawlGlobals.SURFACE.values().find(surface)
+	return (blocking & (1 << i)) != 0
 
 func move(back : bool = false) -> void:
 	var dir : CrawlGlobals.SURFACE = facing
