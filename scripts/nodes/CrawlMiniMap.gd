@@ -23,7 +23,8 @@ const SELECTION_BLINK_INTERVAL : float = 0.08
 @export var background_texture : Texture = null:				set = set_background_texture
 @export var wall_color : Color = Color.DARK_OLIVE_GREEN:		set = set_wall_color
 @export var cell_color : Color = Color.DARK_SALMON:				set = set_cell_color
-@export var selection_color : Color = Color.WHITE
+@export var selection_color : Color = Color.WHITE:				set = set_selection_color
+@export var focus_icon : Texture = null:						set = set_focus_icon
 @export var ignore_focus : bool = true:							set = set_ignore_focus
 
 
@@ -37,6 +38,8 @@ var _area_start : Vector3i = Vector3i.ZERO
 var _area_enabled : bool = false
 
 var _selectors_visible : bool = false
+
+var _cursor_sprite : TextureRect = null
 
 var _label : Label = null
 
@@ -58,6 +61,7 @@ func set_origin(o : Vector3i) -> void:
 func set_cell_size(s : float) -> void:
 	if s > 0 and s != cell_size:
 		cell_size = s
+		_UpdateCursor()
 		queue_redraw()
 
 func set_background_color(c : Color) -> void:
@@ -80,6 +84,16 @@ func set_cell_color(c : Color) -> void:
 		cell_color = c
 		queue_redraw()
 
+func set_selection_color(c : Color) -> void:
+	if selection_color != c:
+		selection_color = c
+		queue_redraw()
+
+func set_focus_icon(ico : Texture) -> void:
+	if focus_icon != ico:
+		focus_icon = ico
+		_UpdateCursor()
+
 func set_ignore_focus(i : bool) -> void:
 	if ignore_focus != i:
 		ignore_focus = i
@@ -91,7 +105,11 @@ func set_ignore_focus(i : bool) -> void:
 # Override Methods
 # ------------------------------------------------------------------------------
 func _ready() -> void:
-	#_label = Label.new()
+	_cursor_sprite = TextureRect.new()
+	_cursor_sprite.stretch_mode = TextureRect.STRETCH_SCALE
+	add_child(_cursor_sprite)
+	_UpdateCursor()
+	
 	_on_selection_blink()
 
 func _draw() -> void:
@@ -148,7 +166,7 @@ func _draw() -> void:
 			if _selectors_visible and _mouse_entered and mouse_position == Vector2i(-cx, -cy):
 				draw_rect(Rect2(screen_position, Vector2(cell_size, cell_size)), selection_color, false, 1.0)
 	
-	draw_circle(Vector2(ox, oy) + (Vector2(0.5, 0.5) * cell_size), cell_size * 0.5, Color.TOMATO)
+	#draw_circle(Vector2(ox, oy) + (Vector2(0.5, 0.5) * cell_size), cell_size * 0.5, Color.TOMATO)
 
 func _gui_input(event : InputEvent) -> void:
 	if _mouse_entered:
@@ -213,6 +231,13 @@ func _CalcSelectionRegion(from : Vector2i, to : Vector2i) -> Rect2i:
 	var sy : int = ty - fy
 	return Rect2i(fx, fy, sx, sy)
 
+func _UpdateCursor() -> void:
+	if _cursor_sprite != null:
+		_cursor_sprite.position = (get_size() * 0.5) - (Vector2(0.5, 0.5) * cell_size)
+		if _cursor_sprite.texture != focus_icon:
+			_cursor_sprite.texture = focus_icon
+		if _cursor_sprite.texture != null:
+			_cursor_sprite.scale = Vector2(cell_size, cell_size) / _cursor_sprite.texture.get_size()
 
 # ------------------------------------------------------------------------------
 # Public Methods
