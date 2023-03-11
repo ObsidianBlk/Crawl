@@ -41,6 +41,7 @@ const RESOURCES_SCHEMA : Dictionary = {
 # ------------------------------------------------------------------------------
 var _resources : Dictionary = {}
 var _grid : Dictionary = {}
+var _entities : Dictionary = {}
 var _start_cell : Vector3i = Vector3i.ZERO
 
 # ------------------------------------------------------------------------------
@@ -58,6 +59,8 @@ func _get(property : StringName) -> Variant:
 			return _grid
 		&"resources":
 			return _resources
+		&"entities":
+			return _entities
 		&"start_cell":
 			return _start_cell
 	return null
@@ -78,6 +81,14 @@ func _set(property : StringName, value : Variant) -> bool:
 					for key in _resources.keys():
 						if _resources[key] > _next_rid:
 							_next_rid = _resources[key] + 1
+					success = true
+		&"entities":
+			if typeof(value) == TYPE_DICTIONARY:
+				if _EntitiesValid(value):
+					# TODO: Not this easy. Need to "add" each of these again so they are
+					#  properly annouced... also, clear all those that are currently
+					#  added.
+					_entities = value
 					success = true
 		&"start_cell":
 			if typeof(value) == TYPE_VECTOR3I:
@@ -101,6 +112,11 @@ func _get_property_list() -> Array:
 			usage = PROPERTY_USAGE_STORAGE
 		},
 		{
+			name = "entities",
+			type = TYPE_DICTIONARY,
+			usage = PROPERTY_USAGE_STORAGE
+		},
+		{
 			name = "resources",
 			type = TYPE_DICTIONARY,
 			usage = PROPERTY_USAGE_STORAGE
@@ -117,6 +133,13 @@ func _get_property_list() -> Array:
 # ------------------------------------------------------------------------------
 # Private Methods
 # ------------------------------------------------------------------------------
+func _EntitiesValid(edata : Dictionary) -> bool:
+	for key in edata.keys():
+		if typeof(key) != TYPE_STRING_NAME: return false
+		if typeof(edata[key]) != TYPE_ARRAY: return false
+		for item in edata[key]:
+			if not is_instance_of(item, CrawlEntity): return false
+	return true
 
 func _CreateDefaultCell() -> Dictionary:
 	return {
@@ -233,6 +256,26 @@ func clear_unused_resources() -> void:
 				highest_rid = rid + 1
 	_resources = nr
 	_next_rid = highest_rid
+
+func add_entity(entity : CrawlEntity) -> void:
+	if not entity.type in _entities:
+		_entities[entity.type] = []
+	if _entities[entity.type].find(entity) < 0:
+		_entities[entity.type].append(entity)
+		entity._map = self
+		# TODO: Signal it's addition
+
+func remove_entity(entity : CrawlEntity) -> void:
+	if not entity.type in _entities: return
+	var idx : int = _entities[entity.type].find(entity)
+	if idx >= 0:
+		_entities[entity.type].remove_at(idx)
+		entity._map = null
+		# TODO: Signal it's removal
+
+func has_entity(entity : CrawlEntity) -> bool:
+	if not entity.type in _entities: return false
+	return _entities[entity.type].find(entity) >= 0
 
 func add_cell(position : Vector3i, open_to_adjacent : bool = false) -> int:
 	if position in _grid:
@@ -412,20 +455,6 @@ func get_focus_cell() -> Vector3i:
 		return _grid.keys()[0]
 	return _focus_cell
 
-#func get_surface_from_direction(dir : Vector3) -> SURFACE:
-#	dir = dir.normalized()
-#	var deg45 : float = deg_to_rad(45.0)
-#	if dir.angle_to(Vector3(0,0,1)) < deg45:
-#		return SURFACE.North
-#	if dir.angle_to(Vector3(-1,0,0)) < deg45:
-#		return SURFACE.East
-#	if dir.angle_to(Vector3(0,0,-1)) < deg45:
-#		return SURFACE.South
-#	if dir.angle_to(Vector3(1,0,0)) < deg45:
-#		return SURFACE.West
-#	if dir.angle_to(Vector3(0,1,0)) < deg45:
-#		return SURFACE.Ceiling
-#	return SURFACE.Ground
 
 func dig(position : Vector3i, direction : CrawlGlobals.SURFACE) -> void:
 	if not position in _grid:

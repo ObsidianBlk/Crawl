@@ -58,9 +58,6 @@ func _Move(dir : CrawlGlobals.SURFACE) -> int:
 # ------------------------------------------------------------------------------
 # Public Methods
 # ------------------------------------------------------------------------------
-func set_map(map : CrawlMap) -> void:
-	pass
-
 func get_map() -> CrawlMap:
 	return _map
 
