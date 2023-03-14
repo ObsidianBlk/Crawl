@@ -5,7 +5,6 @@ extends Node3D
 # ------------------------------------------------------------------------------
 # Signals
 # ------------------------------------------------------------------------------
-signal map_position_changed(map_position)
 
 # ------------------------------------------------------------------------------
 # Constants
@@ -21,7 +20,7 @@ const MAX_MOVE_QUEUE_SIZE : int = 4
 # ------------------------------------------------------------------------------
 # Export Variables
 # ------------------------------------------------------------------------------
-@export var map : CrawlMap = null
+@export var entity : CrawlEntity = null:					set = set_entity
 @export var digging_enabled : bool = false
 @export_range(0.0, 180.0) var max_yaw : float = 60.0
 @export_range(0.0, 180.0) var rest_yaw : float = 30.0
@@ -45,6 +44,16 @@ var _tween : Tween = null
 @onready var _facing_node : Node3D = $Facing
 @onready var _gimble_yaw_node : Node3D = $Facing/Gimble_Yaw
 @onready var _gimble_pitch_node : Node3D = $Facing/Gimble_Yaw/Gimble_Pitch
+
+
+# ------------------------------------------------------------------------------
+# Setters
+# ------------------------------------------------------------------------------
+func set_entity(ent : CrawlEntity) -> void:
+	if ent != entity:
+		entity = ent
+		if entity != null:
+			position = Vector3(entity.position) * CELL_SIZE
 
 # ------------------------------------------------------------------------------
 # Override Methods
@@ -73,35 +82,28 @@ func _unhandled_input(event : InputEvent) -> void:
 			if event.is_action("freelook_up") or event.is_action("freelook_down"):
 				var strength : float = event.get_action_strength("freelook_up") - event.get_action_strength("freelook_down")
 				_gimble_pitch_node.rotation_degrees.x = strength * rest_pitch
-#				_gimble_pitch_node.rotation_degrees.x = clamp(
-#					_gimble_pitch_node.rotation_degrees.x + (strength * 10.0),
-#					-max_pitch, max_pitch
-#				)
 			elif event.is_action("freelook_left") or event.is_action("freelook_right"):
 				var strength : float = event.get_action_strength("freelook_left") - event.get_action_strength("freelook_right")
 				_gimble_yaw_node.rotation_degrees.y = strength * rest_yaw
-#				_gimble_yaw_node.rotation_degrees.y = clamp(
-#					_gimble_yaw_node.rotation_degrees.y + (strength * 10.0),
-#					-max_yaw, max_yaw
-#				)
 	
 	if event.is_action("free_look"):
 		_freelook_enabled = event.is_pressed()
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED if _freelook_enabled else Input.MOUSE_MODE_VISIBLE
-	if event.is_action_pressed("move_foreward"):
-		_MoveHorz(Vector3(0,0,1))
-	if event.is_action_pressed("move_backward"):
-		_MoveHorz(Vector3(0,0,-1))
-	if event.is_action_pressed("move_left"):
-		_MoveHorz(Vector3(1,0,0))
-	if event.is_action_pressed("move_right"):
-		_MoveHorz(Vector3(-1,0,0))
-	if event.is_action_pressed("turn_left"):
-		_Turn(COUNTERCLOCKWISE)
-	if event.is_action_pressed("turn_right"):
-		_Turn(CLOCKWISE)
-	if event.is_action_pressed("dig") and digging_enabled:
-		_Dig(Vector3(0,0,1))
+	if entity != null:
+		if event.is_action_pressed("move_foreward"):
+			_MoveHorz(&"foreward")
+		if event.is_action_pressed("move_backward"):
+			_MoveHorz(&"backward")
+		if event.is_action_pressed("move_left"):
+			_MoveHorz(&"left")
+		if event.is_action_pressed("move_right"):
+			_MoveHorz(&"right")
+		if event.is_action_pressed("turn_left"):
+			_Turn(COUNTERCLOCKWISE)
+		if event.is_action_pressed("turn_right"):
+			_Turn(CLOCKWISE)
+		if event.is_action_pressed("dig") and digging_enabled:
+			_Dig()
 
 
 # ------------------------------------------------------------------------------
@@ -128,30 +130,24 @@ func _AddToMoveQueue(callback : Callable) -> void:
 	if _move_queue.size() < MAX_MOVE_QUEUE_SIZE:
 		_move_queue.append(callback)
 
-func _MoveHorz(dir : Vector3) -> void:
+func _MoveHorz(dir : StringName) -> void:
 	if _tween != null:
 		_AddToMoveQueue(_MoveHorz.bind(dir))
 		return
 	
-	dir = dir.rotated(Vector3.UP, _facing_node.rotation.y)
+	if not entity.can_move(dir): return
+	entity.move(dir)
 	
-	var can_move : bool = false
-	var surf : CrawlGlobals.SURFACE = CrawlGlobals.Get_Surface_From_Direction(dir)
-	if surf != CrawlGlobals.SURFACE.Ground and surf != CrawlGlobals.SURFACE.Ceiling:
-		can_move = not map.is_cell_surface_blocking(Vector3i(position / CELL_SIZE), surf)
-	#print("Facing:")
-	if not can_move: return
-	
-	var target : Vector3 = dir * CELL_SIZE
+	var target : Vector3 = Vector3(entity.position) * CELL_SIZE
 
 	_tween = create_tween()
-	_tween.tween_property(self, "position", position + target, 0.4)
+	_tween.tween_property(self, "position", target, 0.4)
 	_tween.finished.connect(_on_movement_tween_finished)
 
-func _Dig(dir : Vector3) -> void:
-	dir = dir.rotated(Vector3.UP, _facing_node.rotation.y)
-	var surf : CrawlGlobals.SURFACE = CrawlGlobals.Get_Surface_From_Direction(dir)
-	map.dig(Vector3i(position / CELL_SIZE), surf)
+func _Dig() -> void:
+	if entity == null: return
+	var map : CrawlMap = entity.get_map()
+	map.dig(entity.position, entity.facing)
 
 func _Turn(dir : float) -> void:
 	if _tween != null:
@@ -159,6 +155,11 @@ func _Turn(dir : float) -> void:
 		return
 	
 	if dir == CLOCKWISE or dir == COUNTERCLOCKWISE:
+		match dir:
+			COUNTERCLOCKWISE:
+				entity.turn_left()
+			CLOCKWISE:
+				entity.turn_right()
 		var target : float = _facing_node.rotation.y + (DEG90 * dir)
 		_tween = create_tween()
 		_tween.tween_property(_facing_node, "rotation:y", target, 0.2)
@@ -175,14 +176,7 @@ func _on_movement_tween_finished() -> void:
 	if _facing_node.rotation.y < 0.0:
 		_facing_node.rotation.y += 2*PI
 	
-	# This is to fix a rounding error... Not sure if the error is in the
-	# rotation of the direction in the _MoveHorz() method or if it
-	# occures during the tween of the _facing_node.rotation.y value.
-	position = floor(position + Vector3(0.5, 0.5, 0.5))
-	map_position_changed.emit(Vector3i(position / CELL_SIZE))
-	if map != null:
-		map.set_focus_cell(Vector3i(position / CELL_SIZE))
-	#print(position / CELL_SIZE)
+	position = Vector3(entity.position) * CELL_SIZE
 	
 	if _move_queue.size() > 0:
 		var move : Callable = _move_queue.pop_front()

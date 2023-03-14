@@ -22,6 +22,12 @@ func _ready() -> void:
 		Settings.save_config()
 	
 	var cm : CrawlMap = CrawlMap.new()
+	var player_entity : CrawlEntity = CrawlEntity.new()
+	player_entity.uuid = UUID.v7()
+	player_entity.type = &"Player"
+	player_entity.position = Vector3i(0,1,0)
+
+	cm.add_entity(player_entity)
 	
 	cm.add_resource(&"tileA")
 	cm.add_resource(&"tileB")
@@ -35,7 +41,7 @@ func _ready() -> void:
 	cmv.map = cm
 	cmm.map = cm
 	cmm.origin = Vector3i(0,1,0)
-	player.map = cm
+	player.entity = player_entity
 
 
 # ------------------------------------------------------------------------------

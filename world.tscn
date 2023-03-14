@@ -38,7 +38,6 @@ script = ExtResource("1_g38f3")
 [node name="CrawlMapView" parent="." instance=ExtResource("1_hvida")]
 
 [node name="Player" parent="." instance=ExtResource("3_fr7am")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, 0)
 digging_enabled = true
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
@@ -63,5 +62,3 @@ focus_icon = ExtResource("5_5uqa1")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_07ts1")
-
-[connection signal="map_position_changed" from="Player" to="CanvasLayer/CrawlMiniMap" method="set_origin"]

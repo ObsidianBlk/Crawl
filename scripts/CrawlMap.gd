@@ -12,6 +12,9 @@ signal cell_changed(position)
 
 signal focus_changed(focus_position)
 
+signal entity_added(entity)
+signal entity_removed(entity)
+
 # ------------------------------------------------------------------------------
 # Constants and ENUMs
 # ------------------------------------------------------------------------------
@@ -35,6 +38,11 @@ const RESOURCES_SCHEMA : Dictionary = {
 	&"!KEY_OF_TYPE_sn":{&"type":TYPE_STRING_NAME, &"def":{&"type":TYPE_INT, &"min":-1}}
 }
 
+const ENTITY_SEARCH_SCHEMA : Dictionary = {
+	&"position":{&"req":false, &"type":TYPE_VECTOR3I},
+	&"type":{&"req":false, &"type":TYPE_STRING_NAME},
+	&"range":{&"req":false, &"type":TYPE_INT, &"min":0}
+}
 
 # ------------------------------------------------------------------------------
 # "Export" Variables
@@ -53,6 +61,7 @@ var _focus_cell : Vector3i = Vector3i.ZERO
 # ------------------------------------------------------------------------------
 # Override Methods
 # ------------------------------------------------------------------------------
+
 func _get(property : StringName) -> Variant:
 	match property:
 		&"grid":
@@ -85,10 +94,11 @@ func _set(property : StringName, value : Variant) -> bool:
 		&"entities":
 			if typeof(value) == TYPE_DICTIONARY:
 				if _EntitiesValid(value):
-					# TODO: Not this easy. Need to "add" each of these again so they are
-					#  properly annouced... also, clear all those that are currently
-					#  added.
+					clear_entities()
 					_entities = value
+					for uuid in _entities.keys():
+						_entities[uuid]._map = self
+						entity_added.emit(_entities[uuid])
 					success = true
 		&"start_cell":
 			if typeof(value) == TYPE_VECTOR3I:
@@ -136,9 +146,7 @@ func _get_property_list() -> Array:
 func _EntitiesValid(edata : Dictionary) -> bool:
 	for key in edata.keys():
 		if typeof(key) != TYPE_STRING_NAME: return false
-		if typeof(edata[key]) != TYPE_ARRAY: return false
-		for item in edata[key]:
-			if not is_instance_of(item, CrawlEntity): return false
+		if not is_instance_of(edata[key], CrawlEntity): return false
 	return true
 
 func _CreateDefaultCell() -> Dictionary:
@@ -258,24 +266,71 @@ func clear_unused_resources() -> void:
 	_next_rid = highest_rid
 
 func add_entity(entity : CrawlEntity) -> void:
-	if not entity.type in _entities:
-		_entities[entity.type] = []
-	if _entities[entity.type].find(entity) < 0:
-		_entities[entity.type].append(entity)
+	if entity.type == &"" or entity.uuid == &"":
+		return
+	
+	if not entity.uuid in _entities:
+		_entities[entity.uuid] = entity
 		entity._map = self
-		# TODO: Signal it's addition
+		entity_added.emit(entity)
 
 func remove_entity(entity : CrawlEntity) -> void:
-	if not entity.type in _entities: return
-	var idx : int = _entities[entity.type].find(entity)
-	if idx >= 0:
-		_entities[entity.type].remove_at(idx)
-		entity._map = null
-		# TODO: Signal it's removal
+	if not entity.uuid in _entities: return
+	_entities.erase(entity.uuid)
+	entity._map = null
+	entity_removed.emit(entity)
+
+func remove_entity_by_uuid(uuid : StringName) -> void:
+	if not uuid in _entities: return
+	var entity : CrawlEntity = _entities[uuid]
+	_entities.erase(uuid)
+	entity._map = null
+	entity_removed.emit(entity)
+
+func clear_entities() -> void:
+	if _entities.is_empty(): return
+	var uuid_list : Array = _entities.keys()
+	for uuid in uuid_list:
+		remove_entity_by_uuid(uuid)
 
 func has_entity(entity : CrawlEntity) -> bool:
-	if not entity.type in _entities: return false
-	return _entities[entity.type].find(entity) >= 0
+	return entity.uuid in _entities
+
+func has_entity_uuid(uuid : StringName) -> bool:
+	return uuid in _entities
+
+func get_entity(uuid : StringName) -> CrawlEntity:
+	if not uuid in _entities: return null
+	return _entities[uuid]
+
+func get_entities(options : Dictionary) -> Array:
+	if DSV.verify(options, ENTITY_SEARCH_SCHEMA) != OK: return []
+	
+	var earr : Array = []
+	for uuid in _entities.keys():
+		if &"position" in options:
+			if &"range" in options and options[&"range"] > 0:
+				var from : Vector3 = Vector3(options[&"position"])
+				var to : Vector3 = Vector3(_entities[uuid].position)
+				var d : float = from.distance_to(to)
+				if d > options[&"range"]:
+					continue
+			else:
+				if _entities[uuid].position != options[&"position"]: continue
+		if &"type" in options:
+			if _entities[uuid].type != options[&"type"]: continue
+		earr.append(_entities[uuid])
+	return earr
+
+
+func clear_entities_outside_map() -> void:
+	var removal : Array = []
+	for type in _entities.keys():
+		for entity in _entities[type]:
+			if not entity.position in _grid:
+				removal.append(entity)
+	for entity in removal:
+		remove_entity(entity)
 
 func add_cell(position : Vector3i, open_to_adjacent : bool = false) -> int:
 	if position in _grid:

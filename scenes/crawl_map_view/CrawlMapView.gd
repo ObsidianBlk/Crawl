@@ -11,6 +11,7 @@ const CELL_SIZE : float = 5.0
 # Export Variables
 # ------------------------------------------------------------------------------
 @export var map : CrawlMap = null :				set = set_map
+@export var focus_type : StringName = &""
 @export var unit_radius : int = 4 :				set = set_unit_radius
 
 # ------------------------------------------------------------------------------
@@ -19,6 +20,8 @@ const CELL_SIZE : float = 5.0
 var _cells : Dictionary = {}
 var _map_changed : bool = false
 var _cell_update_requested : bool = false
+
+var _focus_entity : WeakRef = weakref(null)
 
 # ------------------------------------------------------------------------------
 # Onready Variables
@@ -30,15 +33,26 @@ var _cell_update_requested : bool = false
 # ------------------------------------------------------------------------------
 func set_map(cmap : CrawlMap) -> void:
 	if cmap != map:
-		if map != null:
-			if map.focus_changed.is_connected(_UpdateCells):
-				map.focus_changed.disconnect(_UpdateCells)
+#		if _focus_entity.get_ref() != null:
+#			var entity : CrawlEntity = _focus_entity.get_ref()
+#			if entity.position_change.is_connected(_on_focus_position_changed):
+#				entity.position_changed.disconnect(_on_focus_position_changed)
+#			if entity.facing_change.is_connected(_on_focus_facing_changed):
+#				entity.facing_changed.disconnect(_on_focus_facing_changed)
+#			_focus_entity = weakref(null)
+		
 		map = cmap
-		if map != null:
-			if not map.focus_changed.is_connected(_UpdateCells):
-				map.focus_changed.connect(_UpdateCells)
+		_UpdateFocusEntity()
+#		if map != null:
+#			if not map.focus_changed.is_connected(_UpdateCells):
+#				map.focus_changed.connect(_UpdateCells)
 		_map_changed = true
 		_cell_update_requested = true
+
+func set_focus_type(t : StringName) -> void:
+	if t != &"" and t != focus_type:
+		focus_type = t
+		_UpdateFocusEntity()
 
 func set_unit_radius(ur : int) -> void:
 	if ur > 0 and ur != unit_radius:
@@ -57,6 +71,20 @@ func _process(_delta : float) -> void:
 # ------------------------------------------------------------------------------
 # Private Methods
 # ------------------------------------------------------------------------------
+func _UpdateFocusEntity() -> void:
+	var entity : CrawlEntity = _focus_entity.get_ref()
+	if entity != null:
+		if map != null and entity.get_map() == map and entity.type == focus_type:
+			return
+		# TODO: Disconnect all Signals!!!
+		_focus_entity = weakref(null)
+	if map == null: return
+
+	var elist : Array = map.get_entities({&"type":focus_type})
+	if elist.size() > 0:
+		# TODO: Connect all signals!!!
+		_focus_entity = weakref(elist[0])
+
 func _UpdateCells(origin : Vector3i) -> void:
 	if cell_container == null: return
 	
@@ -96,6 +124,12 @@ func _UpdateCells(origin : Vector3i) -> void:
 # ------------------------------------------------------------------------------
 # Handler Methods
 # ------------------------------------------------------------------------------
+func _on_focus_position_changed(from : Vector3i, to : Vector3i) -> void:
+	pass
+
+func _on_focus_facing_changed(from : CrawlGlobals.SURFACE, to : CrawlGlobals.SURFACE) -> void:
+	pass
+
 func _on_focus_changed(focus_position : Vector3i) -> void:
 	_cell_update_requested = true
 

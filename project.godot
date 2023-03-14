@@ -17,6 +17,7 @@ config/icon="res://icon.svg"
 
 [autoload]
 
+UUID="*res://scripts/autos/UUID.gd"
 Settings="*res://scripts/autos/Settings.gd"
 DSV="*res://scripts/autos/DSV.gd"
 RLT="*res://scripts/autos/RLT.gd"

@@ -11,6 +11,7 @@ signal facing_changed(from, to)
 # ------------------------------------------------------------------------------
 # Export Variables
 # ------------------------------------------------------------------------------
+@export var uuid : StringName = &""
 @export var type : StringName = &""
 @export var position : Vector3i = Vector3i.ZERO:						set = set_position
 @export var facing : CrawlGlobals.SURFACE = CrawlGlobals.SURFACE.North:	set = set_facing
@@ -26,6 +27,14 @@ var _map : CrawlMap = null
 # ------------------------------------------------------------------------------
 # Setters
 # ------------------------------------------------------------------------------
+func set_uuid(id : StringName) -> void:
+	if uuid == &"" and id != &"":
+		uuid = id
+
+func set_type(t : StringName) -> void:
+	if type == &"" and t != &"":
+		type = t
+
 func set_position(pos : Vector3i) -> void:
 	if pos != position:
 		var from : Vector3i = position
@@ -45,13 +54,39 @@ func set_facing(f : CrawlGlobals.SURFACE) -> void:
 # ------------------------------------------------------------------------------
 # Private Methods
 # ------------------------------------------------------------------------------
+func _DirectionNameToFacing(dir : StringName) -> CrawlGlobals.SURFACE:
+	var d_facing : CrawlGlobals.SURFACE = CrawlGlobals.SURFACE.Ground
+	match dir:
+		&"foreward":
+			d_facing = facing
+		&"backward":
+			d_facing = CrawlGlobals.Get_Adjacent_Surface(facing)
+		&"left":
+			d_facing = CrawlGlobals.Get_Surface_90Deg(facing, 1)
+		&"right":
+			d_facing = CrawlGlobals.Get_Surface_90Deg(facing, -1)
+	return d_facing
 
-func _Move(dir : CrawlGlobals.SURFACE) -> int:
+func _CanMove(dir : CrawlGlobals.SURFACE) -> bool:
 	var neighbor_position : Vector3i = position + CrawlGlobals.Get_Direction_From_Surface(dir)
-	if _map != null:
-		if _map.is_cell_surface_blocking(position, dir):
+	if _map == null : return false
+	if _map.is_cell_surface_blocking(position, dir): return false
+	var entities : Array = _map.get_entities({&"position": neighbor_position})
+	if entities.size() > 0:
+		var adj_dir : CrawlGlobals.SURFACE = CrawlGlobals.Get_Adjacent_Surface(dir)
+		for entity in entities:
+			if entity.is_blocking(adj_dir):
+				return false
+	return true
+
+func _Move(dir : CrawlGlobals.SURFACE, ignore_map : bool) -> int:
+	var neighbor_position : Vector3i = position + CrawlGlobals.Get_Direction_From_Surface(dir)
+	if _map != null and not ignore_map:
+		if not _CanMove(dir):
 			return ERR_UNAVAILABLE
-		# TODO: Check if neighbor position is occupied by a blocking entity!
+	
+	position = neighbor_position
+	position_changed.emit()
 	
 	return OK
 
@@ -72,20 +107,19 @@ func is_blocking(surface : CrawlGlobals.SURFACE) -> bool:
 	var i : int = CrawlGlobals.SURFACE.values().find(surface)
 	return (blocking & (1 << i)) != 0
 
-func move(back : bool = false) -> void:
-	var dir : CrawlGlobals.SURFACE = facing
-	if back:
-		dir = CrawlGlobals.Get_Adjacent_Surface(facing)
-	_Move(dir)
+func can_move(dir : StringName) -> bool:
+	var d_facing : CrawlGlobals.SURFACE = _DirectionNameToFacing(dir)
+	return false if d_facing == CrawlGlobals.SURFACE.Ground else _CanMove(d_facing)
 
-func strafe_left() -> void:
-	_Move(CrawlGlobals.Get_Surface_90Deg(facing, 1))
-
-func strafe_right() -> void:
-	_Move(CrawlGlobals.Get_Surface_90Deg(facing, 1))
+func move(dir : StringName, ignore_map : bool = false) -> void:
+	var d_facing : CrawlGlobals.SURFACE = _DirectionNameToFacing(dir)
+	if d_facing == CrawlGlobals.SURFACE.Ground: return
+	_Move(d_facing, ignore_map)
 
 func turn_left() -> void:
 	facing = CrawlGlobals.Get_Surface_90Deg(facing, 1)
+	facing_changed.emit()
 
 func turn_right() -> void:
 	facing = CrawlGlobals.Get_Surface_90Deg(facing, -1)
+	facing_changed.emit()
