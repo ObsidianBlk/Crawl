@@ -35,12 +35,12 @@ func _ready() -> void:
 	#cm.dig_room(Vector3i(0,1,0), Vector3i(1,1,1), 1,1,0)
 	cm.dig_room(Vector3i(-3, 1, -3), Vector3i(6, 1, 6), 1, 1, 0)
 	cm.dig_room(Vector3i(4, 1, -3), Vector3i(1, 1, 6), 1, 1, 0)
-	cm.set_focus_cell(Vector3i(0,1,0))
+	#cm.set_focus_cell(Vector3i(0,1,0))
 	
 	
 	cmv.map = cm
 	cmm.map = cm
-	cmm.origin = Vector3i(0,1,0)
+	#cmm.origin = Vector3i(0,1,0)
 	player.entity = player_entity
 
 

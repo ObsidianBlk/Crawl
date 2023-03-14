@@ -10,8 +10,6 @@ signal cell_added(position)
 signal cell_removed(position)
 signal cell_changed(position)
 
-signal focus_changed(focus_position)
-
 signal entity_added(entity)
 signal entity_removed(entity)
 
@@ -50,13 +48,11 @@ const ENTITY_SEARCH_SCHEMA : Dictionary = {
 var _resources : Dictionary = {}
 var _grid : Dictionary = {}
 var _entities : Dictionary = {}
-var _start_cell : Vector3i = Vector3i.ZERO
 
 # ------------------------------------------------------------------------------
 # Variables
 # ------------------------------------------------------------------------------
 var _next_rid : int = 0
-var _focus_cell : Vector3i = Vector3i.ZERO
 
 # ------------------------------------------------------------------------------
 # Override Methods
@@ -70,8 +66,6 @@ func _get(property : StringName) -> Variant:
 			return _resources
 		&"entities":
 			return _entities
-		&"start_cell":
-			return _start_cell
 	return null
 
 func _set(property : StringName, value : Variant) -> bool:
@@ -100,12 +94,6 @@ func _set(property : StringName, value : Variant) -> bool:
 						_entities[uuid]._map = self
 						entity_added.emit(_entities[uuid])
 					success = true
-		&"start_cell":
-			if typeof(value) == TYPE_VECTOR3I:
-				if not value in _grid:
-					printerr("CrawlMap Warning: Assigned start cell, ", value, ", is not currently defined in the grid.")
-				_start_cell = value
-				success = true
 	
 	return success
 
@@ -130,11 +118,6 @@ func _get_property_list() -> Array:
 			name = "resources",
 			type = TYPE_DICTIONARY,
 			usage = PROPERTY_USAGE_STORAGE
-		},
-		{
-			name = "start_cell",
-			type = TYPE_VECTOR3I,
-			usage = PROPERTY_USAGE_DEFAULT
 		},
 	]
 	
@@ -221,7 +204,6 @@ func _GetCellSurface(position : Vector3i, surface : CrawlGlobals.SURFACE) -> Dic
 # ------------------------------------------------------------------------------
 func clone() -> CrawlMap:
 	var cm : CrawlMap = CrawlMap.new()
-	cm.start_cell = _start_cell
 	cm.grid = _CloneGrid()
 	return cm
 
@@ -492,23 +474,6 @@ func get_used_cells_from(position : Vector3i, visited_only : bool = false, limit
 			continue
 		cells.append(cell)
 	return cells
-
-func set_focus_cell(focus : Vector3i) -> void:
-	var old_focus : Vector3i = _focus_cell
-	if _grid.is_empty() or focus in _grid:
-		_focus_cell = focus
-	elif not _focus_cell in _grid:
-		if _start_cell in _grid:
-			_focus_cell = _start_cell
-		else:
-			_focus_cell = _grid.keys()[0]
-	if _focus_cell != old_focus:
-		focus_changed.emit(_focus_cell)
-
-func get_focus_cell() -> Vector3i:
-	if not _grid.is_empty() and not _focus_cell in _grid:
-		return _grid.keys()[0]
-	return _focus_cell
 
 
 func dig(position : Vector3i, direction : CrawlGlobals.SURFACE) -> void:

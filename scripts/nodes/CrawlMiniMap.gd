@@ -12,12 +12,13 @@ signal cell_pressed(cell_position)
 # Constants
 # ------------------------------------------------------------------------------
 const SELECTION_BLINK_INTERVAL : float = 0.08
+const FOCUS_ENTITY_TYPE : StringName = &"Player"
 
 # ------------------------------------------------------------------------------
 # Export Variables
 # ------------------------------------------------------------------------------
 @export var map : CrawlMap = null:								set = set_map
-@export var origin : Vector3i = Vector3i.ZERO:					set = set_origin
+#@export var origin : Vector3i = Vector3i.ZERO:					set = set_origin
 @export var cell_size : float = 16.0:							set = set_cell_size
 @export var background_color : Color = Color.DARK_GOLDENROD:	set = set_background_color
 @export var background_texture : Texture = null:				set = set_background_texture
@@ -31,6 +32,10 @@ const SELECTION_BLINK_INTERVAL : float = 0.08
 # ------------------------------------------------------------------------------
 # Variables
 # ------------------------------------------------------------------------------
+var _focus_entity : WeakRef = weakref(null)
+var _origin : Vector3i = Vector3i.ZERO
+var _facing : CrawlGlobals.SURFACE = CrawlGlobals.SURFACE.North
+
 var _mouse_entered : bool = false
 var _last_mouse_position : Vector2 = Vector2.ZERO
 
@@ -50,13 +55,14 @@ func set_map(m : CrawlMap) -> void:
 	if m != map:
 		# TODO: Possible signal disconnections
 		map = m
+		_UpdateFocusEntity()
 		# TODO: Possible signal connections
 		queue_redraw()
 
-func set_origin(o : Vector3i) -> void:
-	if origin != o:
-		origin = o
-		queue_redraw()
+#func set_origin(o : Vector3i) -> void:
+#	if origin != o:
+#		origin = o
+#		queue_redraw()
 
 func set_cell_size(s : float) -> void:
 	if s > 0 and s != cell_size:
@@ -119,7 +125,7 @@ func _draw() -> void:
 	# Area region. May not be needed :)
 	var area_region : Rect2i = _CalcSelectionRegion(
 		Vector2i(_area_start.x, _area_start.z), 
-		Vector2i(origin.x, origin.z)
+		Vector2i(_origin.x, _origin.z)
 	)
 	
 	if background_texture != null:
@@ -149,11 +155,11 @@ func _draw() -> void:
 	
 	for cy in range(-(cell_range.y + 1), cell_range.y):
 		for cx in range(-(cell_range.x + 1), cell_range.x):
-			var map_position : Vector3i = origin + Vector3i(cx, 0, cy)
+			var map_position : Vector3i = _origin + Vector3i(cx, 0, cy)
 			var screen_position : Vector2 = Vector2(ox - (cx * cell_size), oy - (cy * cell_size))
 			
 			# Drawing area selector one cell at a time.
-			if _selectors_visible and _area_enabled and area_region.has_point(Vector2i(origin.x, origin.z) + Vector2i(cx, cy)):
+			if _selectors_visible and _area_enabled and area_region.has_point(Vector2i(_origin.x, _origin.z) + Vector2i(cx, cy)):
 				if canvas_region.encloses(Rect2(screen_position, Vector2(cell_size, cell_size))):
 					draw_rect(Rect2(screen_position, Vector2(cell_size, cell_size)), selection_color)
 				
@@ -195,6 +201,29 @@ func _notification(what : int) -> void:
 # ------------------------------------------------------------------------------
 # Private Methods
 # ------------------------------------------------------------------------------
+func _UpdateFocusEntity() -> void:
+	var entity : CrawlEntity = _focus_entity.get_ref()
+	if entity != null:
+		if map != null and entity.get_map() == map and entity.type == FOCUS_ENTITY_TYPE:
+			return # We're still satisfied
+		if entity.position_changed.is_connected(_on_focus_position_changed):
+			entity.position_changed.disconnect(_on_focus_position_changed)
+		if entity.facing_changed.is_connected(_on_focus_facing_changed):
+			entity.facing_changed.disconnect(_on_focus_facing_changed)
+		_focus_entity = weakref(null)
+	if map != null:
+		var elist : Array = map.get_entities({&"type":FOCUS_ENTITY_TYPE})
+		if elist.size() > 0:
+			if not elist[0].position_changed.is_connected(_on_focus_position_changed):
+				elist[0].position_changed.connect(_on_focus_position_changed)
+			if not elist[0].facing_changed.is_connected(_on_focus_facing_changed):
+				elist[0].facing_changed.connect(_on_focus_facing_changed)
+			_focus_entity = weakref(elist[0])
+			_facing = elist[0].facing
+			_origin = elist[0].position
+			_UpdateCurdorFacing()
+			queue_redraw()
+
 func _DrawCell(map_position : Vector3i, screen_position : Vector2) -> void:
 	draw_rect(Rect2(screen_position, Vector2(cell_size * 0.9, cell_size * 0.9)), cell_color)
 	if map.is_cell_surface_blocking(map_position, CrawlGlobals.SURFACE.North):
@@ -237,7 +266,15 @@ func _UpdateCursor() -> void:
 		if _cursor_sprite.texture != focus_icon:
 			_cursor_sprite.texture = focus_icon
 		if _cursor_sprite.texture != null:
-			_cursor_sprite.scale = Vector2(cell_size, cell_size) / _cursor_sprite.texture.get_size()
+			var tsize : Vector2 = _cursor_sprite.texture.get_size()
+			_cursor_sprite.scale = Vector2(cell_size, cell_size) / tsize
+			_cursor_sprite.pivot_offset = tsize * 0.5
+
+func _UpdateCurdorFacing() -> void:
+	if _cursor_sprite == null: return
+	var fdir : Vector3i = CrawlGlobals.Get_Direction_From_Surface(_facing)
+	var direction : Vector2 = Vector2(fdir.x, fdir.z)
+	_cursor_sprite.rotation = Vector2.DOWN.angle_to(direction)
 
 # ------------------------------------------------------------------------------
 # Public Methods
@@ -252,6 +289,14 @@ func end_selection() -> void:
 # ------------------------------------------------------------------------------
 # Handler Methods
 # ------------------------------------------------------------------------------
+func _on_focus_position_changed(from : Vector3i, to : Vector3i) -> void:
+	_origin = to
+	queue_redraw()
+
+func _on_focus_facing_changed(from : CrawlGlobals.SURFACE, to : CrawlGlobals.SURFACE) -> void:
+	_facing = to
+	_UpdateCurdorFacing()
+
 func _on_selection_blink() -> void:
 	_selectors_visible = not _selectors_visible
 	var timer : SceneTreeTimer = get_tree().create_timer(SELECTION_BLINK_INTERVAL)

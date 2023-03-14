@@ -36,6 +36,7 @@ volumetric_fog_temporal_reprojection_enabled = false
 script = ExtResource("1_g38f3")
 
 [node name="CrawlMapView" parent="." instance=ExtResource("1_hvida")]
+focus_type = &"Player"
 
 [node name="Player" parent="." instance=ExtResource("3_fr7am")]
 digging_enabled = true

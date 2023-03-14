@@ -85,8 +85,9 @@ func _Move(dir : CrawlGlobals.SURFACE, ignore_map : bool) -> int:
 		if not _CanMove(dir):
 			return ERR_UNAVAILABLE
 	
+	var pold : Vector3i = position
 	position = neighbor_position
-	position_changed.emit()
+	position_changed.emit(pold, position)
 	
 	return OK
 
@@ -117,9 +118,11 @@ func move(dir : StringName, ignore_map : bool = false) -> void:
 	_Move(d_facing, ignore_map)
 
 func turn_left() -> void:
+	var ofacing : CrawlGlobals.SURFACE = facing
 	facing = CrawlGlobals.Get_Surface_90Deg(facing, 1)
-	facing_changed.emit()
+	facing_changed.emit(ofacing, facing)
 
 func turn_right() -> void:
+	var ofacing : CrawlGlobals.SURFACE = facing
 	facing = CrawlGlobals.Get_Surface_90Deg(facing, -1)
-	facing_changed.emit()
+	facing_changed.emit(ofacing, facing)
