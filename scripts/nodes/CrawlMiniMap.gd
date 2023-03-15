@@ -111,6 +111,9 @@ func set_ignore_focus(i : bool) -> void:
 # Override Methods
 # ------------------------------------------------------------------------------
 func _ready() -> void:
+	if Engine.is_editor_hint(): return
+	
+	resized.connect(_on_resized)
 	_cursor_sprite = TextureRect.new()
 	_cursor_sprite.stretch_mode = TextureRect.STRETCH_SCALE
 	add_child(_cursor_sprite)
@@ -267,11 +270,15 @@ func _UpdateCursor() -> void:
 			_cursor_sprite.texture = focus_icon
 		if _cursor_sprite.texture != null:
 			var tsize : Vector2 = _cursor_sprite.texture.get_size()
-			_cursor_sprite.scale = Vector2(cell_size, cell_size) / tsize
 			_cursor_sprite.pivot_offset = tsize * 0.5
+			#print("Texture Size: ", tsize, " | Target Scale: ", Vector2(cell_size, cell_size) / tsize)
+			#print(_cursor_sprite.get_size())
+			#_cursor_sprite.set_size(tsize, true)
+			_cursor_sprite.scale = Vector2(cell_size, cell_size) / tsize
 
 func _UpdateCurdorFacing() -> void:
 	if _cursor_sprite == null: return
+	print("Cursor Update: ", _cursor_sprite.get_size())
 	var fdir : Vector3i = CrawlGlobals.Get_Direction_From_Surface(_facing)
 	var direction : Vector2 = Vector2(fdir.x, fdir.z)
 	_cursor_sprite.rotation = Vector2.DOWN.angle_to(direction)
@@ -289,6 +296,9 @@ func end_selection() -> void:
 # ------------------------------------------------------------------------------
 # Handler Methods
 # ------------------------------------------------------------------------------
+func _on_resized() -> void:
+	_UpdateCursor()
+
 func _on_focus_position_changed(from : Vector3i, to : Vector3i) -> void:
 	_origin = to
 	queue_redraw()
@@ -298,6 +308,8 @@ func _on_focus_facing_changed(from : CrawlGlobals.SURFACE, to : CrawlGlobals.SUR
 	_UpdateCurdorFacing()
 
 func _on_selection_blink() -> void:
+	if Engine.is_editor_hint(): return
+
 	_selectors_visible = not _selectors_visible
 	var timer : SceneTreeTimer = get_tree().create_timer(SELECTION_BLINK_INTERVAL)
 	timer.timeout.connect(_on_selection_blink)

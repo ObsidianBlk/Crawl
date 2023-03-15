@@ -1,0 +1,47 @@
+[gd_scene load_steps=6 format=3 uid="uid://cx2tjtwfgedte"]
+
+[ext_resource type="PackedScene" uid="uid://b4kugyrq8jxcl" path="res://scenes/crawl_map_view/CrawlMapView.tscn" id="1_vacan"]
+[ext_resource type="Script" path="res://scenes/dungeon_editor/DungeonEditor.gd" id="1_yqpdw"]
+[ext_resource type="PackedScene" uid="uid://dmxms58ooi31r" path="res://objects/viewer/Viewer.tscn" id="2_hmrwf"]
+[ext_resource type="Script" path="res://scripts/nodes/CrawlMiniMap.gd" id="2_ikbiv"]
+[ext_resource type="Texture2D" uid="uid://c8eypxhmjyi3n" path="res://assets/icons/arrow_up.svg" id="5_curq0"]
+
+[node name="DungeonEditor" type="Node3D"]
+script = ExtResource("1_yqpdw")
+
+[node name="CrawlMapView" parent="." instance=ExtResource("1_vacan")]
+unique_name_in_owner = true
+focus_type = &"Player"
+
+[node name="Viewer" parent="." instance=ExtResource("2_hmrwf")]
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="Editor" type="VBoxContainer" parent="UI"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="OptionsBar" type="PanelContainer" parent="UI/Editor"]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+
+[node name="Body" type="HBoxContainer" parent="UI/Editor"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="CrawlMiniMap" type="Control" parent="UI/Editor/Body"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+script = ExtResource("2_ikbiv")
+cell_size = 48.0
+background_color = Color(0, 0, 0, 0.156863)
+focus_icon = ExtResource("5_curq0")
+ignore_focus = false
+
+[node name="SideBar" type="MarginContainer" parent="UI/Editor/Body"]
+custom_minimum_size = Vector2(256, 0)
+layout_mode = 2

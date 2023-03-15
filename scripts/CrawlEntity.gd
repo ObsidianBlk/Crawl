@@ -65,6 +65,10 @@ func _DirectionNameToFacing(dir : StringName) -> CrawlGlobals.SURFACE:
 			d_facing = CrawlGlobals.Get_Surface_90Deg(facing, 1)
 		&"right":
 			d_facing = CrawlGlobals.Get_Surface_90Deg(facing, -1)
+		&"up":
+			d_facing = CrawlGlobals.SURFACE.Ceiling
+		&"down":
+			d_facing = CrawlGlobals.SURFACE.Ground
 	return d_facing
 
 func _CanMove(dir : CrawlGlobals.SURFACE) -> bool:
@@ -110,11 +114,10 @@ func is_blocking(surface : CrawlGlobals.SURFACE) -> bool:
 
 func can_move(dir : StringName) -> bool:
 	var d_facing : CrawlGlobals.SURFACE = _DirectionNameToFacing(dir)
-	return false if d_facing == CrawlGlobals.SURFACE.Ground else _CanMove(d_facing)
+	return _CanMove(d_facing)
 
 func move(dir : StringName, ignore_map : bool = false) -> void:
 	var d_facing : CrawlGlobals.SURFACE = _DirectionNameToFacing(dir)
-	if d_facing == CrawlGlobals.SURFACE.Ground: return
 	_Move(d_facing, ignore_map)
 
 func turn_left() -> void:

@@ -1,0 +1,29 @@
+[gd_scene load_steps=3 format=3 uid="uid://dmxms58ooi31r"]
+
+[ext_resource type="Script" path="res://objects/viewer/Viewer.gd" id="1_b3rqr"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_idpsr"]
+
+[node name="Viewer" type="Node3D"]
+script = ExtResource("1_b3rqr")
+
+[node name="Reference" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+mesh = SubResource("CapsuleMesh_idpsr")
+
+[node name="Facing" type="Node3D" parent="."]
+
+[node name="Gimble_Yaw" type="Node3D" parent="Facing"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.8, -1.8)
+
+[node name="Gimble_Pitch" type="Node3D" parent="Facing/Gimble_Yaw"]
+
+[node name="Camera3D" type="Camera3D" parent="Facing/Gimble_Yaw/Gimble_Pitch"]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 0, 0)
+current = true
+
+[node name="SpotLight3D" type="SpotLight3D" parent="Facing/Gimble_Yaw/Gimble_Pitch"]
+transform = Transform3D(1, 0, 0, 0, -1, 8.74228e-08, 0, -8.74228e-08, -1, 0, 0, 0)
+light_color = Color(0.72549, 0.639216, 0.6, 1)
+light_volumetric_fog_energy = 0.0
+spot_range = 9.0

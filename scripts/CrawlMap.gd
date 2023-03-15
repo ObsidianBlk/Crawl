@@ -475,6 +475,15 @@ func get_used_cells_from(position : Vector3i, visited_only : bool = false, limit
 		cells.append(cell)
 	return cells
 
+func fill(position : Vector3i, direction : CrawlGlobals.SURFACE) -> void:
+	var neighbor_position : Vector3i = _CalcNeighborFrom(position, direction)
+	if not neighbor_position in _grid: return
+	remove_cell(neighbor_position)
+	for surface in CrawlGlobals.SURFACE.values():
+		var cell_position : Vector3i = _CalcNeighborFrom(neighbor_position, surface)
+		if not cell_position in _grid: continue
+		var opposite_surface : CrawlGlobals.SURFACE = CrawlGlobals.Get_Adjacent_Surface(surface)
+		set_cell_surface(cell_position, opposite_surface, true, RESOURCE_WALL_DEFAULT)
 
 func dig(position : Vector3i, direction : CrawlGlobals.SURFACE) -> void:
 	if not position in _grid:
