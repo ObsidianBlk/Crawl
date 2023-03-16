@@ -174,7 +174,6 @@ func _draw() -> void:
 			# Draw mouse cursor if mouse in the scene...
 			if _selectors_visible and _mouse_entered and mouse_position == Vector2i(-cx, -cy):
 				draw_rect(Rect2(screen_position, Vector2(cell_size, cell_size)), selection_color, false, 1.0)
-	
 	#draw_circle(Vector2(ox, oy) + (Vector2(0.5, 0.5) * cell_size), cell_size * 0.5, Color.TOMATO)
 
 func _gui_input(event : InputEvent) -> void:
@@ -224,11 +223,74 @@ func _UpdateFocusEntity() -> void:
 			_focus_entity = weakref(elist[0])
 			_facing = elist[0].facing
 			_origin = elist[0].position
-			_UpdateCurdorFacing()
+			_UpdateCursorFacing()
 			queue_redraw()
 
 func _DrawCell(map_position : Vector3i, screen_position : Vector2) -> void:
-	draw_rect(Rect2(screen_position, Vector2(cell_size * 0.9, cell_size * 0.9)), cell_color)
+	var cell_size_v : Vector2 = Vector2.ONE * cell_size
+	var rect_pos : Vector2 = cell_size_v * 0.05
+	var rect_size : Vector2 = cell_size_v * 0.9
+	var inner_pos : Vector2 = cell_size_v * 0.3
+	var inner_size : Vector2 = cell_size_v * 0.3
+	var runit : Vector2 = (rect_size - inner_size) * 0.5
+	#draw_rect(Rect2(screen_position, Vector2(cell_size * 0.9, cell_size * 0.9)), cell_color)
+	if map.is_cell_surface_blocking(map_position, CrawlGlobals.SURFACE.Ground):
+		draw_rect(Rect2(screen_position + inner_pos, inner_size), cell_color)
+	else:
+		draw_rect(Rect2(screen_position + inner_pos, inner_size), cell_color, false, 1.0)
+	
+	if map.is_cell_surface_blocking(map_position, CrawlGlobals.SURFACE.Ceiling):
+		print("There is a ceiling")
+		draw_colored_polygon(PackedVector2Array([
+				screen_position + (-cell_size_v * 0.5),
+				screen_position + (cell_size_v * 0.5),
+				screen_position + ((cell_size_v * 0.5) - runit),
+				screen_position + ((-cell_size_v * 0.5) + runit)
+			]), cell_color)
+		draw_colored_polygon(PackedVector2Array([
+				screen_position + (-cell_size_v * 0.5).rotated(deg_to_rad(90)),
+				screen_position + (cell_size_v * 0.5).rotated(deg_to_rad(90)),
+				screen_position + ((cell_size_v * 0.5) - runit).rotated(deg_to_rad(90)),
+				screen_position + ((-cell_size_v * 0.5) + runit).rotated(deg_to_rad(90))
+			]), cell_color)
+		draw_colored_polygon(PackedVector2Array([
+				screen_position + (-cell_size_v * 0.5).rotated(deg_to_rad(180)),
+				screen_position + (cell_size_v * 0.5).rotated(deg_to_rad(180)),
+				screen_position + ((cell_size_v * 0.5) - runit).rotated(deg_to_rad(180)),
+				screen_position + ((-cell_size_v * 0.5) + runit).rotated(deg_to_rad(180))
+			]), cell_color)
+		draw_colored_polygon(PackedVector2Array([
+				screen_position + (-cell_size_v * 0.5).rotated(deg_to_rad(270)),
+				screen_position + (cell_size_v * 0.5).rotated(deg_to_rad(270)),
+				screen_position + ((cell_size_v * 0.5) - runit).rotated(deg_to_rad(270)),
+				screen_position + ((-cell_size_v * 0.5) + runit).rotated(deg_to_rad(270))
+			]), cell_color)
+	else:
+		draw_polyline(PackedVector2Array([
+				screen_position + (-cell_size_v * 0.5),
+				screen_position + (cell_size_v * 0.5),
+				screen_position + ((cell_size_v * 0.5) - runit),
+				screen_position + ((-cell_size_v * 0.5) + runit)
+			]), cell_color, 1.0, true)
+		draw_polyline(PackedVector2Array([
+				screen_position + (-cell_size_v * 0.5).rotated(deg_to_rad(90)),
+				screen_position + (cell_size_v * 0.5).rotated(deg_to_rad(90)),
+				screen_position + ((cell_size_v * 0.5) - runit).rotated(deg_to_rad(90)),
+				screen_position + ((-cell_size_v * 0.5) + runit).rotated(deg_to_rad(90))
+			]), cell_color, 1.0, true)
+		draw_polyline(PackedVector2Array([
+				screen_position + (-cell_size_v * 0.5).rotated(deg_to_rad(180)),
+				screen_position + (cell_size_v * 0.5).rotated(deg_to_rad(180)),
+				screen_position + ((cell_size_v * 0.5) - runit).rotated(deg_to_rad(180)),
+				screen_position + ((-cell_size_v * 0.5) + runit).rotated(deg_to_rad(180))
+			]), cell_color, 1.0, true)
+		draw_polyline(PackedVector2Array([
+				screen_position + (-cell_size_v * 0.5).rotated(deg_to_rad(270)),
+				screen_position + (cell_size_v * 0.5).rotated(deg_to_rad(270)),
+				screen_position + ((cell_size_v * 0.5) - runit).rotated(deg_to_rad(270)),
+				screen_position + ((-cell_size_v * 0.5) + runit).rotated(deg_to_rad(270))
+			]), cell_color, 1.0, true)
+	
 	if map.is_cell_surface_blocking(map_position, CrawlGlobals.SURFACE.North):
 		draw_line(
 			screen_position,
@@ -264,8 +326,10 @@ func _CalcSelectionRegion(from : Vector2i, to : Vector2i) -> Rect2i:
 	return Rect2i(fx, fy, sx, sy)
 
 func _UpdateCursor() -> void:
+	var vhalf : Vector2 = Vector2.ONE * 0.5
 	if _cursor_sprite != null:
-		_cursor_sprite.position = (get_size() * 0.5) - (Vector2(0.5, 0.5) * cell_size)
+		_cursor_sprite.position = (get_size() * 0.5)
+		
 		if _cursor_sprite.texture != focus_icon:
 			_cursor_sprite.texture = focus_icon
 		if _cursor_sprite.texture != null:
@@ -275,10 +339,10 @@ func _UpdateCursor() -> void:
 			#print(_cursor_sprite.get_size())
 			#_cursor_sprite.set_size(tsize, true)
 			_cursor_sprite.scale = Vector2(cell_size, cell_size) / tsize
+			_cursor_sprite.position -= tsize * 0.5
 
-func _UpdateCurdorFacing() -> void:
+func _UpdateCursorFacing() -> void:
 	if _cursor_sprite == null: return
-	print("Cursor Update: ", _cursor_sprite.get_size())
 	var fdir : Vector3i = CrawlGlobals.Get_Direction_From_Surface(_facing)
 	var direction : Vector2 = Vector2(fdir.x, fdir.z)
 	_cursor_sprite.rotation = Vector2.DOWN.angle_to(direction)
@@ -305,7 +369,7 @@ func _on_focus_position_changed(from : Vector3i, to : Vector3i) -> void:
 
 func _on_focus_facing_changed(from : CrawlGlobals.SURFACE, to : CrawlGlobals.SURFACE) -> void:
 	_facing = to
-	_UpdateCurdorFacing()
+	_UpdateCursorFacing()
 
 func _on_selection_blink() -> void:
 	if Engine.is_editor_hint(): return
