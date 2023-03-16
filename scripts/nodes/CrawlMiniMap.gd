@@ -228,68 +228,49 @@ func _UpdateFocusEntity() -> void:
 
 func _DrawCell(map_position : Vector3i, screen_position : Vector2) -> void:
 	var cell_size_v : Vector2 = Vector2.ONE * cell_size
-	var rect_pos : Vector2 = cell_size_v * 0.05
-	var rect_size : Vector2 = cell_size_v * 0.9
-	var inner_pos : Vector2 = cell_size_v * 0.3
 	var inner_size : Vector2 = cell_size_v * 0.3
-	var runit : Vector2 = (rect_size - inner_size) * 0.5
-	#draw_rect(Rect2(screen_position, Vector2(cell_size * 0.9, cell_size * 0.9)), cell_color)
+	var runit : Vector2 = (cell_size_v - inner_size) * 0.5
+	
 	if map.is_cell_surface_blocking(map_position, CrawlGlobals.SURFACE.Ground):
-		draw_rect(Rect2(screen_position + inner_pos, inner_size), cell_color)
+		draw_rect(Rect2(screen_position + runit, inner_size), cell_color)
 	else:
-		draw_rect(Rect2(screen_position + inner_pos, inner_size), cell_color, false, 1.0)
+		draw_rect(Rect2(screen_position + runit, inner_size), cell_color, false, 1.0)
 	
 	if map.is_cell_surface_blocking(map_position, CrawlGlobals.SURFACE.Ceiling):
-		print("There is a ceiling")
-		draw_colored_polygon(PackedVector2Array([
-				screen_position + (-cell_size_v * 0.5),
-				screen_position + (cell_size_v * 0.5),
-				screen_position + ((cell_size_v * 0.5) - runit),
-				screen_position + ((-cell_size_v * 0.5) + runit)
-			]), cell_color)
-		draw_colored_polygon(PackedVector2Array([
-				screen_position + (-cell_size_v * 0.5).rotated(deg_to_rad(90)),
-				screen_position + (cell_size_v * 0.5).rotated(deg_to_rad(90)),
-				screen_position + ((cell_size_v * 0.5) - runit).rotated(deg_to_rad(90)),
-				screen_position + ((-cell_size_v * 0.5) + runit).rotated(deg_to_rad(90))
-			]), cell_color)
-		draw_colored_polygon(PackedVector2Array([
-				screen_position + (-cell_size_v * 0.5).rotated(deg_to_rad(180)),
-				screen_position + (cell_size_v * 0.5).rotated(deg_to_rad(180)),
-				screen_position + ((cell_size_v * 0.5) - runit).rotated(deg_to_rad(180)),
-				screen_position + ((-cell_size_v * 0.5) + runit).rotated(deg_to_rad(180))
-			]), cell_color)
-		draw_colored_polygon(PackedVector2Array([
-				screen_position + (-cell_size_v * 0.5).rotated(deg_to_rad(270)),
-				screen_position + (cell_size_v * 0.5).rotated(deg_to_rad(270)),
-				screen_position + ((cell_size_v * 0.5) - runit).rotated(deg_to_rad(270)),
-				screen_position + ((-cell_size_v * 0.5) + runit).rotated(deg_to_rad(270))
-			]), cell_color)
+		var points : Array = [
+			Vector2(-cell_size_v.x * 0.5, -cell_size_v.y * 0.5),
+			Vector2(cell_size_v.x * 0.5, -cell_size_v.y * 0.5),
+			Vector2((cell_size_v.x * 0.5) - runit.x, (-cell_size_v.y * 0.5) + runit.y),
+			Vector2((-cell_size_v.x * 0.5) + runit.x, (-cell_size_v.y * 0.5) + runit.y)
+		]
+		
+		var pos : Vector2 = screen_position + (cell_size_v * 0.5)
+		for r in range(4):
+			var rad : float = deg_to_rad(90.0 * r)
+			draw_colored_polygon(PackedVector2Array([
+					pos + points[0].rotated(rad),
+					pos + points[1].rotated(rad),
+					pos + points[2].rotated(rad),
+					pos + points[3].rotated(rad)
+				]), cell_color)
 	else:
-		draw_polyline(PackedVector2Array([
-				screen_position + (-cell_size_v * 0.5),
-				screen_position + (cell_size_v * 0.5),
-				screen_position + ((cell_size_v * 0.5) - runit),
-				screen_position + ((-cell_size_v * 0.5) + runit)
-			]), cell_color, 1.0, true)
-		draw_polyline(PackedVector2Array([
-				screen_position + (-cell_size_v * 0.5).rotated(deg_to_rad(90)),
-				screen_position + (cell_size_v * 0.5).rotated(deg_to_rad(90)),
-				screen_position + ((cell_size_v * 0.5) - runit).rotated(deg_to_rad(90)),
-				screen_position + ((-cell_size_v * 0.5) + runit).rotated(deg_to_rad(90))
-			]), cell_color, 1.0, true)
-		draw_polyline(PackedVector2Array([
-				screen_position + (-cell_size_v * 0.5).rotated(deg_to_rad(180)),
-				screen_position + (cell_size_v * 0.5).rotated(deg_to_rad(180)),
-				screen_position + ((cell_size_v * 0.5) - runit).rotated(deg_to_rad(180)),
-				screen_position + ((-cell_size_v * 0.5) + runit).rotated(deg_to_rad(180))
-			]), cell_color, 1.0, true)
-		draw_polyline(PackedVector2Array([
-				screen_position + (-cell_size_v * 0.5).rotated(deg_to_rad(270)),
-				screen_position + (cell_size_v * 0.5).rotated(deg_to_rad(270)),
-				screen_position + ((cell_size_v * 0.5) - runit).rotated(deg_to_rad(270)),
-				screen_position + ((-cell_size_v * 0.5) + runit).rotated(deg_to_rad(270))
-			]), cell_color, 1.0, true)
+		var points : Array = [
+			Vector2(-cell_size_v.x * 0.5, -cell_size_v.y * 0.5),
+			Vector2(cell_size_v.x * 0.5, -cell_size_v.y * 0.5),
+			Vector2((cell_size_v.x * 0.5) - runit.x, (-cell_size_v.y * 0.5) + runit.y),
+			Vector2((-cell_size_v.x * 0.5) + runit.x, (-cell_size_v.y * 0.5) + runit.y)
+		]
+		
+		var pos : Vector2 = screen_position + (cell_size_v * 0.5)
+		for r in range(4):
+			var rad : float = deg_to_rad(90.0 * r)
+			draw_polyline(PackedVector2Array([
+					pos + points[0].rotated(rad),
+					pos + points[1].rotated(rad),
+					pos + points[2].rotated(rad),
+					pos + points[3].rotated(rad)
+				]), cell_color, 1.0, true)
+
 	
 	if map.is_cell_surface_blocking(map_position, CrawlGlobals.SURFACE.North):
 		draw_line(
