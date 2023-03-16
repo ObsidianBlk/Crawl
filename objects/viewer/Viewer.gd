@@ -22,6 +22,7 @@ const CELL_SIZE : float = 5.0
 # Export Variables
 # ------------------------------------------------------------------------------
 @export var entity : CrawlEntity = null:					set = set_entity
+@export var ignore_map : bool = false:						set = set_ignore_map
 @export_range(0.0, 180.0) var max_yaw : float = 60.0
 @export_range(0.0, 180.0) var rest_yaw : float = 30.0
 @export_range(0.0, 180.0) var max_pitch : float = 30.0
@@ -56,6 +57,10 @@ func set_entity(ent : CrawlEntity) -> void:
 		entity = ent
 		if entity != null:
 			position = Vector3(entity.position) * CELL_SIZE
+
+func set_ignore_map(i : bool) -> void:
+	# NOTE: This method is more for passing signals to.
+	ignore_map = i
 
 # ------------------------------------------------------------------------------
 # Override Methods
@@ -141,8 +146,8 @@ func _SettleLookAngle(delta : float) -> void:
 	)
 
 func _Move(dir : StringName) -> void:
-	if not entity.can_move(dir): return
-	entity.move(dir)
+	if not ignore_map and not entity.can_move(dir): return
+	entity.move(dir, ignore_map)
 	position = Vector3(entity.position) * CELL_SIZE
 
 func _Dig(use_z : bool = false, z_surface : CrawlGlobals.SURFACE = CrawlGlobals.SURFACE.Ceiling) -> void:
