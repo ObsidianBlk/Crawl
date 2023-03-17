@@ -128,14 +128,14 @@ func _BuildCell() -> void:
 	)
 	
 	_UpdateSurfaceNode(
-		&"wall_east", &"wall",
-		map.get_cell_surface_resource(map_position, CrawlGlobals.SURFACE.East),
+		&"wall_west", &"wall",
+		map.get_cell_surface_resource(map_position, CrawlGlobals.SURFACE.West),
 		Vector3(CELL_SIZE * 0.5, 0, 0), DEG90
 	)
 	
 	_UpdateSurfaceNode(
-		&"wall_west", &"wall",
-		map.get_cell_surface_resource(map_position, CrawlGlobals.SURFACE.West),
+		&"wall_east", &"wall",
+		map.get_cell_surface_resource(map_position, CrawlGlobals.SURFACE.East),
 		Vector3(-CELL_SIZE * 0.5, 0, 0), -DEG90
 	)
 
