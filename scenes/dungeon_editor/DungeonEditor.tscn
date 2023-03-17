@@ -48,3 +48,28 @@ ignore_focus = false
 [node name="SideBar" type="MarginContainer" parent="UI/Editor/Body"]
 custom_minimum_size = Vector2(256, 0)
 layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="CellConf" type="VBoxContainer" parent="UI/Editor/Body/SideBar"]
+layout_mode = 2
+
+[node name="GeneralConf" type="PanelContainer" parent="UI/Editor/Body/SideBar/CellConf"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Layout" type="VBoxContainer" parent="UI/Editor/Body/SideBar/CellConf/GeneralConf"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="UI/Editor/Body/SideBar/CellConf/GeneralConf/Layout"]
+layout_mode = 2
+text = "General Cell Configuration"
+
+[node name="HSeparator" type="HSeparator" parent="UI/Editor/Body/SideBar/CellConf/GeneralConf/Layout"]
+layout_mode = 2
+
+[node name="LocalConf" type="PanelContainer" parent="UI/Editor/Body/SideBar/CellConf"]
+layout_mode = 2
+size_flags_vertical = 3

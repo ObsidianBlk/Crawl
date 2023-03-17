@@ -1,57 +1,6 @@
-[gd_scene load_steps=8 format=3 uid="uid://bc3t1kta78uyf"]
+[gd_scene load_steps=2 format=3 uid="uid://chnyvtfu5xon8"]
 
 [ext_resource type="Script" path="res://scenes/crawl_map_view/crawl_cell/CrawlCell.gd" id="1_q4emb"]
 
-[sub_resource type="PlaneMesh" id="PlaneMesh_kx41u"]
-resource_local_to_scene = true
-size = Vector2(5, 5)
-
-[sub_resource type="PlaneMesh" id="PlaneMesh_xtnho"]
-resource_local_to_scene = true
-size = Vector2(5, 5)
-
-[sub_resource type="PlaneMesh" id="PlaneMesh_5mfk0"]
-resource_local_to_scene = true
-size = Vector2(5, 5)
-orientation = 2
-
-[sub_resource type="PlaneMesh" id="PlaneMesh_nqw2s"]
-resource_local_to_scene = true
-size = Vector2(5, 5)
-orientation = 0
-
-[sub_resource type="PlaneMesh" id="PlaneMesh_2x1cc"]
-resource_local_to_scene = true
-size = Vector2(5, 5)
-orientation = 2
-
-[sub_resource type="PlaneMesh" id="PlaneMesh_5jm1y"]
-resource_local_to_scene = true
-size = Vector2(5, 5)
-orientation = 0
-
 [node name="CrawlCell" type="Node3D"]
 script = ExtResource("1_q4emb")
-
-[node name="Ground" type="MeshInstance3D" parent="."]
-mesh = SubResource("PlaneMesh_kx41u")
-
-[node name="Ceiling" type="MeshInstance3D" parent="."]
-transform = Transform3D(-1, 8.74228e-08, 0, -8.74228e-08, -1, 0, 0, 0, 1, 0, 5, 0)
-mesh = SubResource("PlaneMesh_xtnho")
-
-[node name="Wall_North" type="MeshInstance3D" parent="."]
-transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 2.5, 2.5)
-mesh = SubResource("PlaneMesh_5mfk0")
-
-[node name="Wall_East" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.5, 2.5, 0)
-mesh = SubResource("PlaneMesh_nqw2s")
-
-[node name="Wall_South" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, -2.5)
-mesh = SubResource("PlaneMesh_2x1cc")
-
-[node name="Wall_West" type="MeshInstance3D" parent="."]
-transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 2.5, 2.5, 0)
-mesh = SubResource("PlaneMesh_5jm1y")

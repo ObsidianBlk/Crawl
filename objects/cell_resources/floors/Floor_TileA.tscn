@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3 uid="uid://dayw7qiy6hdic"]
+
+[ext_resource type="Material" uid="uid://5agu4tas368h" path="res://assets/materials/tileA.tres" id="1_oao3p"]
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_o7vgl"]
+material = ExtResource("1_oao3p")
+size = Vector2(5, 5)
+
+[node name="Floor_TileA" type="MeshInstance3D"]
+mesh = SubResource("PlaneMesh_o7vgl")

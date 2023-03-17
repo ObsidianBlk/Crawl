@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3 uid="uid://brag25t7uq5hy"]
+
+[ext_resource type="Material" uid="uid://bpw8bh8y2ffek" path="res://assets/materials/tileB.tres" id="1_p4vdu"]
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_exwtq"]
+material = ExtResource("1_p4vdu")
+flip_faces = true
+size = Vector2(5, 5)
+center_offset = Vector3(0, 2.5, 0)
+orientation = 2
+
+[node name="Wall_TileB" type="MeshInstance3D"]
+mesh = SubResource("PlaneMesh_exwtq")

@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3 uid="uid://ojrecms8okxi"]
+
+[ext_resource type="Material" uid="uid://5agu4tas368h" path="res://assets/materials/tileA.tres" id="1_placm"]
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_yme0n"]
+material = ExtResource("1_placm")
+flip_faces = true
+size = Vector2(5, 5)
+
+[node name="Ceiling_TileA" type="MeshInstance3D"]
+mesh = SubResource("PlaneMesh_yme0n")

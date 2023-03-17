@@ -3,11 +3,16 @@ class_name CrawlCell
 
 
 # ------------------------------------------------------------------------------
+# Constants
+# ------------------------------------------------------------------------------
+const CELL_SIZE : float = 5.0
+const DEG90 : float = deg_to_rad(90)
+
+# ------------------------------------------------------------------------------
 # Export Variables
 # ------------------------------------------------------------------------------
 @export var map : CrawlMap = null :						set = set_map
 @export var map_position : Vector3i = Vector3i.ZERO:	set = set_map_position
-
 
 # ------------------------------------------------------------------------------
 # Variables
@@ -15,15 +20,15 @@ class_name CrawlCell
 var _requested_rebuild : bool = false
 var _is_ready : bool = false
 
-# ------------------------------------------------------------------------------
-# Onready Variables
-# ------------------------------------------------------------------------------
-@onready var mesh_ground : MeshInstance3D = $Ground
-@onready var mesh_ceiling : MeshInstance3D = $Ceiling
-@onready var mesh_wall_north : MeshInstance3D = $Wall_North
-@onready var mesh_wall_south : MeshInstance3D = $Wall_South
-@onready var mesh_wall_east : MeshInstance3D = $Wall_East
-@onready var mesh_wall_west : MeshInstance3D = $Wall_West
+var _node : Dictionary = {
+	&"ground":{&"node":null, &"resource":&""},
+	&"ceiling":{&"node":null, &"resource":&""},
+	&"wall_north":{&"node":null, &"resource":&""},
+	&"wall_south":{&"node":null, &"resource":&""},
+	&"wall_east":{&"node":null, &"resource":&""},
+	&"wall_west":{&"node":null, &"resource":&""},
+}
+
 
 # ------------------------------------------------------------------------------
 # Setters
@@ -69,48 +74,70 @@ func _process(_delta : float) -> void:
 # ------------------------------------------------------------------------------
 # Private Methods
 # ------------------------------------------------------------------------------
-func _ClearCell() -> void:
-	mesh_ground.visible = false
-	mesh_ceiling.visible = false
-	mesh_wall_north.visible = false
-	mesh_wall_south.visible = false
-	mesh_wall_east.visible = false
-	mesh_wall_west.visible = false
+func _UpdateSurfaceNode(node_name : StringName, section : StringName, resource_name : StringName, offset : Vector3, rot_rad : float = 0.0) -> void:
+	if not node_name in _node: return
+	if _node[node_name][&"resource"] == resource_name: return
+	
+	_node[node_name][&"resource"] = resource_name
+	
+	if _node[node_name][&"node"] != null:
+		remove_child(_node[node_name][&"node"])
+		_node[node_name][&"node"].queue_free()
+		_node[node_name][&"node"] = null
+	if resource_name == &"": return
+	var node : Node3D = RLT.instantiate_resource(section, resource_name)
+	if node == null: return
+	_node[node_name][&"node"] = node
+	add_child(node)
+	node.position = offset
+	if rot_rad != 0.0:
+		node.rotate_y(rot_rad)
 
-func _SetMeshMaterial(mesh : MeshInstance3D, surface : CrawlGlobals.SURFACE) -> void:
-	if not mesh.visible: return
-	var mat : Material = RLT.load(map.get_cell_surface_resource(map_position, surface))
-	if mat != null:
-		mesh.mesh.material = mat
+func _ClearCell() -> void:
+	for n in _node:
+		if _node[n][&"node"] != null:
+			_node[n][&"node"].visible = false
 
 func _BuildCell() -> void:
 	if map == null or not map.has_cell(map_position):
 		_ClearCell()
 		return
-	
-	var rids : Array = map.get_cell_surface_resource_ids(map_position)
-	mesh_ground.visible = rids[CrawlGlobals.Get_Surface_Index(CrawlGlobals.SURFACE.Ground)] >= 0
-	_SetMeshMaterial(mesh_ground, CrawlGlobals.SURFACE.Ground)
-	
-	mesh_ceiling.visible = rids[CrawlGlobals.Get_Surface_Index(CrawlGlobals.SURFACE.Ceiling)] >= 0
-	_SetMeshMaterial(mesh_ceiling, CrawlGlobals.SURFACE.Ceiling)
-	
-	mesh_wall_north.visible = rids[CrawlGlobals.Get_Surface_Index(CrawlGlobals.SURFACE.North)] >= 0
-	_SetMeshMaterial(mesh_wall_north, CrawlGlobals.SURFACE.North)
-	
-	mesh_wall_south.visible = rids[CrawlGlobals.Get_Surface_Index(CrawlGlobals.SURFACE.South)] >= 0
-	_SetMeshMaterial(mesh_wall_south, CrawlGlobals.SURFACE.South)
-	
-	mesh_wall_east.visible = rids[CrawlGlobals.Get_Surface_Index(CrawlGlobals.SURFACE.East)] >= 0
-	_SetMeshMaterial(mesh_wall_east, CrawlGlobals.SURFACE.East)
-	
-	mesh_wall_west.visible = rids[CrawlGlobals.Get_Surface_Index(CrawlGlobals.SURFACE.West)] >= 0
-	_SetMeshMaterial(mesh_wall_west, CrawlGlobals.SURFACE.West)
-	
 
-# ------------------------------------------------------------------------------
-# Public Methods
-# ------------------------------------------------------------------------------
+	_UpdateSurfaceNode(
+		&"ground", &"ground",
+		map.get_cell_surface_resource(map_position, CrawlGlobals.SURFACE.Ground),
+		Vector3.ZERO
+	)
+	
+	_UpdateSurfaceNode(
+		&"ceiling", &"ceiling",
+		map.get_cell_surface_resource(map_position, CrawlGlobals.SURFACE.Ceiling),
+		Vector3(0, CELL_SIZE, 0)
+	)
+	
+	_UpdateSurfaceNode(
+		&"wall_north", &"wall",
+		map.get_cell_surface_resource(map_position, CrawlGlobals.SURFACE.North),
+		Vector3(0, 0, CELL_SIZE * 0.5)
+	)
+	
+	_UpdateSurfaceNode(
+		&"wall_south", &"wall",
+		map.get_cell_surface_resource(map_position, CrawlGlobals.SURFACE.South),
+		Vector3(0, 0, -CELL_SIZE * 0.5), DEG90 * 2
+	)
+	
+	_UpdateSurfaceNode(
+		&"wall_east", &"wall",
+		map.get_cell_surface_resource(map_position, CrawlGlobals.SURFACE.East),
+		Vector3(CELL_SIZE * 0.5, 0, 0), DEG90
+	)
+	
+	_UpdateSurfaceNode(
+		&"wall_west", &"wall",
+		map.get_cell_surface_resource(map_position, CrawlGlobals.SURFACE.West),
+		Vector3(-CELL_SIZE * 0.5, 0, 0), -DEG90
+	)
 
 
 # ------------------------------------------------------------------------------
@@ -119,5 +146,3 @@ func _BuildCell() -> void:
 func _on_map_cell_changed(position : Vector3i) -> void:
 	if position == map_position:
 		_requested_rebuild = true
-
-
