@@ -76,7 +76,10 @@ func _process(_delta : float) -> void:
 # ------------------------------------------------------------------------------
 func _UpdateSurfaceNode(node_name : StringName, section : StringName, resource_name : StringName, offset : Vector3, rot_rad : float = 0.0) -> void:
 	if not node_name in _node: return
-	if _node[node_name][&"resource"] == resource_name: return
+	if _node[node_name][&"resource"] == resource_name:
+		if _node[node_name][&"node"] != null:
+			_node[node_name][&"node"].visible = true
+		return
 	
 	_node[node_name][&"resource"] = resource_name
 	
