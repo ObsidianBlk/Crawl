@@ -179,26 +179,30 @@ func _draw() -> void:
 	#draw_circle(Vector2(ox, oy) + (Vector2(0.5, 0.5) * cell_size), cell_size * 0.5, Color.TOMATO)
 
 func _gui_input(event : InputEvent) -> void:
-	if _mouse_entered:
-		if is_instance_of(event, InputEventMouseMotion):
-			_last_mouse_position = get_local_mouse_position()
-			queue_redraw()
-		elif is_instance_of(event, InputEventMouseButton):
-			if event.button_index == MOUSE_BUTTON_LEFT:
-				if event.is_pressed():
-					_area_start = _ScreenToMap(_last_mouse_position)
-				elif _area_enabled != event.is_pressed():
-					var area_end : Vector3i = _ScreenToMap(_last_mouse_position)
-					var fx : int = min(_area_start.x, area_end.x)
-					var fy : int = min(_area_start.y, area_end.y)
-					var fz : int = min(_area_start.z, area_end.z)
-					var tx : int = max(_area_start.x, area_end.x)
-					var ty : int = max(_area_start.y, area_end.y)
-					var tz : int = max(_area_start.z, area_end.z)
-					selection_finished.emit(Vector3i(fx,fy,fz), Vector3i(tx-fx, ty-fy, tz-fz) + Vector3i.ONE)
-				_area_enabled = event.is_pressed()
-			elif event.button_index == MOUSE_BUTTON_RIGHT:
+	if not _mouse_entered: return
+	if is_instance_of(event, InputEventMouseMotion):
+		_last_mouse_position = get_local_mouse_position()
+		queue_redraw()
+		accept_event()
+	elif is_instance_of(event, InputEventMouseButton):
+		if event.button_index == MOUSE_BUTTON_LEFT:
+			if event.is_pressed():
+				_area_start = _ScreenToMap(_last_mouse_position)
+			elif _area_enabled != event.is_pressed():
+				var area_end : Vector3i = _ScreenToMap(_last_mouse_position)
+				var fx : int = min(_area_start.x, area_end.x)
+				var fy : int = min(_area_start.y, area_end.y)
+				var fz : int = min(_area_start.z, area_end.z)
+				var tx : int = max(_area_start.x, area_end.x)
+				var ty : int = max(_area_start.y, area_end.y)
+				var tz : int = max(_area_start.z, area_end.z)
+				selection_finished.emit(Vector3i(fx,fy,fz), Vector3i(tx-fx, ty-fy, tz-fz) + Vector3i.ONE)
+			_area_enabled = event.is_pressed()
+			accept_event()
+		elif event.button_index == MOUSE_BUTTON_RIGHT:
+			if event.is_pressed():
 				_area_enabled = false
+				accept_event()
 
 func _notification(what : int) -> void:
 	match what:

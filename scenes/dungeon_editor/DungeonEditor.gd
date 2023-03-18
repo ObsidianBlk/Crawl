@@ -13,6 +13,8 @@ var _active_map : CrawlMap = null
 @onready var _mini_map : CrawlMiniMap = %CrawlMiniMap
 @onready var _viewer : Node3D = $Viewer
 
+@onready var _active_cell_editor : Control = %ActiveCellEditor
+
 # ------------------------------------------------------------------------------
 # Override Methods
 # ------------------------------------------------------------------------------
@@ -36,6 +38,8 @@ func _ready() -> void:
 	_viewer.entity = editor_entity
 	
 	_mini_map.selection_finished.connect(_on_selection_finished)
+	_active_cell_editor.map = _active_map
+	_active_cell_editor.focus_type = &"Player"
 
 
 # ------------------------------------------------------------------------------

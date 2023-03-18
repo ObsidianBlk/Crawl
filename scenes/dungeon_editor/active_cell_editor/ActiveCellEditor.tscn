@@ -1,0 +1,129 @@
+[gd_scene load_steps=5 format=3 uid="uid://cc4tyjtfkmn4g"]
+
+[ext_resource type="PackedScene" uid="uid://ct2dmvumoh544" path="res://objects/resource_viewer/ResourceViewer.tscn" id="1_e4ixk"]
+[ext_resource type="Script" path="res://scenes/dungeon_editor/active_cell_editor/ActiveCellEditor.gd" id="1_xe36s"]
+[ext_resource type="Texture2D" uid="uid://c8eypxhmjyi3n" path="res://assets/icons/arrow_up.svg" id="2_0gloc"]
+[ext_resource type="Texture2D" uid="uid://bvm4recij7qka" path="res://assets/icons/wall_blocking.svg" id="2_rgrof"]
+
+[node name="ActiveCellEditor" type="GridContainer"]
+offset_right = 40.0
+offset_bottom = 40.0
+columns = 3
+script = ExtResource("1_xe36s")
+
+[node name="ceiling_cell" type="VBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="ceiling_view" parent="ceiling_cell" instance=ExtResource("1_e4ixk")]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="ceiling_blocking" type="Button" parent="ceiling_cell"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+icon = ExtResource("2_rgrof")
+icon_alignment = 1
+
+[node name="north_cell" type="VBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="north_view" parent="north_cell" instance=ExtResource("1_e4ixk")]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="north_blocking" type="Button" parent="north_cell"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+icon = ExtResource("2_rgrof")
+icon_alignment = 1
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 2
+
+[node name="west_cell" type="VBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="west_view" parent="west_cell" instance=ExtResource("1_e4ixk")]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="west_blocking" type="Button" parent="west_cell"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+icon = ExtResource("2_rgrof")
+icon_alignment = 1
+
+[node name="Facing" type="TextureRect" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+texture = ExtResource("2_0gloc")
+stretch_mode = 3
+
+[node name="east_cell" type="VBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="east_view" parent="east_cell" instance=ExtResource("1_e4ixk")]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="east_blocking" type="Button" parent="east_cell"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+icon = ExtResource("2_rgrof")
+icon_alignment = 1
+
+[node name="Control3" type="Control" parent="."]
+layout_mode = 2
+
+[node name="south_cell" type="VBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="south_view" parent="south_cell" instance=ExtResource("1_e4ixk")]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="south_blocking" type="Button" parent="south_cell"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+icon = ExtResource("2_rgrof")
+icon_alignment = 1
+
+[node name="ground_cell" type="VBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="ground_view" parent="ground_cell" instance=ExtResource("1_e4ixk")]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="ground_blocking" type="Button" parent="ground_cell"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+icon = ExtResource("2_rgrof")
+icon_alignment = 1
+
+[node name="ResourceItems" type="PopupMenu" parent="."]
+initial_position = 2
