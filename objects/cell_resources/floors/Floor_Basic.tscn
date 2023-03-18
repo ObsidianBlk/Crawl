@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://i5v8egswyn3o"]
+
+[ext_resource type="PackedScene" uid="uid://v65q3tywek3n" path="res://assets/models/basic_dungeon/db_floor.glb" id="1_slk5r"]
+
+[node name="Floor_Basic" type="Node3D"]
+
+[node name="db_floor" parent="." instance=ExtResource("1_slk5r")]

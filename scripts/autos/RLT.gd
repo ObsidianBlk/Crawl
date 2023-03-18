@@ -9,14 +9,17 @@ const LOOKUP : Dictionary = {
 	&"ground":{
 		&"tileA":"res://objects/cell_resources/floors/Floor_TileA.tscn",
 		&"tileB":"res://objects/cell_resources/floors/Floor_TileB.tscn",
+		&"basic":"res://objects/cell_resources/floors/Floor_Basic.tscn",
 	},
 	&"ceiling":{
 		&"tileA":"res://objects/cell_resources/ceilings/Ceiling_TileA.tscn",
 		&"tileB":"res://objects/cell_resources/ceilings/Ceiling_TileB.tscn",
+		&"basic":"res://objects/cell_resources/ceilings/Ceiling_Basic.tscn",
 	},
 	&"wall":{
 		&"tileA":"res://objects/cell_resources/walls/Wall_TileA.tscn",
-		&"tileB":"res://objects/cell_resources/walls/Wall_TileB.tscn"
+		&"tileB":"res://objects/cell_resources/walls/Wall_TileB.tscn",
+		&"basic":"res://objects/cell_resources/walls/Wall_Basic.tscn",
 	}
 }
 

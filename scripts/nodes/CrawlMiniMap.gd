@@ -13,13 +13,13 @@ signal selection_finished(sel_position, sel_size)
 # Constants
 # ------------------------------------------------------------------------------
 const SELECTION_BLINK_INTERVAL : float = 0.08
-const FOCUS_ENTITY_TYPE : StringName = &"Player"
+#const FOCUS_ENTITY_TYPE : StringName = &"Player"
 
 # ------------------------------------------------------------------------------
 # Export Variables
 # ------------------------------------------------------------------------------
 @export var map : CrawlMap = null:								set = set_map
-#@export var origin : Vector3i = Vector3i.ZERO:					set = set_origin
+@export var focus_type : StringName = &"":						set = set_focus_type
 @export var cell_size : float = 16.0:							set = set_cell_size
 @export var background_color : Color = Color.DARK_GOLDENROD:	set = set_background_color
 @export var background_texture : Texture = null:				set = set_background_texture
@@ -60,10 +60,11 @@ func set_map(m : CrawlMap) -> void:
 		# TODO: Possible signal connections
 		queue_redraw()
 
-#func set_origin(o : Vector3i) -> void:
-#	if origin != o:
-#		origin = o
-#		queue_redraw()
+func set_focus_type(t : StringName) -> void:
+	if t != focus_type:
+		focus_type = t
+		_UpdateFocusEntity()
+		queue_redraw()
 
 func set_cell_size(s : float) -> void:
 	if s > 0 and s != cell_size:
@@ -228,7 +229,7 @@ func _notification(what : int) -> void:
 func _UpdateFocusEntity() -> void:
 	var entity : CrawlEntity = _focus_entity.get_ref()
 	if entity != null:
-		if map != null and entity.get_map() == map and entity.type == FOCUS_ENTITY_TYPE:
+		if map != null and entity.get_map() == map and entity.type == focus_type:
 			return # We're still satisfied
 		if entity.position_changed.is_connected(_on_focus_position_changed):
 			entity.position_changed.disconnect(_on_focus_position_changed)
@@ -236,7 +237,7 @@ func _UpdateFocusEntity() -> void:
 			entity.facing_changed.disconnect(_on_focus_facing_changed)
 		_focus_entity = weakref(null)
 	if map != null:
-		var elist : Array = map.get_entities({&"type":FOCUS_ENTITY_TYPE})
+		var elist : Array = map.get_entities({&"type":focus_type})
 		if elist.size() > 0:
 			if not elist[0].position_changed.is_connected(_on_focus_position_changed):
 				elist[0].position_changed.connect(_on_focus_position_changed)

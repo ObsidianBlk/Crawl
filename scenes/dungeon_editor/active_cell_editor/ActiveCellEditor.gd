@@ -90,6 +90,25 @@ func _ready() -> void:
 	_east_view.pressed.connect(_on_surface_pressed.bind(&"wall", CrawlGlobals.SURFACE.East))
 	_west_view.pressed.connect(_on_surface_pressed.bind(&"wall", CrawlGlobals.SURFACE.West))
 
+	_ground_blocking.pressed.connect(
+		_on_block_btn_pressed.bind(_ground_blocking, CrawlGlobals.SURFACE.Ground)
+	)
+	_ceiling_blocking.pressed.connect(
+		_on_block_btn_pressed.bind(_ceiling_blocking, CrawlGlobals.SURFACE.Ceiling)
+	)
+	_north_blocking.pressed.connect(
+		_on_block_btn_pressed.bind(_north_blocking, CrawlGlobals.SURFACE.North)
+	)
+	_south_blocking.pressed.connect(
+		_on_block_btn_pressed.bind(_south_blocking, CrawlGlobals.SURFACE.South)
+	)
+	_east_blocking.pressed.connect(
+		_on_block_btn_pressed.bind(_east_blocking, CrawlGlobals.SURFACE.East)
+	)
+	_west_blocking.pressed.connect(
+		_on_block_btn_pressed.bind(_west_blocking, CrawlGlobals.SURFACE.West)
+	)
+
 # ------------------------------------------------------------------------------
 # Private Methods
 # ------------------------------------------------------------------------------
@@ -230,10 +249,25 @@ func _on_focus_facing_changed(from : CrawlGlobals.SURFACE, to : CrawlGlobals.SUR
 		CrawlGlobals.SURFACE.West:
 			_facing_rect.texture = arrow_west
 
+func _on_block_btn_pressed(btn : Button, surface : CrawlGlobals.SURFACE) -> void:
+	if map == null or _focus_entity.get_ref() == null: return
+	if btn.icon == icon_blocking:
+		btn.icon = icon_unblocked
+		map.set_cell_surface_blocking(_map_position, surface, false, true)
+	elif btn.icon == icon_unblocked:
+		btn.icon = icon_blocking
+		map.set_cell_surface_blocking(_map_position, surface, true, true)
+
 func _on_surface_pressed(section_name : StringName, surface : CrawlGlobals.SURFACE) -> void:
 	if map == null or _resource_items.visible: return
 	if not RLT.has_section(section_name): return
 	_resource_items.clear()
+	_resource_items.add_item("Empty")
+	_resource_items.set_item_metadata(0, {
+		&"section":&"",
+		&"resource_name":&"",
+		&"surface":surface
+	})
 	for item in RLT.get_resource_list(section_name):
 		var idx : int = _resource_items.item_count
 		_resource_items.add_item(item)

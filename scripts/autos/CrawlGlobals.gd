@@ -1,5 +1,7 @@
 extends Node
 
+enum ATTACK_TYPE {Physical=0, Fire=100, Water=101, Earth=102, Air=103}
+
 enum SURFACE {North=0x01, East=0x02, South=0x04, West=0x08, Ground=0x10, Ceiling=0x20}
 
 func Get_Surface_Index(surface : SURFACE) -> int:

@@ -186,6 +186,7 @@ func _SetCellSurface(position : Vector3i, surface : CrawlGlobals.SURFACE, data :
 	
 	if bi_directional:
 		var pos : Vector3i = _CalcNeighborFrom(position, surface)
+		if not pos in _grid: return
 		var surf : CrawlGlobals.SURFACE = CrawlGlobals.Get_Adjacent_Surface(surface)
 		_SetCellSurface(pos, surf, data, false)
 

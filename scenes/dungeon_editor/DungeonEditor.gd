@@ -27,7 +27,7 @@ func _ready() -> void:
 	
 	var editor_entity : CrawlEntity = CrawlEntity.new()
 	editor_entity.uuid = UUID.v7()
-	editor_entity.type = &"Player"
+	editor_entity.type = &"Editor"
 	editor_entity.position = Vector3i.ZERO
 	
 	_active_map.add_entity(editor_entity)
@@ -39,7 +39,7 @@ func _ready() -> void:
 	
 	_mini_map.selection_finished.connect(_on_selection_finished)
 	_active_cell_editor.map = _active_map
-	_active_cell_editor.focus_type = &"Player"
+	_active_cell_editor.focus_type = &"Editor"
 
 
 # ------------------------------------------------------------------------------

@@ -7,12 +7,16 @@ class_name CrawlEntity
 signal position_changed(from, to)
 signal facing_changed(from, to)
 
+signal interaction(entity)
+signal attacked(dmg, type)
+
 
 # ------------------------------------------------------------------------------
 # Export Variables
 # ------------------------------------------------------------------------------
 @export var uuid : StringName = &""
 @export var type : StringName = &""
+@export var sub_types : Array[StringName] = []
 @export var position : Vector3i = Vector3i.ZERO:						set = set_position
 @export var facing : CrawlGlobals.SURFACE = CrawlGlobals.SURFACE.North:	set = set_facing
 @export var blocking : int = 0x3F
@@ -71,16 +75,22 @@ func _DirectionNameToFacing(dir : StringName) -> CrawlGlobals.SURFACE:
 			d_facing = CrawlGlobals.SURFACE.Ground
 	return d_facing
 
+func _EntitiesBlockingAt(position : Vector3i, surface : CrawlGlobals.SURFACE) -> bool:
+	var entities : Array = _map.get_entities({&"position": position})
+	if entities.size() > 0:
+		for entity in entities:
+			if entity == self: continue # We can't block ourselves!
+			if entity.is_blocking(surface):
+				return true
+	return false
+
 func _CanMove(dir : CrawlGlobals.SURFACE) -> bool:
 	var neighbor_position : Vector3i = position + CrawlGlobals.Get_Direction_From_Surface(dir)
 	if _map == null : return false
 	if _map.is_cell_surface_blocking(position, dir): return false
-	var entities : Array = _map.get_entities({&"position": neighbor_position})
-	if entities.size() > 0:
-		var adj_dir : CrawlGlobals.SURFACE = CrawlGlobals.Get_Adjacent_Surface(dir)
-		for entity in entities:
-			if entity.is_blocking(adj_dir):
-				return false
+	if _EntitiesBlockingAt(position, dir): return false
+	var adj_dir : CrawlGlobals.SURFACE = CrawlGlobals.Get_Adjacent_Surface(dir)
+	if _EntitiesBlockingAt(neighbor_position, adj_dir): return false
 	return true
 
 func _Move(dir : CrawlGlobals.SURFACE, ignore_map : bool) -> int:
@@ -112,6 +122,21 @@ func is_blocking(surface : CrawlGlobals.SURFACE) -> bool:
 	var i : int = CrawlGlobals.SURFACE.values().find(surface)
 	return (blocking & (1 << i)) != 0
 
+func is_subtype(type : StringName) -> bool:
+	return sub_types.find(type) >= 0
+
+func is_oneof_subtypes(types : Array[StringName]) -> bool:
+	for type in types:
+		if sub_types.find(type) >= 0:
+			return true
+	return false
+
+func is_subtypes(types : Array[StringName]) -> bool:
+	for type in types:
+		if sub_types.find(type) < 0:
+			return false
+	return true
+
 func can_move(dir : StringName) -> bool:
 	var d_facing : CrawlGlobals.SURFACE = _DirectionNameToFacing(dir)
 	return _CanMove(d_facing)
@@ -129,3 +154,13 @@ func turn_right() -> void:
 	var ofacing : CrawlGlobals.SURFACE = facing
 	facing = CrawlGlobals.Get_Surface_90Deg(facing, -1)
 	facing_changed.emit(ofacing, facing)
+
+func get_entities() -> Array:
+	if _map == null: return []
+	return _map.get_entities({&"position":position, &"type":&"item"})
+
+func interact(entity : CrawlEntity) -> void:
+	interaction.emit(entity)
+
+func attack(dmg : float, att_type : CrawlGlobals.ATTACK_TYPE) -> void:
+	attacked.emit(dmg, att_type)

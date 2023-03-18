@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://u70p1vhjsotx"]
+
+[ext_resource type="PackedScene" uid="uid://bqeb4ot5plh3u" path="res://assets/models/basic_dungeon/db_wall.glb" id="1_8dy6l"]
+
+[node name="Wall_Basic" type="Node3D"]
+
+[node name="db_wall" parent="." instance=ExtResource("1_8dy6l")]
