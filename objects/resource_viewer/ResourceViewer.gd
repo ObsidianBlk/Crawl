@@ -103,6 +103,9 @@ func clear() -> void:
 		_section = &""
 		_resource_name = &""
 
+func is_resource(section : StringName, resource_name : StringName) -> bool:
+	return _section == section and _resource_name == resource_name
+
 func set_resource(section : StringName, resource_name : StringName) -> void:
 	if _gimble == null: # We're not ready...
 		_call_when_ready = set_resource.bind(section, resource_name)

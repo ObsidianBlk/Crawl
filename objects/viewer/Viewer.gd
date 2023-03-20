@@ -6,6 +6,8 @@ extends Node3D
 # Signals
 # ------------------------------------------------------------------------------
 signal fill_mode_enabled(enable)
+signal dig(from_position, surface)
+signal fill(from_position, surface)
 
 # ------------------------------------------------------------------------------
 # Constants
@@ -155,9 +157,9 @@ func _Dig(use_z : bool = false, z_surface : CrawlGlobals.SURFACE = CrawlGlobals.
 	var map : CrawlMap = entity.get_map()
 	var facing : CrawlGlobals.SURFACE = entity.facing if not use_z else z_surface
 	if _fill_enabled:
-		map.fill(entity.position, facing)
+		fill.emit(entity.position, entity.facing)
 	else:
-		map.dig(entity.position, facing)
+		dig.emit(entity.position, entity.facing)
 
 func _Turn(dir : float) -> void:
 	match dir:

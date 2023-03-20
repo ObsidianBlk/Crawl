@@ -29,12 +29,16 @@ func _ready() -> void:
 
 	cm.add_entity(player_entity)
 	
-	cm.add_resource(&"basic")
-	cm.add_resource(&"tileB")
+	cm.set_default_surface_resource(CrawlGlobals.SURFACE.Ground, &"tileB")
+	cm.set_default_surface_resource(CrawlGlobals.SURFACE.Ceiling, &"tileB")
+	cm.set_default_surface_resource(CrawlGlobals.SURFACE.North, &"tileA")
+	cm.set_default_surface_resource(CrawlGlobals.SURFACE.South, &"tileA")
+	cm.set_default_surface_resource(CrawlGlobals.SURFACE.East, &"tileA")
+	cm.set_default_surface_resource(CrawlGlobals.SURFACE.West, &"tileA")
 	
 	#cm.dig_room(Vector3i(0,1,0), Vector3i(1,1,1), 1,1,0)
-	cm.dig_room(Vector3i(-3, 1, -3), Vector3i(6, 1, 6), 0, 0, 0)
-	cm.dig_room(Vector3i(4, 1, -3), Vector3i(1, 1, 6), 0, 0, 0)
+	cm.dig_room(Vector3i(-3, 1, -3), Vector3i(6, 1, 6))
+	cm.dig_room(Vector3i(4, 1, -3), Vector3i(1, 1, 6))
 	#cm.set_focus_cell(Vector3i(0,1,0))
 	
 	

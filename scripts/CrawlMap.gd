@@ -17,11 +17,6 @@ signal entity_removed(entity)
 # Constants and ENUMs
 # ------------------------------------------------------------------------------
 
-const RESOURCE_GROUND_DEFAULT : int = 0
-const RESOURCE_CEILING_DEFAULT : int = 0
-const RESOURCE_WALL_DEFAULT : int = 0
-
-
 const CELL_SCHEMA : Dictionary = {
 	&"blocking":{&"req":true, &"type":TYPE_INT, &"min":0, &"max":0x3F},
 	&"rid":{&"req":true, &"type":TYPE_ARRAY, &"item":{&"type":TYPE_INT, &"min":0}},
@@ -45,6 +40,7 @@ const ENTITY_SEARCH_SCHEMA : Dictionary = {
 # ------------------------------------------------------------------------------
 # "Export" Variables
 # ------------------------------------------------------------------------------
+var _name : String = ""
 var _resources : Dictionary = {}
 var _grid : Dictionary = {}
 var _entities : Dictionary = {}
@@ -54,12 +50,23 @@ var _entities : Dictionary = {}
 # ------------------------------------------------------------------------------
 var _next_rid : int = 0
 
+var _default_surface : Dictionary = {
+	CrawlGlobals.SURFACE.Ceiling: 0,
+	CrawlGlobals.SURFACE.Ground: 0,
+	CrawlGlobals.SURFACE.North: 0,
+	CrawlGlobals.SURFACE.South: 0,
+	CrawlGlobals.SURFACE.East: 0,
+	CrawlGlobals.SURFACE.West: 0
+}
+
 # ------------------------------------------------------------------------------
 # Override Methods
 # ------------------------------------------------------------------------------
 
 func _get(property : StringName) -> Variant:
 	match property:
+		&"name":
+			return _name
 		&"grid":
 			return _grid
 		&"resources":
@@ -71,6 +78,10 @@ func _get(property : StringName) -> Variant:
 func _set(property : StringName, value : Variant) -> bool:
 	var success : bool = false
 	match property:
+		&"name":
+			if typeof(value) == TYPE_STRING:
+				_name = value
+				success = true
 		&"grid":
 			if typeof(value) == TYPE_DICTIONARY:
 				if DSV.verify(value, GRID_SCHEMA) == OK:
@@ -105,6 +116,11 @@ func _get_property_list() -> Array:
 			usage = PROPERTY_USAGE_CATEGORY
 		},
 		{
+			name = "name",
+			type = TYPE_STRING,
+			usage = PROPERTY_USAGE_DEFAULT
+		},
+		{
 			name = "grid",
 			type = TYPE_DICTIONARY,
 			usage = PROPERTY_USAGE_STORAGE
@@ -137,12 +153,12 @@ func _CreateDefaultCell() -> Dictionary:
 		&"blocking": 0x3F,
 		&"visited":false,
 		&"rid": [
-			RESOURCE_WALL_DEFAULT,
-			RESOURCE_WALL_DEFAULT,
-			RESOURCE_WALL_DEFAULT,
-			RESOURCE_WALL_DEFAULT,
-			RESOURCE_GROUND_DEFAULT,
-			RESOURCE_CEILING_DEFAULT,
+			_default_surface[CrawlGlobals.SURFACE.North],
+			_default_surface[CrawlGlobals.SURFACE.East],
+			_default_surface[CrawlGlobals.SURFACE.South],
+			_default_surface[CrawlGlobals.SURFACE.West],
+			_default_surface[CrawlGlobals.SURFACE.Ground],
+			_default_surface[CrawlGlobals.SURFACE.Ceiling],
 		]
 	}
 
@@ -247,6 +263,17 @@ func clear_unused_resources() -> void:
 				highest_rid = rid + 1
 	_resources = nr
 	_next_rid = highest_rid
+
+func set_default_surface_resource(surface : CrawlGlobals.SURFACE, resource : StringName) -> void:
+	var rid : int = get_resource_id(resource)
+	if rid < 0:
+		if add_resource(resource) != OK: return
+		rid = _next_rid - 1
+	_default_surface[surface] = rid
+
+func set_default_surface_resource_id(surface : CrawlGlobals.SURFACE, rid : int) -> void:
+	if get_resource_name_from_id(rid) == &"": return
+	_default_surface[surface] = rid
 
 func add_entity(entity : CrawlEntity) -> void:
 	if entity.type == &"" or entity.uuid == &"":
@@ -372,6 +399,26 @@ func set_cell_surface(position : Vector3i, surface : CrawlGlobals.SURFACE, block
 	
 	_SetCellSurface(position, surface, data, bi_directional)
 
+func set_cell_surfaces_to_defaults(position : Vector3i) -> void:
+	if not position in _grid:
+		printerr("CrawlMap Error: No cell at position ", position)
+		return
+	
+	if _grid[position][&"rid"][0] >= 0:
+		_grid[position][&"rid"][0] = _default_surface[CrawlGlobals.SURFACE.North]
+	if _grid[position][&"rid"][1] >= 0:
+		_grid[position][&"rid"][1] = _default_surface[CrawlGlobals.SURFACE.East]
+	if _grid[position][&"rid"][2] >= 0:
+		_grid[position][&"rid"][2] = _default_surface[CrawlGlobals.SURFACE.South]
+	if _grid[position][&"rid"][3] >= 0:
+		_grid[position][&"rid"][3] = _default_surface[CrawlGlobals.SURFACE.West]
+	if _grid[position][&"rid"][4] >= 0:
+		_grid[position][&"rid"][4] = _default_surface[CrawlGlobals.SURFACE.Ground]
+	if _grid[position][&"rid"][5] >= 0:
+		_grid[position][&"rid"][5] = _default_surface[CrawlGlobals.SURFACE.Ceiling]
+	
+	cell_changed.emit(position)
+
 func set_cell_surface_blocking(position : Vector3i, surface : CrawlGlobals.SURFACE, blocking : bool, bi_directional : bool = false) -> void:
 	if not position in _grid:
 		printerr("CrawlMap Error: No cell at position ", position)
@@ -484,7 +531,7 @@ func fill(position : Vector3i, direction : CrawlGlobals.SURFACE) -> void:
 		var cell_position : Vector3i = _CalcNeighborFrom(neighbor_position, surface)
 		if not cell_position in _grid: continue
 		var opposite_surface : CrawlGlobals.SURFACE = CrawlGlobals.Get_Adjacent_Surface(surface)
-		set_cell_surface(cell_position, opposite_surface, true, RESOURCE_WALL_DEFAULT)
+		set_cell_surface(cell_position, opposite_surface, true, _default_surface[surface])
 
 func dig(position : Vector3i, direction : CrawlGlobals.SURFACE) -> void:
 	if not position in _grid:
@@ -494,7 +541,7 @@ func dig(position : Vector3i, direction : CrawlGlobals.SURFACE) -> void:
 		add_cell(neighbor_position)
 	set_cell_surface(position, direction, false, -1, true)
 
-func dig_room(position : Vector3i, size : Vector3i, ground_rid : int, ceiling_rid : int, wall_rid : int) -> void:
+func dig_room(position : Vector3i, size : Vector3i) -> void:
 	# Readjusting position for possible negative size values.
 	position.x += size.x if size.x < 0 else 0
 	position.y += size.y if size.y < 0 else 0
@@ -503,8 +550,9 @@ func dig_room(position : Vector3i, size : Vector3i, ground_rid : int, ceiling_ri
 	size = abs(size)
 	var target : Vector3i = position + size
 	
-	var _set_surface : Callable = func(pos : Vector3i, surf : CrawlGlobals.SURFACE, blocking : bool, rid : int) -> void:
+	var _set_surface : Callable = func(pos : Vector3i, surf : CrawlGlobals.SURFACE, blocking : bool) -> void:
 		if not pos in _grid: return
+		var rid : int = _default_surface[surf]
 		set_cell_surface(pos, surf, blocking, rid if blocking else -1)
 	
 	for k in range(position.z, target.z):
@@ -513,12 +561,12 @@ func dig_room(position : Vector3i, size : Vector3i, ground_rid : int, ceiling_ri
 				var pos : Vector3i = Vector3i(i,j,k)
 				if not pos in _grid:
 					add_cell(pos)
-					_set_surface.call(pos, CrawlGlobals.SURFACE.Ground, j == position.y, ground_rid)
-					_set_surface.call(pos, CrawlGlobals.SURFACE.Ceiling, j + 1 == target.y, ceiling_rid)
-					_set_surface.call(pos, CrawlGlobals.SURFACE.North, k + 1 == target.z, wall_rid)
-					_set_surface.call(pos, CrawlGlobals.SURFACE.South, k == position.z, wall_rid)
-					_set_surface.call(pos, CrawlGlobals.SURFACE.East, i == position.x, wall_rid)
-					_set_surface.call(pos, CrawlGlobals.SURFACE.West, i + 1 == target.x, wall_rid)
+					_set_surface.call(pos, CrawlGlobals.SURFACE.Ground, j == position.y)
+					_set_surface.call(pos, CrawlGlobals.SURFACE.Ceiling, j + 1 == target.y)
+					_set_surface.call(pos, CrawlGlobals.SURFACE.North, k + 1 == target.z)
+					_set_surface.call(pos, CrawlGlobals.SURFACE.South, k == position.z)
+					_set_surface.call(pos, CrawlGlobals.SURFACE.East, i == position.x)
+					_set_surface.call(pos, CrawlGlobals.SURFACE.West, i + 1 == target.x)
 
 # ------------------------------------------------------------------------------
 # Handler Methods

@@ -45,8 +45,10 @@ size_flags_horizontal = 4
 icon = ExtResource("2_rgrof")
 icon_alignment = 1
 
-[node name="Control" type="Control" parent="."]
+[node name="SetToDefaults" type="Button" parent="."]
 layout_mode = 2
+icon = ExtResource("2_0gloc")
+icon_alignment = 1
 
 [node name="west_cell" type="VBoxContainer" parent="."]
 layout_mode = 2
@@ -127,3 +129,5 @@ icon_alignment = 1
 
 [node name="ResourceItems" type="PopupMenu" parent="."]
 initial_position = 2
+
+[connection signal="pressed" from="SetToDefaults" to="." method="_on_set_to_defaults_pressed"]

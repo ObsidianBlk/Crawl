@@ -1,0 +1,46 @@
+[gd_scene load_steps=3 format=3 uid="uid://b3ecq2idamo78"]
+
+[ext_resource type="PackedScene" uid="uid://ct2dmvumoh544" path="res://objects/resource_viewer/ResourceViewer.tscn" id="1_0ra7w"]
+[ext_resource type="Script" path="res://scenes/dungeon_editor/default_cell_editor/DefaultCellEditor.gd" id="1_tatsh"]
+
+[node name="DefaultCellEditor" type="GridContainer"]
+offset_right = 40.0
+offset_bottom = 40.0
+columns = 3
+script = ExtResource("1_tatsh")
+
+[node name="CeilingView" parent="." instance=ExtResource("1_0ra7w")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="NorthView" parent="." instance=ExtResource("1_0ra7w")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 2
+
+[node name="WestView" parent="." instance=ExtResource("1_0ra7w")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Control2" type="Control" parent="."]
+layout_mode = 2
+
+[node name="EastView" parent="." instance=ExtResource("1_0ra7w")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Control3" type="Control" parent="."]
+layout_mode = 2
+
+[node name="SouthView" parent="." instance=ExtResource("1_0ra7w")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="GroundView" parent="." instance=ExtResource("1_0ra7w")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="ResourceOptions" type="PopupMenu" parent="."]
+initial_position = 1

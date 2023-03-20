@@ -288,6 +288,7 @@ func _on_resource_item_index_selected(idx : int) -> void:
 		meta[&"surface"],
 		meta[&"resource_name"]
 	)
-	
 
-
+func _on_set_to_defaults_pressed():
+	if map == null: return
+	map.set_cell_surfaces_to_defaults(_map_position)
