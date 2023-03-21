@@ -79,6 +79,7 @@ func _UpdateFocusEntity() -> void:
 		if not elist[0].position_changed.is_connected(_on_focus_position_changed):
 			elist[0].position_changed.connect(_on_focus_position_changed)
 		_focus_entity = weakref(elist[0])
+		_UpdateCells(elist[0].position)
 
 func _UpdateCells(origin : Vector3i) -> void:
 	if cell_container == null: return

@@ -99,18 +99,18 @@ func _UpdateResourceViews() -> void:
 func _on_surface_pressed(section_name : StringName, surface : CrawlGlobals.SURFACE) -> void:
 	if not RLT.has_section(section_name): return
 	_resource_options.clear()
-	_resource_options.add_item("Empty")
-	_resource_options.set_item_metadata(0, {
-		&"section":&"",
-		&"resource_name":&"",
-		&"surface":surface
-	})
+#	_resource_options.add_item("Empty")
+#	_resource_options.set_item_metadata(0, {
+#		&"section":&"",
+#		&"resource_name":&"",
+#		&"surface":surface
+#	})
 	for item in RLT.get_resource_list(section_name):
 		var idx : int = _resource_options.item_count
-		_resource_options.add_item(item)
+		_resource_options.add_item(item[&"description"])
 		_resource_options.set_item_metadata(idx, {
 			&"section":section_name,
-			&"resource_name":item,
+			&"resource_name":item[&"name"],
 			&"surface":surface
 		})
 	_resource_options.popup_centered()

@@ -36,6 +36,7 @@ const CELL_SIZE : float = 5.0
 # ------------------------------------------------------------------------------
 #var _map_position : Vector3i = Vector3i.ZERO
 
+var _update_facing : bool = false
 var _freelook_enabled : bool = false
 
 var _fill_enabled : bool = false
@@ -59,6 +60,7 @@ func set_entity(ent : CrawlEntity) -> void:
 		entity = ent
 		if entity != null:
 			position = Vector3(entity.position) * CELL_SIZE
+			_update_facing = true
 
 func set_ignore_map(i : bool) -> void:
 	# NOTE: This method is more for passing signals to.
@@ -74,6 +76,17 @@ func _ready() -> void:
 
 func _process(delta : float) -> void:
 	_SettleLookAngle(delta)
+	if _facing_node != null and _update_facing:
+		_update_facing = false
+		match entity.facing:
+			CrawlGlobals.SURFACE.North:
+				_facing_node.rotation.y = 0
+			CrawlGlobals.SURFACE.South:
+				_facing_node.rotation.y = DEG90 * 2
+			CrawlGlobals.SURFACE.East:
+				_facing_node.rotation.y = -DEG90
+			CrawlGlobals.SURFACE.West:
+				_facing_node.rotation.y = DEG90
 
 func _unhandled_input(event : InputEvent) -> void:
 	if _freelook_enabled:

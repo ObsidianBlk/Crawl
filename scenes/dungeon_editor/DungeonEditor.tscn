@@ -1,8 +1,7 @@
-[gd_scene load_steps=11 format=3 uid="uid://cx2tjtwfgedte"]
+[gd_scene load_steps=10 format=3 uid="uid://cx2tjtwfgedte"]
 
 [ext_resource type="PackedScene" uid="uid://b4kugyrq8jxcl" path="res://scenes/crawl_map_view/CrawlMapView.tscn" id="1_vacan"]
 [ext_resource type="Script" path="res://scenes/dungeon_editor/DungeonEditor.gd" id="1_yqpdw"]
-[ext_resource type="PackedScene" uid="uid://dmxms58ooi31r" path="res://objects/viewer/Viewer.tscn" id="2_hmrwf"]
 [ext_resource type="Script" path="res://scripts/nodes/CrawlMiniMap.gd" id="2_ikbiv"]
 [ext_resource type="Texture2D" uid="uid://uurbekgepv47" path="res://assets/icons/add.svg" id="4_huk62"]
 [ext_resource type="Texture2D" uid="uid://bhfgotvwylokw" path="res://assets/icons/load.svg" id="5_cbncs"]
@@ -18,8 +17,7 @@ script = ExtResource("1_yqpdw")
 unique_name_in_owner = true
 focus_type = &"Editor"
 
-[node name="Viewer" parent="." instance=ExtResource("2_hmrwf")]
-ignore_map = true
+[node name="EntityContainer" type="Node3D" parent="."]
 
 [node name="UI" type="CanvasLayer" parent="."]
 

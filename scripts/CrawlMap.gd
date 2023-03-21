@@ -319,7 +319,7 @@ func get_entity(uuid : StringName) -> CrawlEntity:
 	if not uuid in _entities: return null
 	return _entities[uuid]
 
-func get_entities(options : Dictionary) -> Array:
+func get_entities(options : Dictionary = {}) -> Array:
 	if DSV.verify(options, ENTITY_SEARCH_SCHEMA) != OK: return []
 	
 	var earr : Array = []

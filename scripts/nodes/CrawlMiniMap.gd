@@ -54,8 +54,17 @@ var _label : Label = null
 # ------------------------------------------------------------------------------
 func set_map(m : CrawlMap) -> void:
 	if m != map:
-		# TODO: Possible signal disconnections
+		if map != null:
+			if map.entity_added.is_connected(_on_entity_added):
+				map.entity_added.disconnect(_on_entity_added)
+			if map.entity_removed.is_connected(_on_entity_removed):
+				map.entity_removed.disconnect(_on_entity_removed)
 		map = m
+		if map != null:
+			if not map.entity_added.is_connected(_on_entity_added):
+				map.entity_added.connect(_on_entity_added)
+			if not map.entity_removed.is_connected(_on_entity_removed):
+				map.entity_removed.connect(_on_entity_removed)
 		_UpdateFocusEntity()
 		# TODO: Possible signal connections
 		queue_redraw()
@@ -380,6 +389,14 @@ func end_selection() -> void:
 # ------------------------------------------------------------------------------
 func _on_resized() -> void:
 	_UpdateCursor()
+
+func _on_entity_added(entity : CrawlEntity) -> void:
+	if entity.type == focus_type:
+		_UpdateFocusEntity()
+
+func _on_entity_removed(entity : CrawlEntity) -> void:
+	if entity.type == focus_type:
+		_UpdateFocusEntity()
 
 func _on_focus_position_changed(from : Vector3i, to : Vector3i) -> void:
 	_origin = to

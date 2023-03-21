@@ -14,9 +14,8 @@ signal attacked(dmg, type)
 # ------------------------------------------------------------------------------
 # Export Variables
 # ------------------------------------------------------------------------------
-@export var uuid : StringName = &""
-@export var type : StringName = &""
-@export var sub_types : Array[StringName] = []
+@export var uuid : StringName = &"":									set = set_uuid
+@export var type : StringName = &"":									set = set_type
 @export var position : Vector3i = Vector3i.ZERO:						set = set_position
 @export var facing : CrawlGlobals.SURFACE = CrawlGlobals.SURFACE.North:	set = set_facing
 @export var blocking : int = 0x3F
@@ -37,6 +36,10 @@ func set_uuid(id : StringName) -> void:
 
 func set_type(t : StringName) -> void:
 	if type == &"" and t != &"":
+		var parts : PackedStringArray = t.split(":")
+		var count : int = parts.size()
+		if not (count >= 1 and count <= 2): return
+		if count == 2 and parts[1].is_empty(): return
 		type = t
 
 func set_position(pos : Vector3i) -> void:
@@ -122,20 +125,24 @@ func is_blocking(surface : CrawlGlobals.SURFACE) -> bool:
 	var i : int = CrawlGlobals.SURFACE.values().find(surface)
 	return (blocking & (1 << i)) != 0
 
-func is_subtype(type : StringName) -> bool:
-	return sub_types.find(type) >= 0
+func get_basetype() -> String:
+	if type == &"": return ""
+	return type.split(":")[0]
 
-func is_oneof_subtypes(types : Array[StringName]) -> bool:
-	for type in types:
-		if sub_types.find(type) >= 0:
-			return true
-	return false
-
-func is_subtypes(types : Array[StringName]) -> bool:
-	for type in types:
-		if sub_types.find(type) < 0:
-			return false
+func is_basetype(base_type : StringName) -> bool:
+	if not type.begins_with(base_type): return false
+	if type != base_type: return false
 	return true
+
+func get_subtype() -> String:
+	if type == &"": return ""
+	var parts : PackedStringArray = type.split(":")
+	if parts.size() != 2:
+		return ""
+	return parts[1]
+
+func is_subtype(sub_type : StringName) -> bool:
+	return type.ends_with(":%s"%[sub_type])
 
 func can_move(dir : StringName) -> bool:
 	var d_facing : CrawlGlobals.SURFACE = _DirectionNameToFacing(dir)

@@ -270,10 +270,10 @@ func _on_surface_pressed(section_name : StringName, surface : CrawlGlobals.SURFA
 	})
 	for item in RLT.get_resource_list(section_name):
 		var idx : int = _resource_items.item_count
-		_resource_items.add_item(item)
+		_resource_items.add_item(item[&"description"])
 		_resource_items.set_item_metadata(idx, {
 			&"section":section_name,
-			&"resource_name":item,
+			&"resource_name":item[&"name"],
 			&"surface":surface
 		})
 	_resource_items.popup_centered()
