@@ -19,16 +19,16 @@ signal entity_removed(entity)
 
 const CELL_SCHEMA : Dictionary = {
 	&"blocking":{&"req":true, &"type":TYPE_INT, &"min":0, &"max":0x3F},
-	&"rid":{&"req":true, &"type":TYPE_ARRAY, &"item":{&"type":TYPE_INT, &"min":0}},
+	&"rid":{&"req":true, &"type":TYPE_ARRAY, &"item":{&"type":TYPE_INT, &"min":-1}},
 	&"visited":{&"req":true, &"type":TYPE_BOOL}
 }
 
 const GRID_SCHEMA : Dictionary = {
-	&"!KEY_OF_TYPE_V3I":{&"type":TYPE_VECTOR3I, &"def":CELL_SCHEMA}
+	&"!KEY_OF_TYPE_V3I":{&"type":TYPE_VECTOR3I, &"def":{&"type":TYPE_DICTIONARY, &"def":CELL_SCHEMA}}
 }
 
 const RESOURCES_SCHEMA : Dictionary = {
-	&"!KEY_OF_TYPE_sn":{&"type":TYPE_STRING_NAME, &"def":{&"type":TYPE_INT, &"min":-1}}
+	&"!KEY_OF_TYPE_str":{&"type":TYPE_STRING, &"def":{&"type":TYPE_INT, &"min":-1}}
 }
 
 const ENTITY_SEARCH_SCHEMA : Dictionary = {
@@ -87,6 +87,8 @@ func _set(property : StringName, value : Variant) -> bool:
 				if DSV.verify(value, GRID_SCHEMA) == OK:
 					_grid = value
 					success = true
+				else:
+					printerr("Failed to load grid.")
 		&"resources":
 			if typeof(value) == TYPE_DICTIONARY:
 				if DSV.verify(value, RESOURCES_SCHEMA) == OK:
@@ -96,6 +98,8 @@ func _set(property : StringName, value : Variant) -> bool:
 						if _resources[key] > _next_rid:
 							_next_rid = _resources[key] + 1
 					success = true
+				else:
+					printerr("Failed to load resources.")
 		&"entities":
 			if typeof(value) == TYPE_DICTIONARY:
 				if _EntitiesValid(value):
@@ -105,6 +109,8 @@ func _set(property : StringName, value : Variant) -> bool:
 						_entities[uuid]._map = self
 						entity_added.emit(_entities[uuid])
 					success = true
+				else:
+					printerr("Failed to load Entities.")
 	
 	return success
 
@@ -144,7 +150,7 @@ func _get_property_list() -> Array:
 # ------------------------------------------------------------------------------
 func _EntitiesValid(edata : Dictionary) -> bool:
 	for key in edata.keys():
-		if typeof(key) != TYPE_STRING_NAME: return false
+		if typeof(key) != TYPE_STRING_NAME and typeof(key) != TYPE_STRING: return false
 		if not is_instance_of(edata[key], CrawlEntity): return false
 	return true
 
