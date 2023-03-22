@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://cx2tjtwfgedte"]
+[gd_scene load_steps=11 format=3 uid="uid://cx2tjtwfgedte"]
 
 [ext_resource type="PackedScene" uid="uid://b4kugyrq8jxcl" path="res://scenes/crawl_map_view/CrawlMapView.tscn" id="1_vacan"]
 [ext_resource type="Script" path="res://scenes/dungeon_editor/DungeonEditor.gd" id="1_yqpdw"]
@@ -9,13 +9,13 @@
 [ext_resource type="PackedScene" uid="uid://cc4tyjtfkmn4g" path="res://scenes/dungeon_editor/active_cell_editor/ActiveCellEditor.tscn" id="6_bvj6h"]
 [ext_resource type="Texture2D" uid="uid://c37qnoduri467" path="res://assets/icons/save.svg" id="6_it7ey"]
 [ext_resource type="PackedScene" uid="uid://b3ecq2idamo78" path="res://scenes/dungeon_editor/default_cell_editor/DefaultCellEditor.tscn" id="6_o8ruv"]
+[ext_resource type="PackedScene" uid="uid://t3006qsc66n3" path="res://scenes/dungeon_editor/entity_selector/EntitySelector.tscn" id="10_acuyj"]
 
 [node name="DungeonEditor" type="Node3D"]
 script = ExtResource("1_yqpdw")
 
 [node name="CrawlMapView" parent="." instance=ExtResource("1_vacan")]
 unique_name_in_owner = true
-focus_type = &"Editor"
 
 [node name="EntityContainer" type="Node3D" parent="."]
 
@@ -50,6 +50,13 @@ layout_mode = 2
 icon = ExtResource("6_it7ey")
 icon_alignment = 1
 
+[node name="VSeparator" type="VSeparator" parent="UI/Editor/OptionsBar/HBoxContainer"]
+layout_mode = 2
+
+[node name="Entity" type="Button" parent="UI/Editor/OptionsBar/HBoxContainer"]
+layout_mode = 2
+icon = ExtResource("5_curq0")
+
 [node name="Body" type="HBoxContainer" parent="UI/Editor"]
 layout_mode = 2
 size_flags_vertical = 3
@@ -59,7 +66,6 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 script = ExtResource("2_ikbiv")
-focus_type = &"Editor"
 cell_size = 48.0
 background_color = Color(0, 0, 0, 0.156863)
 cell_color = Color(0.913725, 0.588235, 0.478431, 0.501961)
@@ -120,6 +126,10 @@ layout_mode = 2
 unique_name_in_owner = true
 layout_mode = 2
 
+[node name="EntitySelector" parent="UI" instance=ExtResource("10_acuyj")]
+visible = false
+
 [connection signal="pressed" from="UI/Editor/OptionsBar/HBoxContainer/NewMap" to="." method="_on_new_map_pressed"]
 [connection signal="pressed" from="UI/Editor/OptionsBar/HBoxContainer/Load" to="." method="_on_load_pressed"]
 [connection signal="pressed" from="UI/Editor/OptionsBar/HBoxContainer/Save" to="." method="_on_save_pressed"]
+[connection signal="pressed" from="UI/Editor/OptionsBar/HBoxContainer/Entity" to="." method="_on_entity_pressed"]

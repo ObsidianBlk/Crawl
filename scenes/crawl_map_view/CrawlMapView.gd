@@ -11,7 +11,6 @@ const CELL_SIZE : float = 5.0
 # Export Variables
 # ------------------------------------------------------------------------------
 @export var map : CrawlMap = null :				set = set_map
-@export var focus_type : StringName = &""
 @export var unit_radius : int = 4 :				set = set_unit_radius
 
 # ------------------------------------------------------------------------------
@@ -21,7 +20,7 @@ var _cells : Dictionary = {}
 var _map_changed : bool = false
 var _cell_update_requested : bool = false
 
-var _focus_entity : WeakRef = weakref(null)
+var _focus_position : Vector3i = Vector3i.ZERO
 
 # ------------------------------------------------------------------------------
 # Onready Variables
@@ -33,15 +32,17 @@ var _focus_entity : WeakRef = weakref(null)
 # ------------------------------------------------------------------------------
 func set_map(cmap : CrawlMap) -> void:
 	if cmap != map:
+		if map != null:
+			if map.focus_position_changed.is_connected(_on_focus_position_changed):
+				map.focus_position_changed.disconnect(_on_focus_position_changed)
 		map = cmap
-		_UpdateFocusEntity()
+		if map != null:
+			if not map.focus_position_changed.is_connected(_on_focus_position_changed):
+				map.focus_position_changed.connect(_on_focus_position_changed)
+		_focus_position = map.get_focus_position()
 		_map_changed = true
 		_cell_update_requested = true
 
-func set_focus_type(t : StringName) -> void:
-	if t != &"" and t != focus_type:
-		focus_type = t
-		_UpdateFocusEntity()
 
 func set_unit_radius(ur : int) -> void:
 	if ur > 0 and ur != unit_radius:
@@ -55,32 +56,11 @@ func set_unit_radius(ur : int) -> void:
 func _process(_delta : float) -> void:
 	if cell_container != null and _cell_update_requested:
 		_cell_update_requested = false
-		var entity : CrawlEntity = _focus_entity.get_ref()
-		if entity != null:
-			_UpdateCells(entity.position)
-		else:
-			_UpdateFocusEntity()
+		_UpdateCells(_focus_position)
 
 # ------------------------------------------------------------------------------
 # Private Methods
 # ------------------------------------------------------------------------------
-func _UpdateFocusEntity() -> void:
-	var entity : CrawlEntity = _focus_entity.get_ref()
-	if entity != null:
-		if map != null and entity.get_map() == map and entity.type == focus_type:
-			return
-		if entity.position_changed.is_connected(_on_focus_position_changed):
-			entity.position_changed.disconnect(_on_focus_position_changed)
-		_focus_entity = weakref(null)
-	if map == null: return
-
-	var elist : Array = map.get_entities({&"type":focus_type})
-	if elist.size() > 0:
-		if not elist[0].position_changed.is_connected(_on_focus_position_changed):
-			elist[0].position_changed.connect(_on_focus_position_changed)
-		_focus_entity = weakref(elist[0])
-		_UpdateCells(elist[0].position)
-
 func _UpdateCells(origin : Vector3i) -> void:
 	if cell_container == null: return
 	
@@ -120,6 +100,7 @@ func _UpdateCells(origin : Vector3i) -> void:
 # ------------------------------------------------------------------------------
 # Handler Methods
 # ------------------------------------------------------------------------------
-func _on_focus_position_changed(from : Vector3i, to : Vector3i) -> void:
-	_UpdateCells(to)
+func _on_focus_position_changed(focus_position : Vector3i) -> void:
+	_focus_position = focus_position
+	_cell_update_requested = true
 

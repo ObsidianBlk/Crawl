@@ -1,0 +1,43 @@
+[gd_scene load_steps=2 format=3 uid="uid://t3006qsc66n3"]
+
+[ext_resource type="Script" path="res://scenes/dungeon_editor/entity_selector/EntitySelector.gd" id="1_acof5"]
+
+[node name="EntitySelector" type="Window"]
+disable_3d = true
+initial_position = 1
+title = "Entity List"
+size = Vector2i(512, 640)
+wrap_controls = true
+exclusive = true
+popup_window = true
+script = ExtResource("1_acof5")
+
+[node name="PC" type="PanelContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Layout" type="VBoxContainer" parent="PC"]
+layout_mode = 2
+
+[node name="TypeFilter" type="HBoxContainer" parent="PC/Layout"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="PC/Layout/TypeFilter"]
+layout_mode = 2
+text = "Type: "
+
+[node name="EntityTypeOptions" type="OptionButton" parent="PC/Layout/TypeFilter"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HSeparator" type="HSeparator" parent="PC/Layout"]
+layout_mode = 2
+
+[node name="EntityList" type="ItemList" parent="PC/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3

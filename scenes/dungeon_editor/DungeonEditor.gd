@@ -12,6 +12,7 @@ var _entity_nodes : Dictionary = {}
 # ------------------------------------------------------------------------------
 # Onready Variables
 # ------------------------------------------------------------------------------
+@onready var _entity_selector : Window = $UI/EntitySelector
 @onready var _map_view : Node3D = %CrawlMapView
 @onready var _mini_map : CrawlMiniMap = %CrawlMiniMap
 @onready var _entity_container : Node3D = $"EntityContainer"
@@ -34,6 +35,7 @@ func _ready() -> void:
 	
 	_mini_map.selection_finished.connect(_on_selection_finished)
 	_active_cell_editor.focus_type = &"Editor"
+	_entity_selector.entity_created.connect(_on_entity_created)
 
 # ------------------------------------------------------------------------------
 # Private Methods
@@ -115,6 +117,7 @@ func _on_entity_added(entity : CrawlEntity) -> void:
 	_entity_container.add_child(node)
 	
 	if entity.type == &"Editor":
+		_active_map.set_entity_as_focus(entity)
 		if node.has_signal("dig"):
 			node.dig.connect(_on_dig)
 		if node.has_signal("fill"):
@@ -152,6 +155,7 @@ func _on_new_map_pressed():
 	editor_entity.position = Vector3i.ZERO
 	
 	_active_map.add_entity(editor_entity)
+	_active_map.set_entity_as_focus(editor_entity)
 
 
 func _on_save_pressed():
@@ -183,4 +187,15 @@ func _on_load_pressed():
 	#_viewer.entity = elist[0]
 	_active_cell_editor.map = _active_map
 	_AddMapEntities()
+
+func _on_entity_pressed() -> void:
+	if _entity_selector.visible == true : return
+	if _active_map == null: return
+	_entity_selector.popup_centered()
+
+func _on_entity_created(entity : CrawlEntity) -> void:
+	if _active_map == null: return
+	if _active_map.has_entity(entity): return
 	
+	entity.position = _active_map.get_focus_position()
+	_active_map.add_entity(entity)

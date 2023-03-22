@@ -13,13 +13,12 @@ signal selection_finished(sel_position, sel_size)
 # Constants
 # ------------------------------------------------------------------------------
 const SELECTION_BLINK_INTERVAL : float = 0.08
-#const FOCUS_ENTITY_TYPE : StringName = &"Player"
 
 # ------------------------------------------------------------------------------
 # Export Variables
 # ------------------------------------------------------------------------------
 @export var map : CrawlMap = null:								set = set_map
-@export var focus_type : StringName = &"":						set = set_focus_type
+#@export var focus_type : StringName = &"":						set = set_focus_type
 @export var cell_size : float = 16.0:							set = set_cell_size
 @export var background_color : Color = Color.DARK_GOLDENROD:	set = set_background_color
 @export var background_texture : Texture = null:				set = set_background_texture
@@ -33,7 +32,7 @@ const SELECTION_BLINK_INTERVAL : float = 0.08
 # ------------------------------------------------------------------------------
 # Variables
 # ------------------------------------------------------------------------------
-var _focus_entity : WeakRef = weakref(null)
+#var _focus_entity : WeakRef = weakref(null)
 var _origin : Vector3i = Vector3i.ZERO
 var _facing : CrawlGlobals.SURFACE = CrawlGlobals.SURFACE.North
 
@@ -55,25 +54,33 @@ var _label : Label = null
 func set_map(m : CrawlMap) -> void:
 	if m != map:
 		if map != null:
-			if map.entity_added.is_connected(_on_entity_added):
-				map.entity_added.disconnect(_on_entity_added)
-			if map.entity_removed.is_connected(_on_entity_removed):
-				map.entity_removed.disconnect(_on_entity_removed)
+			if map.focus_position_changed.is_connected(_on_focus_position_changed):
+				map.focus_position_changed.disconnect(_on_focus_position_changed)
+			if map.focus_facing_changed.is_connected(_on_focus_facing_changed):
+				map.focus_facing_changed.disconnect(_on_focus_facing_changed)
+#			if map.entity_added.is_connected(_on_entity_added):
+#				map.entity_added.disconnect(_on_entity_added)
+#			if map.entity_removed.is_connected(_on_entity_removed):
+#				map.entity_removed.disconnect(_on_entity_removed)
 		map = m
 		if map != null:
-			if not map.entity_added.is_connected(_on_entity_added):
-				map.entity_added.connect(_on_entity_added)
-			if not map.entity_removed.is_connected(_on_entity_removed):
-				map.entity_removed.connect(_on_entity_removed)
-		_UpdateFocusEntity()
+			if not map.focus_position_changed.is_connected(_on_focus_position_changed):
+				map.focus_position_changed.connect(_on_focus_position_changed)
+			if not map.focus_facing_changed.is_connected(_on_focus_facing_changed):
+				map.focus_facing_changed.connect(_on_focus_facing_changed)
+#			if not map.entity_added.is_connected(_on_entity_added):
+#				map.entity_added.connect(_on_entity_added)
+#			if not map.entity_removed.is_connected(_on_entity_removed):
+#				map.entity_removed.connect(_on_entity_removed)
+		#_UpdateFocusEntity()
 		# TODO: Possible signal connections
 		queue_redraw()
 
-func set_focus_type(t : StringName) -> void:
-	if t != focus_type:
-		focus_type = t
-		_UpdateFocusEntity()
-		queue_redraw()
+#func set_focus_type(t : StringName) -> void:
+#	if t != focus_type:
+#		focus_type = t
+#		_UpdateFocusEntity()
+#		queue_redraw()
 
 func set_cell_size(s : float) -> void:
 	if s > 0 and s != cell_size:
@@ -235,28 +242,28 @@ func _notification(what : int) -> void:
 # ------------------------------------------------------------------------------
 # Private Methods
 # ------------------------------------------------------------------------------
-func _UpdateFocusEntity() -> void:
-	var entity : CrawlEntity = _focus_entity.get_ref()
-	if entity != null:
-		if map != null and entity.get_map() == map and entity.type == focus_type:
-			return # We're still satisfied
-		if entity.position_changed.is_connected(_on_focus_position_changed):
-			entity.position_changed.disconnect(_on_focus_position_changed)
-		if entity.facing_changed.is_connected(_on_focus_facing_changed):
-			entity.facing_changed.disconnect(_on_focus_facing_changed)
-		_focus_entity = weakref(null)
-	if map != null:
-		var elist : Array = map.get_entities({&"type":focus_type})
-		if elist.size() > 0:
-			if not elist[0].position_changed.is_connected(_on_focus_position_changed):
-				elist[0].position_changed.connect(_on_focus_position_changed)
-			if not elist[0].facing_changed.is_connected(_on_focus_facing_changed):
-				elist[0].facing_changed.connect(_on_focus_facing_changed)
-			_focus_entity = weakref(elist[0])
-			_facing = elist[0].facing
-			_origin = elist[0].position
-			_UpdateCursorFacing()
-			queue_redraw()
+#func _UpdateFocusEntity() -> void:
+#	var entity : CrawlEntity = _focus_entity.get_ref()
+#	if entity != null:
+#		if map != null and entity.get_map() == map and entity.type == focus_type:
+#			return # We're still satisfied
+#		if entity.position_changed.is_connected(_on_focus_position_changed):
+#			entity.position_changed.disconnect(_on_focus_position_changed)
+#		if entity.facing_changed.is_connected(_on_focus_facing_changed):
+#			entity.facing_changed.disconnect(_on_focus_facing_changed)
+#		_focus_entity = weakref(null)
+#	if map != null:
+#		var elist : Array = map.get_entities({&"type":focus_type})
+#		if elist.size() > 0:
+#			if not elist[0].position_changed.is_connected(_on_focus_position_changed):
+#				elist[0].position_changed.connect(_on_focus_position_changed)
+#			if not elist[0].facing_changed.is_connected(_on_focus_facing_changed):
+#				elist[0].facing_changed.connect(_on_focus_facing_changed)
+#			_focus_entity = weakref(elist[0])
+#			_facing = elist[0].facing
+#			_origin = elist[0].position
+#			_UpdateCursorFacing()
+#			queue_redraw()
 
 func _DrawCell(map_position : Vector3i, screen_position : Vector2) -> void:
 	var cell_size_v : Vector2 = Vector2.ONE * cell_size
@@ -339,8 +346,9 @@ func _ScreenToMap(p : Vector2) -> Vector3i:
 	
 	# The mouse's map position. May not be needed :)
 	var pos : Vector2i = Vector2i(_last_mouse_position / cell_size) - cell_range
-	if _focus_entity.get_ref() != null:
-		return Vector3i(-pos.x, _focus_entity.get_ref().position.y, -pos.y)
+	#if _focus_entity.get_ref() != null:
+	if map != null:
+		return Vector3i(-pos.x, map.get_focus_position().y, -pos.y)
 	return Vector3i(-pos.x, 0, -pos.y)
 
 func _CalcSelectionRegion(from : Vector2i, to : Vector2i) -> Rect2i:
@@ -390,20 +398,22 @@ func end_selection() -> void:
 func _on_resized() -> void:
 	_UpdateCursor()
 
-func _on_entity_added(entity : CrawlEntity) -> void:
-	if entity.type == focus_type:
-		_UpdateFocusEntity()
+#func _on_entity_added(entity : CrawlEntity) -> void:
+#	if entity.type == focus_type:
+#		_UpdateFocusEntity()
+#
+#func _on_entity_removed(entity : CrawlEntity) -> void:
+#	if entity.type == focus_type:
+#		_UpdateFocusEntity()
 
-func _on_entity_removed(entity : CrawlEntity) -> void:
-	if entity.type == focus_type:
-		_UpdateFocusEntity()
-
-func _on_focus_position_changed(from : Vector3i, to : Vector3i) -> void:
-	_origin = to
+#func _on_focus_position_changed(from : Vector3i, to : Vector3i) -> void:
+func _on_focus_position_changed(focus_position : Vector3i) -> void:
+	_origin = focus_position
 	queue_redraw()
 
-func _on_focus_facing_changed(from : CrawlGlobals.SURFACE, to : CrawlGlobals.SURFACE) -> void:
-	_facing = to
+#func _on_focus_facing_changed(from : CrawlGlobals.SURFACE, to : CrawlGlobals.SURFACE) -> void:
+func _on_focus_facing_changed(focus_facing : CrawlGlobals.SURFACE) -> void:
+	_facing = focus_facing
 	_UpdateCursorFacing()
 
 func _on_selection_blink() -> void:
