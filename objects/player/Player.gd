@@ -1,28 +1,18 @@
-extends Node3D
+extends CrawlEntityNode3D
 
 
 
 # ------------------------------------------------------------------------------
 # Signals
 # ------------------------------------------------------------------------------
-signal fill_mode_enabled(enable)
 
 # ------------------------------------------------------------------------------
 # Constants
 # ------------------------------------------------------------------------------
-const DEG90 : float = 1.570796
-const CLOCKWISE : float = -1.0
-const COUNTERCLOCKWISE : float = 1.0
-
-const CELL_SIZE : float = 5.0
-
-const MAX_MOVE_QUEUE_SIZE : int = 4
 
 # ------------------------------------------------------------------------------
 # Export Variables
 # ------------------------------------------------------------------------------
-@export var entity : CrawlEntity = null:					set = set_entity
-@export var digging_enabled : bool = false
 @export_range(0.0, 180.0) var max_yaw : float = 60.0
 @export_range(0.0, 180.0) var rest_yaw : float = 30.0
 @export_range(0.0, 180.0) var max_pitch : float = 30.0
@@ -33,18 +23,12 @@ const MAX_MOVE_QUEUE_SIZE : int = 4
 # Variables
 # ------------------------------------------------------------------------------
 var _map_position : Vector3i = Vector3i.ZERO
-
 var _freelook_enabled : bool = false
 
-var _fill_enabled : bool = false
-
-var _move_queue : Array = []
-var _tween : Tween = null
 
 # ------------------------------------------------------------------------------
 # Override Variables
 # ------------------------------------------------------------------------------
-@onready var _facing_node : Node3D = $Facing
 @onready var _gimble_yaw_node : Node3D = $Facing/Gimble_Yaw
 @onready var _gimble_pitch_node : Node3D = $Facing/Gimble_Yaw/Gimble_Pitch
 
@@ -52,11 +36,6 @@ var _tween : Tween = null
 # ------------------------------------------------------------------------------
 # Setters
 # ------------------------------------------------------------------------------
-func set_entity(ent : CrawlEntity) -> void:
-	if ent != entity:
-		entity = ent
-		if entity != null:
-			position = Vector3(entity.position) * CELL_SIZE
 
 # ------------------------------------------------------------------------------
 # Override Methods
@@ -94,31 +73,21 @@ func _unhandled_input(event : InputEvent) -> void:
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED if _freelook_enabled else Input.MOUSE_MODE_VISIBLE
 	if entity != null:
 		if event.is_action_pressed("move_foreward"):
-			_MoveHorz(&"foreward")
+			move(&"foreward")
 		if event.is_action_pressed("move_backward"):
-			_MoveHorz(&"backward")
+			move(&"backward")
 		if event.is_action_pressed("move_left"):
-			_MoveHorz(&"left")
+			move(&"left")
 		if event.is_action_pressed("move_right"):
-			_MoveHorz(&"right")
+			move(&"right")
 		if event.is_action_pressed("climb_up"):
-			_MoveHorz(&"up")
+			move(&"up")
 		if event.is_action_pressed("climb_down"):
-			_MoveHorz(&"down")
+			move(&"down")
 		if event.is_action_pressed("turn_left"):
-			_Turn(COUNTERCLOCKWISE)
+			turn(COUNTERCLOCKWISE)
 		if event.is_action_pressed("turn_right"):
-			_Turn(CLOCKWISE)
-		if digging_enabled:
-			if event.is_action_pressed("fill_mode"):
-				_fill_enabled = not _fill_enabled
-				fill_mode_enabled.emit(_fill_enabled)
-			if event.is_action_pressed("dig"):
-				_Dig()
-			if event.is_action_pressed("dig_up"):
-				_Dig(true, CrawlGlobals.SURFACE.Ceiling)
-			if event.is_action_pressed("dig_down"):
-				_Dig(true, CrawlGlobals.SURFACE.Ground)
+			turn(CLOCKWISE)
 
 
 # ------------------------------------------------------------------------------
@@ -141,63 +110,10 @@ func _SettleLookAngle(delta : float) -> void:
 		_gimble_pitch_node.rotation_degrees.x, rest_pitch, delta
 	)
 
-func _AddToMoveQueue(callback : Callable) -> void:
-	if _move_queue.size() < MAX_MOVE_QUEUE_SIZE:
-		_move_queue.append(callback)
-
-func _MoveHorz(dir : StringName) -> void:
-	if _tween != null:
-		_AddToMoveQueue(_MoveHorz.bind(dir))
-		return
-	
-	if not entity.can_move(dir): return
-	entity.move(dir)
-	
-	var target : Vector3 = Vector3(entity.position) * CELL_SIZE
-
-	_tween = create_tween()
-	_tween.tween_property(self, "position", target, 0.4)
-	_tween.finished.connect(_on_movement_tween_finished)
-
-func _Dig(use_z : bool = false, z_surface : CrawlGlobals.SURFACE = CrawlGlobals.SURFACE.Ceiling) -> void:
-	if entity == null: return
-	var map : CrawlMap = entity.get_map()
-	var facing : CrawlGlobals.SURFACE = entity.facing if not use_z else z_surface
-	if _fill_enabled:
-		map.fill(entity.position, facing)
-	else:
-		map.dig(entity.position, facing)
-
-func _Turn(dir : float) -> void:
-	if _tween != null:
-		_AddToMoveQueue(_Turn.bind(dir))
-		return
-	
-	if dir == CLOCKWISE or dir == COUNTERCLOCKWISE:
-		match dir:
-			COUNTERCLOCKWISE:
-				entity.turn_left()
-			CLOCKWISE:
-				entity.turn_right()
-		var target : float = _facing_node.rotation.y + (DEG90 * dir)
-		_tween = create_tween()
-		_tween.tween_property(_facing_node, "rotation:y", target, 0.2)
-		_tween.finished.connect(_on_movement_tween_finished)
 
 
 # ------------------------------------------------------------------------------
 # Handler Methods
 # ------------------------------------------------------------------------------
-func _on_movement_tween_finished() -> void:
-	_tween = null
-	if _facing_node.rotation.y >= 2*PI:
-		_facing_node.rotation.y -= 2*PI
-	if _facing_node.rotation.y < 0.0:
-		_facing_node.rotation.y += 2*PI
-	
-	position = Vector3(entity.position) * CELL_SIZE
-	
-	if _move_queue.size() > 0:
-		var move : Callable = _move_queue.pop_front()
-		move.call()
+
 

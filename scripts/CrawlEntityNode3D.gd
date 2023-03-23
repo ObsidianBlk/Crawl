@@ -7,6 +7,9 @@ class_name CrawlEntityNode3D
 # ------------------------------------------------------------------------------
 signal entity_changing()
 signal entity_changed()
+signal transition_complete()
+signal movement_queue_update(remaining)
+
 
 # ------------------------------------------------------------------------------
 # Constants
@@ -24,12 +27,17 @@ const CELL_SIZE : float = 5.0
 @export_range(0, 10, 1) var movement_queue_size : int = 0
 @export var entity : CrawlEntity = null:						set = set_entity
 @export var body_node_path : NodePath = "":						set = set_body_node_path
-
+@export_range(0.0, 10.0) var quarter_turn_time : float = 0.2
+@export_range(0.0, 10.0) var h_move_time : float = 0.4
+@export_range(0.0, 10.0) var climb_time : float = 0.6
+@export_range(0.0, 10.0) var fall_time : float = 0.1
 
 # ------------------------------------------------------------------------------
 # Variables
 # ------------------------------------------------------------------------------
 var _body_node : Node3D = null
+var _tween : Tween = null
+var _movement_queue : Array = []
 
 # ------------------------------------------------------------------------------
 # Setters
@@ -40,6 +48,7 @@ func set_entity(ent : CrawlEntity) -> void:
 		entity = ent
 		if entity != null:
 			position = Vector3(entity.position) * CELL_SIZE
+			face(entity.facing, true)
 		entity_changed.emit()
 
 func set_body_node_path(bnp : NodePath) -> void:
@@ -69,19 +78,103 @@ func _SurfaceToAngle(surface : CrawlGlobals.SURFACE) -> float:
 			return DEG90
 	return 0.0
 
+func _AngleToFace(body : Node3D, surface : CrawlGlobals.SURFACE) -> float:
+	var cur_surface : CrawlGlobals.SURFACE = CrawlGlobals.Get_Surface_From_Direction(body.basis.z)
+	return body.rotation.y + CrawlGlobals.Get_Angle_From_Surface_To_Surface(cur_surface, surface)
+
+func _AddToQueue(next : Callable) -> void:
+	if _movement_queue.size() < movement_queue_size:
+		_movement_queue.push_back(next)
+
 # ------------------------------------------------------------------------------
 # Public Methods
 # ------------------------------------------------------------------------------
-func face(surface : CrawlGlobals.SURFACE) -> void:
+func is_transitioning() -> bool:
+	return _tween != null
+
+func face(surface : CrawlGlobals.SURFACE, ignore_transition : bool = false) -> void:
+	if surface == CrawlGlobals.SURFACE.Ground or surface == CrawlGlobals.SURFACE.Ceiling:
+		# Can't face the ground or ceiling
+		return
 	var body : Node3D = _GetBodyNode()
 	if body == null: return
-	body.rotation.y = _SurfaceToAngle(surface)
+	if _tween != null:
+		_AddToQueue(face.bind(surface, ignore_transition))
+		return
 	
-func turn(dir : int) -> void:
+	if quarter_turn_time <= 0.0 or ignore_transition == true:
+		body.rotation.y = _SurfaceToAngle(surface)
+		transition_complete.emit()
+	else:
+		var target_angle : float = _AngleToFace(body, surface)
+		var angle_between : float = abs(body.rotation.y - target_angle)
+		var duration = roundf(angle_between / DEG90) * quarter_turn_time
+		_tween = create_tween()
+		_tween.tween_property(body, "rotation:y", target_angle, duration)
+		_tween.finished.connect(_on_tween_completed.bind(surface, position))
+
+func turn(dir : int, ignore_transition : bool = false) -> void:
 	if entity == null: return
+	if _tween != null:
+		_AddToQueue(turn.bind(dir, ignore_transition))
+		return
 	match dir:
 		CLOCKWISE:
 			entity.turn_right()
+			face(entity.facing, ignore_transition)
 		COUNTERCLOCKWISE:
 			entity.turn_left()
+			face(entity.facing, ignore_transition)
+
+func move(direction : StringName, ignore_collision : bool = false, ignore_transition : bool = false) -> void:
+	if entity == null: return
+	if _tween != null:
+		_AddToQueue(move.bind(direction, ignore_collision, ignore_transition))
+		return
+	
+	if ignore_collision == false and not entity.can_move(direction): return
+	entity.move(direction, ignore_collision)
+	
+	var target : Vector3 = Vector3(entity.position) * CELL_SIZE
+	
+	var duration : float = 0.0
+	match direction:
+		&"up":
+			duration = climb_time
+		&"down":
+			duration = fall_time
+		_: # This should be horizontal.
+			duration = h_move_time
+
+	if duration <= 0.0 or ignore_transition == true:
+		position = target
+	else:
+		_tween = create_tween()
+		_tween.tween_property(self, "position", target, duration)
+		_tween.finished.connect(_on_tween_completed.bind(entity.facing, target))
+
+# ------------------------------------------------------------------------------
+# Handler Methods
+# ------------------------------------------------------------------------------
+func _on_tween_completed(surface : CrawlGlobals.SURFACE, target_position : Vector3i) -> void:
+	_tween = null
+	var body : Node3D = _GetBodyNode()
+	
+	# Rotation and position are hardset here to adjust for any floating point
+	# errors during tweening.
+	if body != null:
+		body.rotation.y = _SurfaceToAngle(surface)
+	position = Vector3(target_position)
+	transition_complete.emit()
+	
+	if movement_queue_size <= 0 or _movement_queue.size() <= 0: return
+	movement_queue_update.emit(_movement_queue.size() - 1)
+	# Because it's possible, after the emitted signal, that the movement queue is flushed...
+	if _movement_queue.size() <= 0: return
+	var next : Callable = _movement_queue.pop_front()
+	next.call()
+
+
+
+
 

@@ -60,3 +60,45 @@ func Get_Surface_90Deg(surface : SURFACE, amount : int) -> SURFACE:
 	var dir : Vector3 = Vector3(Get_Direction_From_Surface(surface))
 	dir = dir.rotated(Vector3.UP, deg_to_rad(90.0 * float(amount)))
 	return Get_Surface_From_Direction(dir)
+
+func Get_Angle_From_Surface_To_Surface(from : SURFACE, to : SURFACE) -> float:
+	if from == to: return 0.0
+	var deg90 : float = deg_to_rad(90)
+	match from:
+		SURFACE.North:
+			match to:
+				SURFACE.East, SURFACE.West:
+					return deg90 if to == SURFACE.West else -deg90
+				SURFACE.South:
+					return deg90 * 2
+				SURFACE.Ground, SURFACE.Ceiling:
+					return deg90 if to == SURFACE.Ceiling else -deg90
+		SURFACE.East:
+			match to:
+				SURFACE.South, SURFACE.North:
+					return deg90 if to == SURFACE.North else -deg90
+				SURFACE.West:
+					return deg90 * 2
+				SURFACE.Ground, SURFACE.Ceiling:
+					return deg90 if to == SURFACE.Ceiling else -deg90
+		SURFACE.South:
+			match to:
+				SURFACE.East, SURFACE.West:
+					return deg90 if to == SURFACE.East else -deg90
+				SURFACE.North:
+					return deg90 * 2
+				SURFACE.Ground, SURFACE.Ceiling:
+					return deg90 if to == SURFACE.Ceiling else -deg90
+		SURFACE.West:
+			match to:
+				SURFACE.South, SURFACE.North:
+					return deg90 if to == SURFACE.South else -deg90
+				SURFACE.East:
+					return deg90 * 2
+				SURFACE.Ground, SURFACE.Ceiling:
+					return deg90 if to == SURFACE.Ceiling else -deg90
+		SURFACE.Ground:
+			return deg90 * 2 if to == SURFACE.Ceiling else deg90
+		SURFACE.Ceiling:
+			return deg90 * 2 if to == SURFACE.Ground else deg90
+	return 0.0

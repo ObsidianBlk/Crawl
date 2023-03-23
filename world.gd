@@ -28,6 +28,7 @@ func _ready() -> void:
 	player_entity.position = Vector3i(0,1,0)
 
 	cm.add_entity(player_entity)
+	cm.set_entity_as_focus(player_entity)
 	
 	cm.set_default_surface_resource(CrawlGlobals.SURFACE.Ground, &"tileB")
 	cm.set_default_surface_resource(CrawlGlobals.SURFACE.Ceiling, &"tileB")

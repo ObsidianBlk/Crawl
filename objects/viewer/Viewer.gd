@@ -1,4 +1,4 @@
-extends Node3D
+extends CrawlEntityNode3D
 
 
 
@@ -12,19 +12,12 @@ signal fill(from_position, surface)
 # ------------------------------------------------------------------------------
 # Constants
 # ------------------------------------------------------------------------------
-const DEG90 : float = 1.570796
-const CLOCKWISE : float = -1.0
-const COUNTERCLOCKWISE : float = 1.0
-
-const CELL_SIZE : float = 5.0
 
 #const MAX_MOVE_QUEUE_SIZE : int = 4
 
 # ------------------------------------------------------------------------------
 # Export Variables
 # ------------------------------------------------------------------------------
-@export var entity : CrawlEntity = null:					set = set_entity
-@export var ignore_map : bool = false:						set = set_ignore_map
 @export_range(0.0, 180.0) var max_yaw : float = 60.0
 @export_range(0.0, 180.0) var rest_yaw : float = 30.0
 @export_range(0.0, 180.0) var max_pitch : float = 30.0
@@ -34,15 +27,12 @@ const CELL_SIZE : float = 5.0
 # ------------------------------------------------------------------------------
 # Variables
 # ------------------------------------------------------------------------------
-#var _map_position : Vector3i = Vector3i.ZERO
-
+var _ignore_collision : bool = false
+var _ignore_transitions : bool = false
 var _update_facing : bool = false
 var _freelook_enabled : bool = false
-
 var _fill_enabled : bool = false
 
-var _move_queue : Array = []
-var _tween : Tween = null
 
 # ------------------------------------------------------------------------------
 # Override Variables
@@ -62,31 +52,18 @@ func set_entity(ent : CrawlEntity) -> void:
 			position = Vector3(entity.position) * CELL_SIZE
 			_update_facing = true
 
-func set_ignore_map(i : bool) -> void:
-	# NOTE: This method is more for passing signals to.
-	ignore_map = i
-
 # ------------------------------------------------------------------------------
 # Override Methods
 # ------------------------------------------------------------------------------
 func _ready() -> void:
+	_ignore_collision = Settings.get_value(&"dungeon_editor", &"ignore_collision", true)
+	_ignore_transitions = Settings.get_value(&"dungeon_editor", &"ignore_transitions", false)
 	var ref : MeshInstance3D = get_node_or_null("Reference")
 	if ref != null:
 		ref.queue_free() # This only exists to be able to see the player in the editor.
 
 func _process(delta : float) -> void:
 	_SettleLookAngle(delta)
-	if _facing_node != null and _update_facing:
-		_update_facing = false
-		match entity.facing:
-			CrawlGlobals.SURFACE.North:
-				_facing_node.rotation.y = 0
-			CrawlGlobals.SURFACE.South:
-				_facing_node.rotation.y = DEG90 * 2
-			CrawlGlobals.SURFACE.East:
-				_facing_node.rotation.y = -DEG90
-			CrawlGlobals.SURFACE.West:
-				_facing_node.rotation.y = DEG90
 
 func _unhandled_input(event : InputEvent) -> void:
 	if _freelook_enabled:
@@ -113,21 +90,21 @@ func _unhandled_input(event : InputEvent) -> void:
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED if _freelook_enabled else Input.MOUSE_MODE_VISIBLE
 	if entity != null:
 		if event.is_action_pressed("move_foreward"):
-			_Move(&"foreward")
+			move(&"foreward", _ignore_collision, _ignore_transitions)
 		if event.is_action_pressed("move_backward"):
-			_Move(&"backward")
+			move(&"backward", _ignore_collision, _ignore_transitions)
 		if event.is_action_pressed("move_left"):
-			_Move(&"left")
+			move(&"left", _ignore_collision, _ignore_transitions)
 		if event.is_action_pressed("move_right"):
-			_Move(&"right")
+			move(&"right", _ignore_collision, _ignore_transitions)
 		if event.is_action_pressed("climb_up"):
-			_Move(&"up")
+			move(&"up", _ignore_collision, _ignore_transitions)
 		if event.is_action_pressed("climb_down"):
-			_Move(&"down")
+			move(&"down", _ignore_collision, _ignore_transitions)
 		if event.is_action_pressed("turn_left"):
-			_Turn(COUNTERCLOCKWISE)
+			turn(COUNTERCLOCKWISE, _ignore_transitions)
 		if event.is_action_pressed("turn_right"):
-			_Turn(CLOCKWISE)
+			turn(CLOCKWISE, _ignore_transitions)
 		
 		if event.is_action_pressed("fill_mode"):
 			_fill_enabled = not _fill_enabled
@@ -160,11 +137,6 @@ func _SettleLookAngle(delta : float) -> void:
 		_gimble_pitch_node.rotation_degrees.x, rest_pitch, delta
 	)
 
-func _Move(dir : StringName) -> void:
-	if not ignore_map and not entity.can_move(dir): return
-	entity.move(dir, ignore_map)
-	position = Vector3(entity.position) * CELL_SIZE
-
 func _Dig(use_z : bool = false, z_surface : CrawlGlobals.SURFACE = CrawlGlobals.SURFACE.Ceiling) -> void:
 	if entity == null: return
 	var map : CrawlMap = entity.get_map()
@@ -173,19 +145,6 @@ func _Dig(use_z : bool = false, z_surface : CrawlGlobals.SURFACE = CrawlGlobals.
 		fill.emit(entity.position, entity.facing)
 	else:
 		dig.emit(entity.position, entity.facing)
-
-func _Turn(dir : float) -> void:
-	match dir:
-		COUNTERCLOCKWISE:
-			entity.turn_left()
-		CLOCKWISE:
-			entity.turn_right()
-	
-	_facing_node.rotation.y += (DEG90 * dir)
-	if _facing_node.rotation.y >= 2*PI:
-		_facing_node.rotation.y -= 2*PI
-	if _facing_node.rotation.y < 0.0:
-		_facing_node.rotation.y += 2*PI
 
 
 # ------------------------------------------------------------------------------

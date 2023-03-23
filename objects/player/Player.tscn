@@ -6,6 +6,8 @@
 
 [node name="Player" type="Node3D"]
 script = ExtResource("1_0duse")
+movement_queue_size = 4
+body_node_path = NodePath("Facing")
 
 [node name="Reference" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
