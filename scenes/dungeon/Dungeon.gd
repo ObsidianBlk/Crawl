@@ -109,6 +109,37 @@ func load_dungeon(path : String) -> int:
 	
 	return OK
 
+func create_default() -> void:
+	if _active_map != null:
+		_RemoveMap()
+	
+	_active_map = CrawlMap.new()
+	_active_map.entity_added.connect(_on_entity_added)
+	_active_map.entity_removed.connect(_on_entity_removed)
+	
+	_active_map.set_default_surface_resource(CrawlGlobals.SURFACE.Ground, &"tileB")
+	_active_map.set_default_surface_resource(CrawlGlobals.SURFACE.Ceiling, &"tileB")
+	_active_map.set_default_surface_resource(CrawlGlobals.SURFACE.North, &"tileA")
+	_active_map.set_default_surface_resource(CrawlGlobals.SURFACE.South, &"tileA")
+	_active_map.set_default_surface_resource(CrawlGlobals.SURFACE.East, &"tileA")
+	_active_map.set_default_surface_resource(CrawlGlobals.SURFACE.West, &"tileA")
+	
+	_active_map.add_cell(Vector3i.ZERO)
+	
+	_SetWorldEnvironment()
+	
+	var player_entity : CrawlEntity = CrawlEntity.new()
+	player_entity.uuid = UUID.v7()
+	player_entity.type = &"Player"
+	player_entity.position = Vector3i(0,0,0)
+
+	_active_map.add_entity(player_entity)
+	_active_map.set_entity_as_focus(player_entity)
+	
+	_map_view.map = _active_map
+	_mini_map.map = _active_map
+
+
 func get_active_map_path() -> String:
 	return _active_map_path
 
