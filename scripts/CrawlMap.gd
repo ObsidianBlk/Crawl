@@ -44,6 +44,7 @@ const ENTITY_SEARCH_SCHEMA : Dictionary = {
 # "Export" Variables
 # ------------------------------------------------------------------------------
 var _name : String = ""
+var _world_env : StringName = &""
 var _resources : Dictionary = {}
 var _grid : Dictionary = {}
 var _entities : Dictionary = {}
@@ -73,6 +74,8 @@ func _get(property : StringName) -> Variant:
 	match property:
 		&"name":
 			return _name
+		&"world_env":
+			return _world_env
 		&"grid":
 			return _grid
 		&"resources":
@@ -87,6 +90,10 @@ func _set(property : StringName, value : Variant) -> bool:
 		&"name":
 			if typeof(value) == TYPE_STRING:
 				_name = value
+				success = true
+		&"world_env":
+			if typeof(value) == TYPE_STRING_NAME:
+				_world_env = value
 				success = true
 		&"grid":
 			if typeof(value) == TYPE_DICTIONARY:
@@ -131,6 +138,11 @@ func _get_property_list() -> Array:
 			name = "name",
 			type = TYPE_STRING,
 			usage = PROPERTY_USAGE_DEFAULT
+		},
+		{
+			name = "world_env",
+			type = TYPE_STRING_NAME,
+			usage = PROPERTY_USAGE_STORAGE
 		},
 		{
 			name = "grid",
@@ -275,6 +287,12 @@ func clear_unused_resources() -> void:
 				highest_rid = rid + 1
 	_resources = nr
 	_next_rid = highest_rid
+
+func set_world_environment(env : StringName) -> void:
+	_world_env = env
+
+func get_world_environment() -> StringName:
+	return _world_env
 
 func set_default_surface_resource(surface : CrawlGlobals.SURFACE, resource : StringName) -> void:
 	var rid : int = get_resource_id(resource)

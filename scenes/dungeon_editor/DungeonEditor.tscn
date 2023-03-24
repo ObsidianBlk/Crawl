@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://cx2tjtwfgedte"]
+[gd_scene load_steps=12 format=3 uid="uid://cx2tjtwfgedte"]
 
 [ext_resource type="PackedScene" uid="uid://b4kugyrq8jxcl" path="res://scenes/crawl_map_view/CrawlMapView.tscn" id="1_vacan"]
 [ext_resource type="Script" path="res://scenes/dungeon_editor/DungeonEditor.gd" id="1_yqpdw"]
@@ -10,6 +10,8 @@
 [ext_resource type="Texture2D" uid="uid://c37qnoduri467" path="res://assets/icons/save.svg" id="6_it7ey"]
 [ext_resource type="PackedScene" uid="uid://b3ecq2idamo78" path="res://scenes/dungeon_editor/default_cell_editor/DefaultCellEditor.tscn" id="6_o8ruv"]
 [ext_resource type="PackedScene" uid="uid://t3006qsc66n3" path="res://scenes/dungeon_editor/entity_selector/EntitySelector.tscn" id="10_acuyj"]
+
+[sub_resource type="Environment" id="Environment_xk0rt"]
 
 [node name="DungeonEditor" type="Node3D"]
 script = ExtResource("1_yqpdw")
@@ -128,6 +130,10 @@ layout_mode = 2
 
 [node name="EntitySelector" parent="UI" instance=ExtResource("10_acuyj")]
 visible = false
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+unique_name_in_owner = true
+environment = SubResource("Environment_xk0rt")
 
 [connection signal="pressed" from="UI/Editor/OptionsBar/HBoxContainer/NewMap" to="." method="_on_new_map_pressed"]
 [connection signal="pressed" from="UI/Editor/OptionsBar/HBoxContainer/Load" to="." method="_on_load_pressed"]

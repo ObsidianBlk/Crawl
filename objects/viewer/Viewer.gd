@@ -50,12 +50,16 @@ func set_entity(ent : CrawlEntity) -> void:
 		entity = ent
 		if entity != null:
 			position = Vector3(entity.position) * CELL_SIZE
-			_update_facing = true
+			face(entity.facing, true)
 
 # ------------------------------------------------------------------------------
 # Override Methods
 # ------------------------------------------------------------------------------
 func _ready() -> void:
+	entity_changed.connect(_on_entity_changed)
+	if entity != null:
+		_on_entity_changed()
+	
 	_ignore_collision = Settings.get_value(&"dungeon_editor", &"ignore_collision", true)
 	_ignore_transitions = Settings.get_value(&"dungeon_editor", &"ignore_transitions", false)
 	var ref : MeshInstance3D = get_node_or_null("Reference")
@@ -150,4 +154,10 @@ func _Dig(use_z : bool = false, z_surface : CrawlGlobals.SURFACE = CrawlGlobals.
 # ------------------------------------------------------------------------------
 # Handler Methods
 # ------------------------------------------------------------------------------
-
+func _on_entity_changed() -> void:
+	entity.set_blocking(CrawlGlobals.SURFACE.Ground, false)
+	entity.set_blocking(CrawlGlobals.SURFACE.Ceiling, false)
+	entity.set_blocking(CrawlGlobals.SURFACE.North, false)
+	entity.set_blocking(CrawlGlobals.SURFACE.South, false)
+	entity.set_blocking(CrawlGlobals.SURFACE.East, false)
+	entity.set_blocking(CrawlGlobals.SURFACE.West, false)

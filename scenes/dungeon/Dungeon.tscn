@@ -1,0 +1,43 @@
+[gd_scene load_steps=6 format=3 uid="uid://bdo0wli6gh0py"]
+
+[ext_resource type="Script" path="res://scenes/dungeon/Dungeon.gd" id="1_5x2th"]
+[ext_resource type="PackedScene" uid="uid://b4kugyrq8jxcl" path="res://scenes/crawl_map_view/CrawlMapView.tscn" id="1_184xg"]
+[ext_resource type="Script" path="res://scripts/nodes/CrawlMiniMap.gd" id="2_ps7oh"]
+[ext_resource type="Texture2D" uid="uid://c8eypxhmjyi3n" path="res://assets/icons/arrow_up.svg" id="3_37sat"]
+
+[sub_resource type="Environment" id="Environment_ygt5i"]
+
+[node name="Dungeon" type="Node3D"]
+script = ExtResource("1_5x2th")
+
+[node name="CrawlMapView" parent="." instance=ExtResource("1_184xg")]
+unique_name_in_owner = true
+
+[node name="EntityContainer" type="Node3D" parent="."]
+unique_name_in_owner = true
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="MiniMapMargins" type="MarginContainer" parent="UI"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -40.0
+offset_bottom = 40.0
+grow_horizontal = 0
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+
+[node name="CrawlMiniMap" type="Control" parent="UI/MiniMapMargins"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(256, 192)
+layout_mode = 2
+script = ExtResource("2_ps7oh")
+background_color = Color(0, 0, 0, 0.784314)
+wall_color = Color(0.333333, 0.803922, 0.184314, 1)
+cell_color = Color(1, 0.74902, 0, 1)
+focus_icon = ExtResource("3_37sat")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+unique_name_in_owner = true
+environment = SubResource("Environment_ygt5i")

@@ -1,64 +1,14 @@
-[gd_scene load_steps=10 format=3 uid="uid://didgemhb0iu8x"]
+[gd_scene load_steps=4 format=3 uid="uid://didgemhb0iu8x"]
 
 [ext_resource type="Script" path="res://world.gd" id="1_g38f3"]
-[ext_resource type="PackedScene" uid="uid://b4kugyrq8jxcl" path="res://scenes/crawl_map_view/CrawlMapView.tscn" id="1_hvida"]
-[ext_resource type="PackedScene" uid="uid://teo1susxy05g" path="res://objects/player/Player.tscn" id="3_fr7am"]
-[ext_resource type="Script" path="res://scripts/nodes/CrawlMiniMap.gd" id="4_so4om"]
-[ext_resource type="Texture2D" uid="uid://c8eypxhmjyi3n" path="res://assets/icons/arrow_up.svg" id="5_5uqa1"]
+[ext_resource type="PackedScene" uid="uid://bdo0wli6gh0py" path="res://scenes/dungeon/Dungeon.tscn" id="2_hwd2k"]
 [ext_resource type="PackedScene" uid="uid://7srgn1hfh0fq" path="res://ui/options_bar/OptionsBar.tscn" id="5_ea7cc"]
-
-[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_ppa24"]
-sky_top_color = Color(0.72549, 0.639216, 0.6, 1)
-sky_horizon_color = Color(0.647059, 0.654902, 0.670588, 1)
-
-[sub_resource type="Sky" id="Sky_twb7l"]
-sky_material = SubResource("ProceduralSkyMaterial_ppa24")
-
-[sub_resource type="Environment" id="Environment_07ts1"]
-background_mode = 2
-sky = SubResource("Sky_twb7l")
-ambient_light_source = 3
-ambient_light_color = Color(0.72549, 0.639216, 0.6, 1)
-ambient_light_sky_contribution = 0.2
-ambient_light_energy = 0.2
-tonemap_mode = 3
-ssao_enabled = true
-ssil_enabled = true
-glow_enabled = true
-fog_enabled = true
-fog_light_color = Color(0.72549, 0.639216, 0.6, 1)
-volumetric_fog_enabled = true
-volumetric_fog_density = 0.2
-volumetric_fog_albedo = Color(0.72549, 0.639216, 0.6, 1)
-volumetric_fog_temporal_reprojection_enabled = false
 
 [node name="World" type="Node3D"]
 script = ExtResource("1_g38f3")
 
-[node name="CrawlMapView" parent="." instance=ExtResource("1_hvida")]
-
-[node name="Player" parent="." instance=ExtResource("3_fr7am")]
+[node name="Dungeon" parent="." instance=ExtResource("2_hwd2k")]
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
-[node name="CrawlMiniMap" type="Control" parent="CanvasLayer"]
-custom_minimum_size = Vector2(304, 144)
-layout_mode = 3
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -152.0
-offset_top = -144.0
-offset_right = 152.0
-grow_horizontal = 2
-grow_vertical = 0
-script = ExtResource("4_so4om")
-focus_icon = ExtResource("5_5uqa1")
-ignore_focus = false
-
 [node name="OptionsBar" parent="CanvasLayer" instance=ExtResource("5_ea7cc")]
-
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
-environment = SubResource("Environment_07ts1")
