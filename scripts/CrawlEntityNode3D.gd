@@ -10,6 +10,8 @@ signal entity_changed()
 signal transition_complete()
 signal movement_queue_update(remaining)
 
+signal editor_mode_changed(enabled)
+
 
 # ------------------------------------------------------------------------------
 # Constants
@@ -38,6 +40,7 @@ const CELL_SIZE : float = 5.0
 var _body_node : Node3D = null
 var _tween : Tween = null
 var _movement_queue : Array = []
+var _editor_mode : bool = false
 
 # ------------------------------------------------------------------------------
 # Setters
@@ -89,6 +92,11 @@ func _AddToQueue(next : Callable) -> void:
 # ------------------------------------------------------------------------------
 # Public Methods
 # ------------------------------------------------------------------------------
+func set_editor_mode(enable : bool) -> void:
+	_editor_mode = enable
+	editor_mode_changed.emit(enable)
+
+
 func is_transitioning() -> bool:
 	return _tween != null
 

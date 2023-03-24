@@ -35,6 +35,7 @@ func set_map(cmap : CrawlMap) -> void:
 		if map != null:
 			if map.focus_position_changed.is_connected(_on_focus_position_changed):
 				map.focus_position_changed.disconnect(_on_focus_position_changed)
+			_ClearAllCells()
 		map = cmap
 		if map != null:
 			if not map.focus_position_changed.is_connected(_on_focus_position_changed):
@@ -61,6 +62,13 @@ func _process(_delta : float) -> void:
 # ------------------------------------------------------------------------------
 # Private Methods
 # ------------------------------------------------------------------------------
+func _ClearAllCells() -> void:
+	if cell_container == null: return
+	for child in cell_container.get_children():
+		cell_container.remove_child(child)
+		child.queue_free()
+
+
 func _UpdateCells(origin : Vector3i) -> void:
 	if cell_container == null: return
 	

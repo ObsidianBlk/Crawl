@@ -66,7 +66,7 @@ func _on_entity_item_selected(idx : int) -> void:
 	# TODO: REALLY Fix up this bullshit!
 	var entity : CrawlEntity = CrawlEntity.new()
 	entity.uuid = UUID.v7()
-	if meta[&"type"] == &"unique":
+	if meta[&"type"] == &"Unique":
 		entity.type = ENTITIES[meta[&"type"]][meta[&"entity_name"]][&"entity_type"]
 	else:
 		entity.type = StringName("%s:%s"%[meta[&"type"], ENTITIES[meta[&"type"]][meta[&"entity_name"]][&"entity_type"]]) 

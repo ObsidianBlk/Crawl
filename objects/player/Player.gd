@@ -25,13 +25,12 @@ extends CrawlEntityNode3D
 var _map_position : Vector3i = Vector3i.ZERO
 var _freelook_enabled : bool = false
 
-
 # ------------------------------------------------------------------------------
 # Override Variables
 # ------------------------------------------------------------------------------
 @onready var _gimble_yaw_node : Node3D = $Facing/Gimble_Yaw
 @onready var _gimble_pitch_node : Node3D = $Facing/Gimble_Yaw/Gimble_Pitch
-
+@onready var _camera : Camera3D = $Facing/Gimble_Yaw/Gimble_Pitch/Camera3D
 
 # ------------------------------------------------------------------------------
 # Setters
@@ -41,9 +40,8 @@ var _freelook_enabled : bool = false
 # Override Methods
 # ------------------------------------------------------------------------------
 func _ready() -> void:
-	var ref : MeshInstance3D = get_node_or_null("Reference")
-	if ref != null:
-		ref.queue_free() # This only exists to be able to see the player in the editor.
+	editor_mode_changed.connect(_on_editor_mode_changed)
+	_on_editor_mode_changed(_editor_mode)
 
 func _process(delta : float) -> void:
 	_SettleLookAngle(delta)
@@ -111,9 +109,16 @@ func _SettleLookAngle(delta : float) -> void:
 	)
 
 
-
 # ------------------------------------------------------------------------------
 # Handler Methods
 # ------------------------------------------------------------------------------
-
+func _on_editor_mode_changed(enabled : bool) -> void:
+	print("Player Editor Mode: ", enabled)
+	var ref : MeshInstance3D = get_node_or_null("Reference")
+	if ref != null:
+		ref.visible = enabled
+	if _camera != null:
+		_camera.current = not enabled
+	set_process_unhandled_input(not enabled)
+	set_process(not enabled)
 

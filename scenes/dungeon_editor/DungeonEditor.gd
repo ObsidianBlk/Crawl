@@ -53,7 +53,7 @@ func _RemoveMap() -> void:
 	if _active_map.entity_added.is_connected(_on_entity_added):
 		_active_map.entity_added.disconnect(_on_entity_added)
 	if _active_map.entity_removed.is_connected(_on_entity_removed):
-		_active_map.entity_removed.connect(_on_entity_removed)
+		_active_map.entity_removed.disconnect(_on_entity_removed)
 	_active_map = null
 
 func _AddMapEntities() -> void:
@@ -109,14 +109,18 @@ func _on_entity_added(entity : CrawlEntity) -> void:
 	if _entity_container == null: return
 	if entity.uuid in _entity_nodes: return
 	
+	print("Adding ", entity.type)
 	var node = RLT.instantiate_resource(&"entity", entity.type)
 	if node == null: return
+	if is_instance_of(node, CrawlEntityNode3D):
+		node.set_editor_mode(true)
 	
 	node.entity = entity
 	_entity_nodes[entity.uuid] = node
 	_entity_container.add_child(node)
 	
 	if entity.type == &"Editor":
+		print("Setting editor as focus")
 		_active_map.set_entity_as_focus(entity)
 		if node.has_signal("dig"):
 			node.dig.connect(_on_dig)
