@@ -44,6 +44,7 @@ const ENTITY_SEARCH_SCHEMA : Dictionary = {
 # "Export" Variables
 # ------------------------------------------------------------------------------
 var _name : String = ""
+var _author : String = ""
 var _world_env : StringName = &""
 var _resources : Dictionary = {}
 var _grid : Dictionary = {}
@@ -74,6 +75,8 @@ func _get(property : StringName) -> Variant:
 	match property:
 		&"name":
 			return _name
+		&"author":
+			return _author
 		&"world_env":
 			return _world_env
 		&"grid":
@@ -90,6 +93,10 @@ func _set(property : StringName, value : Variant) -> bool:
 		&"name":
 			if typeof(value) == TYPE_STRING:
 				_name = value
+				success = true
+		&"author":
+			if typeof(value) == TYPE_STRING:
+				_author = value
 				success = true
 		&"world_env":
 			if typeof(value) == TYPE_STRING_NAME:
@@ -136,6 +143,11 @@ func _get_property_list() -> Array:
 		},
 		{
 			name = "name",
+			type = TYPE_STRING,
+			usage = PROPERTY_USAGE_DEFAULT
+		},
+		{
+			name = "author",
 			type = TYPE_STRING,
 			usage = PROPERTY_USAGE_DEFAULT
 		},

@@ -146,9 +146,9 @@ func _Dig(use_z : bool = false, z_surface : CrawlGlobals.SURFACE = CrawlGlobals.
 	var map : CrawlMap = entity.get_map()
 	var facing : CrawlGlobals.SURFACE = entity.facing if not use_z else z_surface
 	if _fill_enabled:
-		fill.emit(entity.position, entity.facing)
+		fill.emit(entity.position, facing)
 	else:
-		dig.emit(entity.position, entity.facing)
+		dig.emit(entity.position, facing)
 
 
 # ------------------------------------------------------------------------------

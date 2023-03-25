@@ -113,12 +113,26 @@ func _SettleLookAngle(delta : float) -> void:
 # Handler Methods
 # ------------------------------------------------------------------------------
 func _on_editor_mode_changed(enabled : bool) -> void:
-	print("Player Editor Mode: ", enabled)
 	var ref : MeshInstance3D = get_node_or_null("Reference")
 	if ref != null:
 		ref.visible = enabled
 	if _camera != null:
 		_camera.current = not enabled
+	use_entity_direct_update(enabled)
 	set_process_unhandled_input(not enabled)
 	set_process(not enabled)
+	if enabled:
+		if transition_complete.is_connected(_on_transition_completed):
+			transition_complete.disconnect(_on_transition_completed)
+	else:
+		if not transition_complete.is_connected(_on_transition_completed):
+			transition_complete.connect(_on_transition_completed)
 
+func _on_transition_completed() -> void:
+	if entity == null: return
+	if _entity_direct_update: return
+	if entity.can_move(&"down"):
+		# TODO: Technically I should check for a ladder, but not ready for that yet!
+		#   So we'll just fall!
+		clear_movement_queue()
+		move(&"down")

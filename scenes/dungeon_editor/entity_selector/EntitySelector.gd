@@ -34,6 +34,8 @@ func _ready() -> void:
 		var idx : int = entity_type_options.item_count
 		entity_type_options.add_item(key)
 		entity_type_options.set_item_metadata(idx, StringName(key))
+	if entity_type_options.selected >= 0:
+		_on_entity_type_selected(entity_type_options.selected)
 	entity_type_options.item_selected.connect(_on_entity_type_selected)
 	entity_list.item_selected.connect(_on_entity_item_selected)
 

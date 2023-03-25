@@ -13,6 +13,8 @@ var _entity_nodes : Dictionary = {}
 # Onready Variables
 # ------------------------------------------------------------------------------
 @onready var _entity_selector : Window = $UI/EntitySelector
+@onready var _map_information : Window = $UI/MapInformation
+
 @onready var _map_view : Node3D = %CrawlMapView
 @onready var _mini_map : CrawlMiniMap = %CrawlMiniMap
 @onready var _entity_container : Node3D = $"EntityContainer"
@@ -20,6 +22,8 @@ var _entity_nodes : Dictionary = {}
 
 @onready var _default_cell_editor : Control = %DefaultCellEditor
 @onready var _active_cell_editor : Control = %ActiveCellEditor
+
+@onready var _label_mapname : Label = %MapName
 
 # ------------------------------------------------------------------------------
 # Override Methods
@@ -39,6 +43,7 @@ func _ready() -> void:
 	_mini_map.selection_finished.connect(_on_selection_finished)
 	_active_cell_editor.focus_type = &"Editor"
 	_entity_selector.entity_created.connect(_on_entity_created)
+	_map_information.map_information_updated.connect(_on_map_information_updated)
 
 # ------------------------------------------------------------------------------
 # Private Methods
@@ -92,6 +97,17 @@ func _SetWorldEnvironment() -> void:
 	_UpdateEnvironment(env, "Graphics:VFog", Settings.get_value("Graphics", "VFog", true))
 	
 	_world_environment.environment = env
+
+func _UpdateMapName() -> void:
+	if _active_map == null: return
+	if _active_map.name.is_empty():
+		_label_mapname.text = "Unnamed Map"
+	else:
+		_label_mapname.text = _active_map.name
+	if _active_map.author.is_empty():
+		_label_mapname.tooltip_text = "Unknown Author"
+	else:
+		_label_mapname.tooltip_text = "Authored By: %s"%[_active_map.author]
 
 # ------------------------------------------------------------------------------
 # Handler Methods
@@ -157,7 +173,6 @@ func _on_entity_added(entity : CrawlEntity) -> void:
 	if _entity_container == null: return
 	if entity.uuid in _entity_nodes: return
 	
-	print("Adding ", entity.type)
 	var node = RLT.instantiate_resource(&"entity", entity.type)
 	if node == null: return
 	if is_instance_of(node, CrawlEntityNode3D):
@@ -168,7 +183,6 @@ func _on_entity_added(entity : CrawlEntity) -> void:
 	_entity_container.add_child(node)
 	
 	if entity.type == &"Editor":
-		print("Setting editor as focus")
 		_active_map.set_entity_as_focus(entity)
 		if node.has_signal("dig"):
 			node.dig.connect(_on_dig)
@@ -196,6 +210,7 @@ func _on_new_map_pressed():
 	_active_map.add_cell(Vector3.ZERO)
 	
 	_SetWorldEnvironment()
+	_UpdateMapName()
 	
 	_map_view.map = _active_map
 	_mini_map.map = _active_map
@@ -236,6 +251,7 @@ func _on_load_pressed():
 	_active_map.entity_removed.connect(_on_entity_removed)
 	
 	_SetWorldEnvironment()
+	_UpdateMapName()
 	
 	_map_view.map = _active_map
 	_mini_map.map = _active_map
@@ -253,5 +269,34 @@ func _on_entity_created(entity : CrawlEntity) -> void:
 	if _active_map == null: return
 	if _active_map.has_entity(entity): return
 	
+	if entity.type == &"Player":
+		var elist : Array = _active_map.get_entities({&"type":&"Player"})
+		if elist.size() > 0:
+			# Player already exists. Just move it
+			elist[0].position = _active_map.get_focus_position()
+			return
+	
 	entity.position = _active_map.get_focus_position()
 	_active_map.add_entity(entity)
+
+func _on_info_pressed():
+	if _map_information.visible: return
+	if _active_map == null: return
+	_map_information.popup_map_info(_active_map.name, _active_map.author)
+
+func _on_map_information_updated(map_name : String, author : String) -> void:
+	if _active_map == null: return
+	
+	_map_information.visible = false
+	
+	_active_map.name = map_name
+	_active_map.author = author
+	
+	if map_name.is_empty():
+		_label_mapname.text = "Unnamed Map"
+	else:
+		_label_mapname.text = map_name
+	if author.is_empty():
+		_label_mapname.tooltip_text = "Unknown Author"
+	else:
+		_label_mapname.tooltip_text = "Authored By: %s"%[author]

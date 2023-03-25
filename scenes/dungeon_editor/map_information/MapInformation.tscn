@@ -1,0 +1,58 @@
+[gd_scene load_steps=2 format=3 uid="uid://00hduvjk2n3f"]
+
+[ext_resource type="Script" path="res://scenes/dungeon_editor/map_information/MapInformation.gd" id="1_ee707"]
+
+[node name="MapInformation" type="Window"]
+initial_position = 1
+title = "Map Information"
+size = Vector2i(400, 100)
+exclusive = true
+popup_window = true
+script = ExtResource("1_ee707")
+
+[node name="Body" type="PanelContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Layout" type="VBoxContainer" parent="Body"]
+layout_mode = 2
+
+[node name="Info" type="GridContainer" parent="Body/Layout"]
+layout_mode = 2
+columns = 2
+
+[node name="Label_Name" type="Label" parent="Body/Layout/Info"]
+layout_mode = 2
+text = "Name: "
+
+[node name="LEdit_MapName" type="LineEdit" parent="Body/Layout/Info"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+max_length = 32
+
+[node name="Label_Author" type="Label" parent="Body/Layout/Info"]
+layout_mode = 2
+text = "Author: "
+
+[node name="LEdit_Author" type="LineEdit" parent="Body/Layout/Info"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+max_length = 32
+
+[node name="Options" type="HBoxContainer" parent="Body/Layout"]
+layout_mode = 2
+
+[node name="Spacer" type="Control" parent="Body/Layout/Options"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Btn_Update" type="Button" parent="Body/Layout/Options"]
+layout_mode = 2
+text = "Update"
+
+[connection signal="pressed" from="Body/Layout/Options/Btn_Update" to="." method="_on_btn_update_pressed"]

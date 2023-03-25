@@ -41,6 +41,7 @@ var _body_node : Node3D = null
 var _tween : Tween = null
 var _movement_queue : Array = []
 var _editor_mode : bool = false
+var _entity_direct_update : bool = false
 
 # ------------------------------------------------------------------------------
 # Setters
@@ -48,10 +49,22 @@ var _editor_mode : bool = false
 func set_entity(ent : CrawlEntity) -> void:
 	if ent != entity:
 		entity_changing.emit()
+		if entity != null:
+			if entity.position_changed.is_connected(_on_position_changed):
+				entity.position_changed.disconnect(_on_position_changed)
+			if entity.facing_changed.is_connected(_on_facing_changed):
+				entity.facing_changed.disconnect(_on_facing_changed)
+		
 		entity = ent
 		if entity != null:
+			if _entity_direct_update:
+				if not entity.position_changed.is_connected(_on_position_changed):
+					entity.position_changed.connect(_on_position_changed)
+				if not entity.facing_changed.is_connected(_on_facing_changed):
+					entity.facing_changed.connect(_on_facing_changed)
 			position = Vector3(entity.position) * CELL_SIZE
 			face(entity.facing, true)
+		
 		entity_changed.emit()
 
 func set_body_node_path(bnp : NodePath) -> void:
@@ -96,6 +109,22 @@ func set_editor_mode(enable : bool) -> void:
 	_editor_mode = enable
 	editor_mode_changed.emit(enable)
 
+func use_entity_direct_update(enable : bool) -> void:
+	_entity_direct_update = enable
+	if entity == null: return
+	if _entity_direct_update:
+		if not entity.position_changed.is_connected(_on_position_changed):
+			entity.position_changed.connect(_on_position_changed)
+		if not entity.facing_changed.is_connected(_on_facing_changed):
+			entity.facing_changed.connect(_on_facing_changed)
+	else:
+		if entity.position_changed.is_connected(_on_position_changed):
+			entity.position_changed.disconnect(_on_position_changed)
+		if entity.facing_changed.is_connected(_on_facing_changed):
+			entity.facing_changed.disconnect(_on_facing_changed)
+
+func clear_movement_queue() -> void:
+	_movement_queue.clear()
 
 func is_transitioning() -> bool:
 	return _tween != null
@@ -122,6 +151,7 @@ func face(surface : CrawlGlobals.SURFACE, ignore_transition : bool = false) -> v
 		_tween.finished.connect(_on_tween_completed.bind(surface, position))
 
 func turn(dir : int, ignore_transition : bool = false) -> void:
+	if _entity_direct_update: return
 	if entity == null: return
 	if _tween != null:
 		_AddToQueue(turn.bind(dir, ignore_transition))
@@ -135,6 +165,7 @@ func turn(dir : int, ignore_transition : bool = false) -> void:
 			face(entity.facing, ignore_transition)
 
 func move(direction : StringName, ignore_collision : bool = false, ignore_transition : bool = false) -> void:
+	if _entity_direct_update: return
 	if entity == null: return
 	if _tween != null:
 		_AddToQueue(move.bind(direction, ignore_collision, ignore_transition))
@@ -164,6 +195,14 @@ func move(direction : StringName, ignore_collision : bool = false, ignore_transi
 # ------------------------------------------------------------------------------
 # Handler Methods
 # ------------------------------------------------------------------------------
+func _on_position_changed(from : Vector3i, to : Vector3i) -> void:
+	if not _entity_direct_update: return
+	position = Vector3(to) * CELL_SIZE
+
+func _on_facing_changed(from : CrawlGlobals.SURFACE, to : CrawlGlobals.SURFACE) -> void:
+	if not _entity_direct_update: return
+	face(to, true)
+
 func _on_tween_completed(surface : CrawlGlobals.SURFACE, target_position : Vector3i) -> void:
 	_tween = null
 	var body : Node3D = _GetBodyNode()
