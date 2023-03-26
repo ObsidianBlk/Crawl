@@ -40,7 +40,7 @@ func set_map(cmap : CrawlMap) -> void:
 		if map != null:
 			if not map.focus_position_changed.is_connected(_on_focus_position_changed):
 				map.focus_position_changed.connect(_on_focus_position_changed)
-		_focus_position = map.get_focus_position()
+			_focus_position = map.get_focus_position()
 		_map_changed = true
 		_cell_update_requested = true
 

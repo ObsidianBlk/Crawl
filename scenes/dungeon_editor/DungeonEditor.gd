@@ -22,6 +22,7 @@ var _entity_nodes : Dictionary = {}
 
 @onready var _default_cell_editor : Control = %DefaultCellEditor
 @onready var _active_cell_editor : Control = %ActiveCellEditor
+@onready var _active_cell_entities : Control = %Entities
 
 @onready var _label_mapname : Label = %MapName
 
@@ -53,6 +54,7 @@ func _ClearEntities() -> void:
 	for child in _entity_container.get_children():
 		_entity_container.remove_child(child)
 		child.queue_free()
+	_entity_nodes.clear()
 	_viewer = null
 
 func _RemoveMap() -> void:
@@ -63,6 +65,10 @@ func _RemoveMap() -> void:
 	if _active_map.entity_removed.is_connected(_on_entity_removed):
 		_active_map.entity_removed.disconnect(_on_entity_removed)
 	_active_map = null
+	_map_view.map = null
+	_mini_map.map = null
+	_active_cell_editor.map = null
+	_active_cell_entities.map = null
 
 func _AddMapEntities() -> void:
 	if _active_map == null: return
@@ -217,6 +223,7 @@ func _on_new_map_pressed():
 	
 	#_viewer.entity = RLT.instantiate_resource(&"entity", editor_entity.type)#editor_entity
 	_active_cell_editor.map = _active_map
+	_active_cell_entities.map = _active_map
 	
 	var editor_entity : CrawlEntity = CrawlEntity.new()
 	editor_entity.uuid = UUID.v7()
@@ -224,7 +231,7 @@ func _on_new_map_pressed():
 	editor_entity.position = Vector3i.ZERO
 	
 	_active_map.add_entity(editor_entity)
-	_active_map.set_entity_as_focus(editor_entity)
+	#_active_map.set_entity_as_focus(editor_entity)
 
 
 func _on_save_pressed():
@@ -238,6 +245,10 @@ func _on_load_pressed():
 	if not is_instance_of(map, CrawlMap):
 		print("Failed to load map")
 		return
+	
+	# As resources are cached, it is possible we load in an already cached map.
+	# as such, I want to clear it's current focus entity for consistency sake.
+	map.clear_focus_entity()
 	
 	if _active_map != null:
 		_RemoveMap()
@@ -258,6 +269,7 @@ func _on_load_pressed():
 
 	#_viewer.entity = elist[0]
 	_active_cell_editor.map = _active_map
+	_active_cell_entities.map = _active_map
 	_AddMapEntities()
 
 func _on_entity_pressed() -> void:

@@ -3,8 +3,8 @@ extends Node
 enum ATTACK_TYPE {Physical=0, Fire=100, Water=101, Earth=102, Air=103}
 
 enum SURFACE {North=0x01, East=0x02, South=0x04, West=0x08, Ground=0x10, Ceiling=0x20}
-const ALL_COMPASS_SURFACES : int = SURFACE.North & SURFACE.South & SURFACE.East & SURFACE.West
-const ALL_SURFACES : int = ALL_COMPASS_SURFACES & SURFACE.Ground & SURFACE.Ceiling
+const ALL_COMPASS_SURFACES : int = 15
+const ALL_SURFACES : int = 63
 
 func Get_Surface_Index(surface : SURFACE) -> int:
 	return SURFACE.values().find(surface)

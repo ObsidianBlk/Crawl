@@ -1,0 +1,33 @@
+[gd_scene load_steps=3 format=3 uid="uid://bmrfb1oh1k7qk"]
+
+[ext_resource type="Script" path="res://scenes/dungeon_editor/active_cell_entities/ace_item/ACEItem.gd" id="1_1p8r7"]
+[ext_resource type="Texture2D" uid="uid://c8eypxhmjyi3n" path="res://assets/icons/arrow_up.svg" id="1_jj56q"]
+
+[node name="ACEItem" type="PanelContainer"]
+offset_left = 118.0
+offset_right = 118.0
+offset_bottom = 40.0
+script = ExtResource("1_1p8r7")
+
+[node name="Layout" type="HBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="SelectCheckBox" type="CheckBox" parent="Layout"]
+layout_mode = 2
+
+[node name="VSeparator" type="VSeparator" parent="Layout"]
+layout_mode = 2
+
+[node name="FacingIndicator" type="TextureRect" parent="Layout"]
+layout_mode = 2
+texture = ExtResource("1_jj56q")
+stretch_mode = 5
+
+[node name="VSeparator2" type="VSeparator" parent="Layout"]
+layout_mode = 2
+
+[node name="LabelType" type="Label" parent="Layout"]
+layout_mode = 2
+text = "Entity Type"
+
+[connection signal="toggled" from="Layout/SelectCheckBox" to="." method="_on_select_check_box_toggled"]

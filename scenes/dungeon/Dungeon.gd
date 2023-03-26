@@ -92,6 +92,10 @@ func load_dungeon(path : String) -> int:
 		printerr("DUNGEON ERROR: Failed to obtain map from path ", path)
 		return ERR_CANT_ACQUIRE_RESOURCE
 	
+	# As resources are cached, it is possible we load in an already cached map.
+	# as such, I want to clear it's current focus entity for consistency sake.
+	map.clear_focus_entity()
+	
 	if _active_map != null:
 		_RemoveMap()
 	

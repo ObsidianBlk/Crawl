@@ -1,0 +1,63 @@
+[gd_scene load_steps=8 format=3 uid="uid://b0o3365842jt1"]
+
+[ext_resource type="Script" path="res://scenes/dungeon_editor/active_cell_entities/ActiveCellEntities.gd" id="1_86teg"]
+[ext_resource type="Texture2D" uid="uid://4wtfndv832mw" path="res://assets/icons/entity.svg" id="1_pj7vc"]
+[ext_resource type="Texture2D" uid="uid://if5q4kj2h8st" path="res://assets/icons/delete.svg" id="2_jn0by"]
+[ext_resource type="Texture2D" uid="uid://c8eypxhmjyi3n" path="res://assets/icons/arrow_up.svg" id="4_2hc3o"]
+[ext_resource type="Texture2D" uid="uid://vlgn82ydgkei" path="res://assets/icons/arrow_right.svg" id="5_o7sqw"]
+[ext_resource type="Texture2D" uid="uid://ccrsme6ixxdg8" path="res://assets/icons/arrow_down.svg" id="6_g16fk"]
+[ext_resource type="Texture2D" uid="uid://ddv2dxg8p6ppu" path="res://assets/icons/arrow_left.svg" id="7_gbmq7"]
+
+[node name="ActiveCellEntities" type="VBoxContainer"]
+offset_right = 187.0
+offset_bottom = 155.0
+script = ExtResource("1_86teg")
+
+[node name="Options" type="HBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="AddEntity" type="Button" parent="Options"]
+layout_mode = 2
+icon = ExtResource("1_pj7vc")
+
+[node name="VSeparator" type="VSeparator" parent="Options"]
+layout_mode = 2
+
+[node name="RemoveEntities" type="Button" parent="Options"]
+layout_mode = 2
+icon = ExtResource("2_jn0by")
+
+[node name="EntityFacings" type="OptionButton" parent="Options"]
+layout_mode = 2
+item_count = 4
+popup/item_0/text = ""
+popup/item_0/icon = ExtResource("4_2hc3o")
+popup/item_0/id = 0
+popup/item_1/text = ""
+popup/item_1/icon = ExtResource("5_o7sqw")
+popup/item_1/id = 1
+popup/item_2/text = ""
+popup/item_2/icon = ExtResource("6_g16fk")
+popup/item_2/id = 2
+popup/item_3/text = ""
+popup/item_3/icon = ExtResource("7_gbmq7")
+popup/item_3/id = 3
+
+[node name="HSeparator" type="HSeparator" parent="."]
+layout_mode = 2
+
+[node name="Entities" type="ScrollContainer" parent="."]
+layout_mode = 2
+size_flags_vertical = 3
+follow_focus = true
+
+[node name="PC" type="PanelContainer" parent="Entities"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="EntityListContainer" type="VBoxContainer" parent="Entities/PC"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[connection signal="pressed" from="Options/RemoveEntities" to="." method="_on_remove_entities_pressed"]
+[connection signal="item_selected" from="Options/EntityFacings" to="." method="_on_entity_facings_item_selected"]

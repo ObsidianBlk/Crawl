@@ -25,7 +25,7 @@ signal attacked(dmg, type)
 # ------------------------------------------------------------------------------
 # Variables
 # ------------------------------------------------------------------------------
-var _map : CrawlMap = null
+var _mapref : WeakRef = weakref(null)
 
 # ------------------------------------------------------------------------------
 # Setters
@@ -61,6 +61,10 @@ func set_facing(f : CrawlGlobals.SURFACE) -> void:
 # ------------------------------------------------------------------------------
 # Private Methods
 # ------------------------------------------------------------------------------
+func _SetMap(map : CrawlMap) -> void:
+	if _mapref.get_ref() == map: return
+	_mapref = weakref(map)
+
 func _DirectionNameToFacing(dir : StringName) -> CrawlGlobals.SURFACE:
 	var d_facing : CrawlGlobals.SURFACE = CrawlGlobals.SURFACE.Ground
 	match dir:
@@ -79,7 +83,9 @@ func _DirectionNameToFacing(dir : StringName) -> CrawlGlobals.SURFACE:
 	return d_facing
 
 func _EntitiesBlockingAt(position : Vector3i, surface : CrawlGlobals.SURFACE) -> bool:
-	var entities : Array = _map.get_entities({&"position": position})
+	if _mapref.get_ref() == null: return false
+	var map : CrawlMap = _mapref.get_ref()
+	var entities : Array = map.get_entities({&"position": position})
 	if entities.size() > 0:
 		for entity in entities:
 			if entity == self: continue # We can't block ourselves!
@@ -89,8 +95,9 @@ func _EntitiesBlockingAt(position : Vector3i, surface : CrawlGlobals.SURFACE) ->
 
 func _CanMove(dir : CrawlGlobals.SURFACE) -> bool:
 	var neighbor_position : Vector3i = position + CrawlGlobals.Get_Direction_From_Surface(dir)
-	if _map == null : return false
-	if _map.is_cell_surface_blocking(position, dir): return false
+	if _mapref.get_ref() == null: return false
+	var map : CrawlMap = _mapref.get_ref()
+	if map.is_cell_surface_blocking(position, dir): return false
 	if _EntitiesBlockingAt(position, dir): return false
 	var adj_dir : CrawlGlobals.SURFACE = CrawlGlobals.Get_Adjacent_Surface(dir)
 	if _EntitiesBlockingAt(neighbor_position, adj_dir): return false
@@ -98,7 +105,7 @@ func _CanMove(dir : CrawlGlobals.SURFACE) -> bool:
 
 func _Move(dir : CrawlGlobals.SURFACE, ignore_map : bool) -> int:
 	var neighbor_position : Vector3i = position + CrawlGlobals.Get_Direction_From_Surface(dir)
-	if _map != null and not ignore_map:
+	if _mapref.get_ref() != null and not ignore_map:
 		if not _CanMove(dir):
 			return ERR_UNAVAILABLE
 	
@@ -112,7 +119,7 @@ func _Move(dir : CrawlGlobals.SURFACE, ignore_map : bool) -> int:
 # Public Methods
 # ------------------------------------------------------------------------------
 func get_map() -> CrawlMap:
-	return _map
+	return _mapref.get_ref()
 
 func set_blocking(surface : CrawlGlobals.SURFACE, enable : bool) -> void:
 	var i : int = CrawlGlobals.SURFACE.values().find(surface)
@@ -163,8 +170,8 @@ func turn_right() -> void:
 	facing_changed.emit(ofacing, facing)
 
 func get_entities() -> Array:
-	if _map == null: return []
-	return _map.get_entities({&"position":position, &"type":&"item"})
+	if _mapref.get_ref() == null: return []
+	return _mapref.get_ref().get_entities({&"position":position, &"type":&"item"})
 
 func interact(entity : CrawlEntity) -> void:
 	interaction.emit(entity)

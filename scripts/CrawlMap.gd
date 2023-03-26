@@ -126,7 +126,7 @@ func _set(property : StringName, value : Variant) -> bool:
 					clear_entities()
 					_entities = value
 					for uuid in _entities.keys():
-						_entities[uuid]._map = self
+						_entities[uuid]._SetMap(self)
 						entity_added.emit(_entities[uuid])
 					success = true
 				else:
@@ -323,7 +323,7 @@ func add_entity(entity : CrawlEntity) -> void:
 	
 	if not entity.uuid in _entities:
 		_entities[entity.uuid] = entity
-		entity._map = self
+		entity._SetMap(self)
 		entity_added.emit(entity)
 
 func remove_entity(entity : CrawlEntity) -> void:
@@ -331,16 +331,12 @@ func remove_entity(entity : CrawlEntity) -> void:
 	if entity.uuid == _focus_entity_uuid:
 		clear_focus_entity()
 	_entities.erase(entity.uuid)
-	entity._map = null
+	entity._SetMap(null)
 	entity_removed.emit(entity)
 
 func remove_entity_by_uuid(uuid : StringName) -> void:
 	if not uuid in _entities: return
 	remove_entity(_entities[uuid])
-#	var entity : CrawlEntity = _entities[uuid]
-#	_entities.erase(uuid)
-#	entity._map = null
-#	entity_removed.emit(entity)
 
 func clear_entities() -> void:
 	if _entities.is_empty(): return

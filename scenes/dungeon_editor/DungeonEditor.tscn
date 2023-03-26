@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://cx2tjtwfgedte"]
+[gd_scene load_steps=16 format=3 uid="uid://cx2tjtwfgedte"]
 
 [ext_resource type="PackedScene" uid="uid://b4kugyrq8jxcl" path="res://scenes/crawl_map_view/CrawlMapView.tscn" id="1_vacan"]
 [ext_resource type="Script" path="res://scenes/dungeon_editor/DungeonEditor.gd" id="1_yqpdw"]
@@ -12,6 +12,7 @@
 [ext_resource type="PackedScene" uid="uid://b3ecq2idamo78" path="res://scenes/dungeon_editor/default_cell_editor/DefaultCellEditor.tscn" id="6_o8ruv"]
 [ext_resource type="Texture2D" uid="uid://c0qin5ub8phwj" path="res://assets/icons/info.svg" id="7_wkmqu"]
 [ext_resource type="PackedScene" uid="uid://t3006qsc66n3" path="res://scenes/dungeon_editor/entity_selector/EntitySelector.tscn" id="10_acuyj"]
+[ext_resource type="PackedScene" uid="uid://b0o3365842jt1" path="res://scenes/dungeon_editor/active_cell_entities/ActiveCellEntities.tscn" id="12_sy724"]
 [ext_resource type="PackedScene" uid="uid://00hduvjk2n3f" path="res://scenes/dungeon_editor/map_information/MapInformation.tscn" id="13_ohq7g"]
 
 [sub_resource type="Environment" id="Environment_xk0rt"]
@@ -148,11 +149,20 @@ text = "Active Cell"
 [node name="HSeparator" type="HSeparator" parent="UI/Editor/Body/SideBar/CellConf/LocalConf/Layout"]
 layout_mode = 2
 
-[node name="CC" type="CenterContainer" parent="UI/Editor/Body/SideBar/CellConf/LocalConf/Layout"]
+[node name="TabContainer" type="TabContainer" parent="UI/Editor/Body/SideBar/CellConf/LocalConf/Layout"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Surfaces" type="CenterContainer" parent="UI/Editor/Body/SideBar/CellConf/LocalConf/Layout/TabContainer"]
 layout_mode = 2
 
-[node name="ActiveCellEditor" parent="UI/Editor/Body/SideBar/CellConf/LocalConf/Layout/CC" instance=ExtResource("6_bvj6h")]
+[node name="ActiveCellEditor" parent="UI/Editor/Body/SideBar/CellConf/LocalConf/Layout/TabContainer/Surfaces" instance=ExtResource("6_bvj6h")]
 unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Entities" parent="UI/Editor/Body/SideBar/CellConf/LocalConf/Layout/TabContainer" instance=ExtResource("12_sy724")]
+unique_name_in_owner = true
+visible = false
 layout_mode = 2
 
 [node name="EntitySelector" parent="UI" instance=ExtResource("10_acuyj")]
