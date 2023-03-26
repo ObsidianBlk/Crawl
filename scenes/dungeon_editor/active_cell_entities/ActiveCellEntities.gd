@@ -2,6 +2,11 @@ extends Control
 
 
 # ------------------------------------------------------------------------------
+# Signals
+# ------------------------------------------------------------------------------
+signal entity_selection_requested()
+
+# ------------------------------------------------------------------------------
 # Constants
 # ------------------------------------------------------------------------------
 const ITEM : PackedScene = preload("res://scenes/dungeon_editor/active_cell_entities/ace_item/ACEItem.tscn")
@@ -174,6 +179,10 @@ func _on_item_selection_changed(uuid : StringName, selected : bool) -> void:
 	else:
 		_RemoveSelected(uuid)
 
+func _on_add_entity_pressed():
+	entity_selection_requested.emit()
+
+
 func _on_entity_facings_item_selected(idx : int) -> void:
 	if map == null: return
 	if not (idx >= 0 and idx < SELECTION_SURFACE.size()): return
@@ -186,3 +195,5 @@ func _on_remove_entities_pressed() -> void:
 	if map == null: return
 	for uuid in _selected:
 		map.remove_entity_by_uuid(uuid)
+
+

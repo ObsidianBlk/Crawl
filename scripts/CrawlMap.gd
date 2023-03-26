@@ -419,6 +419,11 @@ func get_focus_position() -> Vector3i:
 	if not _focus_entity_uuid in _entities: return Vector3i.ZERO
 	return _entities[_focus_entity_uuid].position
 
+func get_focus_facing() -> CrawlGlobals.SURFACE:
+	if _focus_entity_uuid == &"": return CrawlGlobals.SURFACE.North
+	if not _focus_entity_uuid in _entities: return CrawlGlobals.SURFACE.North
+	return _entities[_focus_entity_uuid].facing
+
 func add_cell(position : Vector3i, open_to_adjacent : bool = false) -> int:
 	if position in _grid:
 		return ERR_ALREADY_EXISTS

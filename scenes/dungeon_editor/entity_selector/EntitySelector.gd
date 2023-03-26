@@ -76,5 +76,6 @@ func _on_entity_item_selected(idx : int) -> void:
 	entity_created.emit(entity)
 	
 	visible = false
+	entity_list.deselect_all()
 
 

@@ -45,6 +45,8 @@ func _ready() -> void:
 	_active_cell_editor.focus_type = &"Editor"
 	_entity_selector.entity_created.connect(_on_entity_created)
 	_map_information.map_information_updated.connect(_on_map_information_updated)
+	
+	_active_cell_entities.entity_selection_requested.connect(_on_entity_pressed)
 
 # ------------------------------------------------------------------------------
 # Private Methods
@@ -284,11 +286,10 @@ func _on_entity_created(entity : CrawlEntity) -> void:
 	if entity.type == &"Player":
 		var elist : Array = _active_map.get_entities({&"type":&"Player"})
 		if elist.size() > 0:
-			# Player already exists. Just move it
-			elist[0].position = _active_map.get_focus_position()
-			return
+			_active_map.remove_entity(elist[0])
 	
 	entity.position = _active_map.get_focus_position()
+	entity.facing = _active_map.get_focus_facing()
 	_active_map.add_entity(entity)
 
 func _on_info_pressed():

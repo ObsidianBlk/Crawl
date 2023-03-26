@@ -1,12 +1,27 @@
-[gd_scene load_steps=3 format=3 uid="uid://bmrfb1oh1k7qk"]
+[gd_scene load_steps=4 format=3 uid="uid://bmrfb1oh1k7qk"]
 
 [ext_resource type="Script" path="res://scenes/dungeon_editor/active_cell_entities/ace_item/ACEItem.gd" id="1_1p8r7"]
 [ext_resource type="Texture2D" uid="uid://c8eypxhmjyi3n" path="res://assets/icons/arrow_up.svg" id="1_jj56q"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_84enc"]
+content_margin_left = 8.0
+content_margin_right = 8.0
+bg_color = Color(0.180392, 0.180392, 0.211765, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_blend = true
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
 
 [node name="ACEItem" type="PanelContainer"]
 offset_left = 118.0
 offset_right = 118.0
 offset_bottom = 40.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_84enc")
 script = ExtResource("1_1p8r7")
 
 [node name="Layout" type="HBoxContainer" parent="."]
@@ -14,6 +29,7 @@ layout_mode = 2
 
 [node name="SelectCheckBox" type="CheckBox" parent="Layout"]
 layout_mode = 2
+flat = true
 
 [node name="VSeparator" type="VSeparator" parent="Layout"]
 layout_mode = 2
