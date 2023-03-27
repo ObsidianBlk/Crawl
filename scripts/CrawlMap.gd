@@ -22,6 +22,14 @@ signal entity_removed(entity)
 
 const CELL_SCHEMA : Dictionary = {
 	&"blocking":{&"req":true, &"type":TYPE_INT, &"min":0, &"max":0x3F},
+	&"climbable":{&"req":false, &"type":TYPE_INT, &"min":0, &"max":0x3F},
+	&"stair":{&"req":false, &"type":TYPE_INT, &"one_of":[\
+		0, \
+		CrawlGlobals.SURFACE.North, \
+		CrawlGlobals.SURFACE.East, \
+		CrawlGlobals.SURFACE.South, \
+		CrawlGlobals.SURFACE.West \
+		]},
 	&"rid":{&"req":true, &"type":TYPE_ARRAY, &"item":{&"type":TYPE_INT, &"min":-1}},
 	&"visited":{&"req":true, &"type":TYPE_BOOL}
 }
@@ -209,6 +217,10 @@ func _CloneCell(cell : Dictionary, ncell : Dictionary = {}) -> Dictionary:
 	ncell[&"rid"] = []
 	for rid in cell[&"rid"]:
 		ncell[&"rid"] = rid
+	if &"stair" in cell:
+		ncell[&"stair"] = cell[&"stair"]
+	if &"climbable" in cell:
+		ncell[&"climbable"] = cell[&"climbable"]
 	return ncell
 
 func _CloneGrid() -> Dictionary:
@@ -216,6 +228,19 @@ func _CloneGrid() -> Dictionary:
 	for key in _grid:
 		ngrid[key] = _CloneCell(_grid[key])
 	return ngrid
+
+func _CloneResources() -> Dictionary:
+	var resources : Dictionary = {}
+	for key in _resources:
+		resources[key] = _resources[key]
+	return resources
+
+func _CloneEntities() -> Dictionary:
+	var entities : Dictionary = {}
+	for key in _entities:
+		var ent : CrawlEntity = _entities[key].clone()
+		entities[ent.uuid] = ent
+	return entities
 
 func _CalcBlocking(block_val : int, surface : CrawlGlobals.SURFACE, block : bool) -> int:
 	if block:
@@ -232,6 +257,10 @@ func _SetCellSurface(position : Vector3i, surface : CrawlGlobals.SURFACE, data :
 		if idx >= 0:
 			_grid[position][&"rid"][idx] = data[&"resource_id"]
 		changed = true
+	if &"climbable" in data:
+		if &"climbable" in _grid[position]:
+			# Obviously _CalcBlocking() works for climbable as well :)
+			_grid[position][&"climbable"] = _CalcBlocking(_grid[position][&"climbable"], surface, data[&"climbable"])
 	
 	if changed:
 		cell_changed.emit(position)
@@ -255,9 +284,13 @@ func _GetCellSurface(position : Vector3i, surface : CrawlGlobals.SURFACE) -> Dic
 # ------------------------------------------------------------------------------
 # Public Methods
 # ------------------------------------------------------------------------------
-func clone() -> CrawlMap:
+func clone(clone_entities : bool = false) -> CrawlMap:
 	var cm : CrawlMap = CrawlMap.new()
 	cm.grid = _CloneGrid()
+	cm.world_env = _world_env
+	cm.resources = _CloneResources()
+	if clone_entities:
+		cm.entities = _CloneEntities()
 	return cm
 
 func add_resource(resource : StringName) -> int:
@@ -459,6 +492,30 @@ func remove_cell(position : Vector3i) -> void:
 	_grid.erase(position)
 	cell_removed.emit(position)
 
+func set_cell_stairs(position : Vector3i, top_surface : CrawlGlobals.SURFACE) -> void:
+	if not position in _grid:
+		printerr("CrawlMap Error: No cell at position ", position)
+		return
+	if CrawlGlobals.ALL_COMPASS_SURFACES & top_surface == 0:
+		printerr("CrawlMap Error: Surface not valid for stairs.")
+		return
+	_grid[position][&"stair"] = top_surface
+
+func clear_cell_stairs(position : Vector3i) -> void:
+	if not position in _grid:
+		printerr("CrawlMap Error: No cell at position ", position)
+		return
+	if &"stair" in _grid[position]:
+		_grid[position].erase(&"stair")
+
+func get_cell_stairs(position : Vector3i) -> int:
+	if not position in _grid: return 0
+	if not &"stair" in _grid[position]: return 0
+	return _grid[position][&"stair"]
+
+func is_cell_stairs(position : Vector3i) -> bool:
+	return get_cell_stairs(position) != 0
+
 func set_cell_surface(position : Vector3i, surface : CrawlGlobals.SURFACE, blocking : bool, resource_id : Variant, bi_directional : bool = false) -> void:
 	if not position in _grid:
 		printerr("CrawlMap Error: No cell at position ", position)
@@ -486,6 +543,7 @@ func set_cell_surfaces_to_defaults(position : Vector3i) -> void:
 		printerr("CrawlMap Error: No cell at position ", position)
 		return
 	
+	clear_cell_stairs(position)
 	if _grid[position][&"rid"][0] >= 0:
 		_grid[position][&"rid"][0] = _default_surface[CrawlGlobals.SURFACE.North]
 	if _grid[position][&"rid"][1] >= 0:

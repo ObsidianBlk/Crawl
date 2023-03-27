@@ -118,6 +118,16 @@ func _Move(dir : CrawlGlobals.SURFACE, ignore_map : bool) -> int:
 # ------------------------------------------------------------------------------
 # Public Methods
 # ------------------------------------------------------------------------------
+func clone() -> CrawlEntity:
+	var ent = CrawlEntity.new()
+	ent.uuid = UUID.v7()
+	ent.type = type
+	ent.position = position
+	ent.facing = facing
+	ent.blocking = blocking
+	return ent
+
+
 func get_map() -> CrawlMap:
 	return _mapref.get_ref()
 
@@ -131,6 +141,26 @@ func set_blocking(surface : CrawlGlobals.SURFACE, enable : bool) -> void:
 func is_blocking(surface : CrawlGlobals.SURFACE) -> bool:
 	var i : int = CrawlGlobals.SURFACE.values().find(surface)
 	return (blocking & (1 << i)) != 0
+
+# WARNING: This doesn't actually return the direction of the stairs.
+#  If there are stairs at the same Z level ahead, &"up" is returned
+#  If there are stairs ahead and below (with no ground ahead), &"down" is returned.
+# It's up to the entity doing the check to determine if directionality of the stairs is
+# important
+func stairs_ahead(dir : StringName) -> StringName:
+	if _mapref.get_ref() == null: return &""
+	var map : CrawlMap = _mapref.get_ref()
+	var direction_surface : CrawlGlobals.SURFACE = _DirectionNameToFacing(dir)
+	var neighbor_position : Vector3i = position + CrawlGlobals.Get_Direction_From_Surface(direction_surface)
+	if map.is_cell_stairs(neighbor_position) == false:
+		# This doesn't mean there's stairs, We could be walking into a cell just ABOVE stairs
+		# If the neighbor's ground IS blocking, then there are no stairs.
+		if map.is_cell_surface_blocking(neighbor_position, CrawlGlobals.SURFACE.Ground): return &""
+		# Otherwise, let's get the neighbors ground neighbor :)
+		var gn_position : Vector3i = neighbor_position + CrawlGlobals.Get_Direction_From_Surface(CrawlGlobals.SURFACE.Ground)
+		if map.is_cell_stairs(gn_position) == false: return &""
+		return &"down"
+	return &"up"
 
 func get_basetype() -> String:
 	if type == &"": return ""

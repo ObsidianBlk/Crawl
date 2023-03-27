@@ -1,6 +1,6 @@
 # (D)ictionary (S)chema (V)erifier
 # Author: Bryan Miller
-# Version: 0.0.4
+# Version: 0.0.5
 #
 # The intent of this script is to allow users to validate the data contained in
 # a dictionary against a specially formatted schema dictionary.
@@ -72,7 +72,10 @@ class RefSchema:
 # ------------------------------------------------------------------------------
 
 static func _VerifyIntValue(val : int, def : Dictionary, state : Dictionary) -> int:
-	if &"one_of" in def and (typeof(def[&"one_of"]) == TYPE_PACKED_INT32_ARRAY or typeof(def[&"one_of"]) == TYPE_PACKED_INT64_ARRAY):
+	if &"one_of" in def and (typeof(def[&"one_of"]) == TYPE_PACKED_INT32_ARRAY or \
+			typeof(def[&"one_of"]) == TYPE_PACKED_INT64_ARRAY or \
+			typeof(def[&"one_of"]) == TYPE_PACKED_BYTE_ARRAY or \
+			typeof(def[&"one_of"]) == TYPE_ARRAY):
 		if def[&"one_of"].find(val) < 0:
 			printerr("VALIDATION ERROR [", state[&"path"], "]: Value does not match one of the expected values.")
 			return ERR_DOES_NOT_EXIST
@@ -86,14 +89,21 @@ static func _VerifyIntValue(val : int, def : Dictionary, state : Dictionary) -> 
 	return OK
 
 static func _VerifyFloatValue(val : float, def : Dictionary, state : Dictionary) -> int:
-	if &"min" in def:
-		if def[&"min"] > val:
-			printerr("VALIDATION ERROR [", state[&"path"], "]: Value less than minimum.")
-			return ERR_PARAMETER_RANGE_ERROR
-	if &"max" in def:
-		if def[&"max"] < val:
-			printerr("VALIDATION ERROR [", state[&"path"], "]: Value greater than maximum.")
-			return ERR_PARAMETER_RANGE_ERROR
+	if &"one_of" in def and (typeof(def[&"one_of"]) == TYPE_PACKED_FLOAT32_ARRAY or \
+			typeof(def[&"one_of"]) == TYPE_PACKED_FLOAT64_ARRAY or \
+			typeof(def[&"one_of"]) == TYPE_ARRAY):
+		if def[&"one_of"].find(val) < 0:
+			printerr("VALIDATION ERROR [", state[&"path"], "]: Value does not match one of the expected values.")
+			return ERR_DOES_NOT_EXIST
+	else:
+		if &"min" in def:
+			if def[&"min"] > val:
+				printerr("VALIDATION ERROR [", state[&"path"], "]: Value less than minimum.")
+				return ERR_PARAMETER_RANGE_ERROR
+		if &"max" in def:
+			if def[&"max"] < val:
+				printerr("VALIDATION ERROR [", state[&"path"], "]: Value greater than maximum.")
+				return ERR_PARAMETER_RANGE_ERROR
 	return OK
 
 static func _VerifyStringValue(s : String, def : Dictionary, state : Dictionary) -> int:
