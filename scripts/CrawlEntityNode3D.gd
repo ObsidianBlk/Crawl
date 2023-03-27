@@ -171,16 +171,25 @@ func move(direction : StringName, ignore_collision : bool = false, ignore_transi
 		_AddToQueue(move.bind(direction, ignore_collision, ignore_transition))
 		return
 	
+	var start_on_stairs : bool = entity.on_stairs()
+	var stair_direction : StringName = entity.stairs_ahead(direction)
+	
 	if ignore_collision == false and not entity.can_move(direction): return
 	entity.move(direction, ignore_collision)
 	
+	var end_on_stairs : bool = entity.on_stairs()
+	
 	var target : Vector3 = Vector3(entity.position) * CELL_SIZE
+	if not ignore_collision and end_on_stairs:
+		target += Vector3.UP * (CELL_SIZE * 0.5)
 	
 	var duration : float = 0.0
 	match direction:
 		&"up":
+			# TODO: Should check if on climbable
 			duration = climb_time
 		&"down":
+			# TODO: Should check if on climbable
 			duration = fall_time
 		_: # This should be horizontal.
 			duration = h_move_time
@@ -188,9 +197,12 @@ func move(direction : StringName, ignore_collision : bool = false, ignore_transi
 	if duration <= 0.0 or ignore_transition == true:
 		position = target
 	else:
-		_tween = create_tween()
-		_tween.tween_property(self, "position", target, duration)
-		_tween.finished.connect(_on_tween_completed.bind(entity.facing, target))
+		# Whether we start/end on stairs or not, if both states are the same, it's a simple
+		# transition
+		if start_on_stairs == end_on_stairs:
+			_tween = create_tween()
+			_tween.tween_property(self, "position", target, duration)
+			_tween.finished.connect(_on_tween_completed.bind(entity.facing, target))
 
 # ------------------------------------------------------------------------------
 # Handler Methods

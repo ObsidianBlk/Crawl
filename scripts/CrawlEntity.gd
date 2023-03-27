@@ -148,19 +148,26 @@ func is_blocking(surface : CrawlGlobals.SURFACE) -> bool:
 # It's up to the entity doing the check to determine if directionality of the stairs is
 # important
 func stairs_ahead(dir : StringName) -> StringName:
+	# TODO: Not sure this is wholly accurate now.
 	if _mapref.get_ref() == null: return &""
 	var map : CrawlMap = _mapref.get_ref()
+	var is_on_stairs: bool = _mapref.get_ref().is_cell_stairs(position)
 	var direction_surface : CrawlGlobals.SURFACE = _DirectionNameToFacing(dir)
 	var neighbor_position : Vector3i = position + CrawlGlobals.Get_Direction_From_Surface(direction_surface)
+	if not map.has_cell(neighbor_position): return &""
 	if map.is_cell_stairs(neighbor_position) == false:
 		# This doesn't mean there's stairs, We could be walking into a cell just ABOVE stairs
 		# If the neighbor's ground IS blocking, then there are no stairs.
 		if map.is_cell_surface_blocking(neighbor_position, CrawlGlobals.SURFACE.Ground): return &""
 		# Otherwise, let's get the neighbors ground neighbor :)
 		var gn_position : Vector3i = neighbor_position + CrawlGlobals.Get_Direction_From_Surface(CrawlGlobals.SURFACE.Ground)
-		if map.is_cell_stairs(gn_position) == false: return &""
+		if map.has_cell(gn_position) and map.is_cell_stairs(gn_position) == false: return &""
 		return &"down"
 	return &"up"
+
+func on_stairs() -> bool:
+	if _mapref.get_ref() == null: return false
+	return _mapref.get_ref().is_cell_stairs(position)
 
 func get_basetype() -> String:
 	if type == &"": return ""
