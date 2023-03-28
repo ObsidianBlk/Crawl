@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://dt3r2vqrlvxry"]
+
+[ext_resource type="Script" path="res://scenes/dungeon_editor/editor_options/EditorOptions.gd" id="1_oyk77"]
+
+[node name="EditorOptions" type="MenuButton"]
+offset_right = 8.0
+offset_bottom = 8.0
+text = "Editor Options"
+script = ExtResource("1_oyk77")

@@ -124,12 +124,20 @@ func Set_Config_Value(section : String, key : String, value : Variant) -> void:
 	_config_dirty = true
 	crawl_config_value_changed.emit(section, key, value)
 
-func Get_Sections() -> PackedStringArray:
+func Has_Config_Section(section : String) -> bool:
+	if _config == null: return false
+	return _config.has_section(section)
+
+func Get_Config_Sections() -> PackedStringArray:
 	if _config == null:
 		Reset_Config()
 	return _config.get_sections()
 
-func Get_Section_Keys(section : String) -> PackedStringArray:
+func Has_Config_Section_Key(section : String, key : String) -> bool:
+	if _config == null: return false
+	return _config.has_section_key(section, key)
+
+func Get_Config_Section_Keys(section : String) -> PackedStringArray:
 	if _config == null:
 		Reset_Config()
 	return _config.get_section_keys(section)
