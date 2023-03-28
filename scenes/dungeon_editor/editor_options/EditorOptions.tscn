@@ -1,9 +1,57 @@
-[gd_scene load_steps=2 format=3 uid="uid://dt3r2vqrlvxry"]
+[gd_scene load_steps=3 format=3 uid="uid://bf7hu7ui2ejof"]
 
-[ext_resource type="Script" path="res://scenes/dungeon_editor/editor_options/EditorOptions.gd" id="1_oyk77"]
+[ext_resource type="Script" path="res://scenes/dungeon_editor/editor_options/EditorOptions.gd" id="1_b6alx"]
+[ext_resource type="Texture2D" uid="uid://c37qnoduri467" path="res://assets/icons/save.svg" id="2_tjhse"]
 
-[node name="EditorOptions" type="MenuButton"]
-offset_right = 8.0
-offset_bottom = 8.0
-text = "Editor Options"
-script = ExtResource("1_oyk77")
+[node name="EditorOptions" type="PopupPanel"]
+initial_position = 1
+size = Vector2i(405, 100)
+script = ExtResource("1_b6alx")
+
+[node name="Layout" type="VBoxContainer" parent="."]
+offset_left = 4.0
+offset_top = 4.0
+offset_right = 401.0
+offset_bottom = 96.0
+
+[node name="Body" type="HBoxContainer" parent="Layout"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="LeftColumn" type="GridContainer" parent="Layout/Body"]
+layout_mode = 2
+
+[node name="Check_Collisions" type="CheckButton" parent="Layout/Body/LeftColumn"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Ignore Collisions: "
+
+[node name="VSeparator" type="VSeparator" parent="Layout/Body"]
+layout_mode = 2
+
+[node name="RightColumn" type="GridContainer" parent="Layout/Body"]
+layout_mode = 2
+
+[node name="Check_Transitions" type="CheckButton" parent="Layout/Body/RightColumn"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Ignore Transitions"
+
+[node name="ButtonsBar" type="HBoxContainer" parent="Layout"]
+layout_mode = 2
+
+[node name="SaveSettings" type="Button" parent="Layout/ButtonsBar"]
+layout_mode = 2
+tooltip_text = "Save Settings"
+icon = ExtResource("2_tjhse")
+icon_alignment = 1
+
+[node name="Done" type="Button" parent="Layout/ButtonsBar"]
+layout_mode = 2
+text = "Done"
+
+[connection signal="toggled" from="Layout/Body/LeftColumn/Check_Collisions" to="." method="_on_check_collisions_toggled"]
+[connection signal="toggled" from="Layout/Body/RightColumn/Check_Transitions" to="." method="_on_check_transitions_toggled"]
+[connection signal="pressed" from="Layout/ButtonsBar/SaveSettings" to="." method="_on_save_settings_pressed"]
+[connection signal="pressed" from="Layout/ButtonsBar/Done" to="." method="_on_done_pressed"]

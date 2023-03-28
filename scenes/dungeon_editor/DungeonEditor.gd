@@ -14,6 +14,7 @@ var _entity_nodes : Dictionary = {}
 # ------------------------------------------------------------------------------
 @onready var _entity_selector : Window = $UI/EntitySelector
 @onready var _map_information : Window = $UI/MapInformation
+@onready var _editor_options : PopupPanel = $UI/EditorOptions
 
 @onready var _map_view : Node3D = %CrawlMapView
 @onready var _mini_map : CrawlMiniMap = %CrawlMiniMap
@@ -316,3 +317,7 @@ func _on_map_information_updated(map_name : String, author : String) -> void:
 		_label_mapname.tooltip_text = "Unknown Author"
 	else:
 		_label_mapname.tooltip_text = "Authored By: %s"%[author]
+
+func _on_open_editor_options_pressed() -> void:
+	if _editor_options.visible : return
+	_editor_options.popup_centered()

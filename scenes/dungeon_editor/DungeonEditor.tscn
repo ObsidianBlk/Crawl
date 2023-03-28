@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://cx2tjtwfgedte"]
+[gd_scene load_steps=17 format=3 uid="uid://cx2tjtwfgedte"]
 
 [ext_resource type="PackedScene" uid="uid://b4kugyrq8jxcl" path="res://scenes/crawl_map_view/CrawlMapView.tscn" id="1_vacan"]
 [ext_resource type="Script" path="res://scenes/dungeon_editor/DungeonEditor.gd" id="1_yqpdw"]
@@ -6,6 +6,7 @@
 [ext_resource type="Texture2D" uid="uid://uurbekgepv47" path="res://assets/icons/add.svg" id="4_huk62"]
 [ext_resource type="Texture2D" uid="uid://bhfgotvwylokw" path="res://assets/icons/load.svg" id="5_cbncs"]
 [ext_resource type="Texture2D" uid="uid://c8eypxhmjyi3n" path="res://assets/icons/arrow_up.svg" id="5_curq0"]
+[ext_resource type="Texture2D" uid="uid://ccrsme6ixxdg8" path="res://assets/icons/arrow_down.svg" id="6_bc5kk"]
 [ext_resource type="PackedScene" uid="uid://cc4tyjtfkmn4g" path="res://scenes/dungeon_editor/active_cell_editor/ActiveCellEditor.tscn" id="6_bvj6h"]
 [ext_resource type="Texture2D" uid="uid://c37qnoduri467" path="res://assets/icons/save.svg" id="6_it7ey"]
 [ext_resource type="PackedScene" uid="uid://b3ecq2idamo78" path="res://scenes/dungeon_editor/default_cell_editor/DefaultCellEditor.tscn" id="6_o8ruv"]
@@ -13,6 +14,7 @@
 [ext_resource type="PackedScene" uid="uid://t3006qsc66n3" path="res://scenes/dungeon_editor/entity_selector/EntitySelector.tscn" id="10_acuyj"]
 [ext_resource type="PackedScene" uid="uid://b0o3365842jt1" path="res://scenes/dungeon_editor/active_cell_entities/ActiveCellEntities.tscn" id="12_sy724"]
 [ext_resource type="PackedScene" uid="uid://00hduvjk2n3f" path="res://scenes/dungeon_editor/map_information/MapInformation.tscn" id="13_ohq7g"]
+[ext_resource type="PackedScene" uid="uid://bf7hu7ui2ejof" path="res://scenes/dungeon_editor/editor_options/EditorOptions.tscn" id="15_on5fk"]
 
 [sub_resource type="Environment" id="Environment_xk0rt"]
 
@@ -56,6 +58,15 @@ icon_alignment = 1
 layout_mode = 2
 tooltip_text = "Save current map"
 icon = ExtResource("6_it7ey")
+icon_alignment = 1
+
+[node name="VSeparator" type="VSeparator" parent="UI/Editor/OptionsBar/HBoxContainer"]
+layout_mode = 2
+
+[node name="OpenEditorOptions" type="Button" parent="UI/Editor/OptionsBar/HBoxContainer"]
+layout_mode = 2
+tooltip_text = "Editor Options"
+icon = ExtResource("6_bc5kk")
 icon_alignment = 1
 
 [node name="Spacer" type="Control" parent="UI/Editor/OptionsBar/HBoxContainer"]
@@ -162,6 +173,8 @@ visible = false
 [node name="MapInformation" parent="UI" instance=ExtResource("13_ohq7g")]
 visible = false
 
+[node name="EditorOptions" parent="UI" instance=ExtResource("15_on5fk")]
+
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 unique_name_in_owner = true
 environment = SubResource("Environment_xk0rt")
@@ -169,4 +182,5 @@ environment = SubResource("Environment_xk0rt")
 [connection signal="pressed" from="UI/Editor/OptionsBar/HBoxContainer/NewMap" to="." method="_on_new_map_pressed"]
 [connection signal="pressed" from="UI/Editor/OptionsBar/HBoxContainer/Load" to="." method="_on_load_pressed"]
 [connection signal="pressed" from="UI/Editor/OptionsBar/HBoxContainer/Save" to="." method="_on_save_pressed"]
+[connection signal="pressed" from="UI/Editor/OptionsBar/HBoxContainer/OpenEditorOptions" to="." method="_on_open_editor_options_pressed"]
 [connection signal="pressed" from="UI/Editor/OptionsBar/HBoxContainer/MapName/Info" to="." method="_on_info_pressed"]
