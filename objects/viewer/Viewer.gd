@@ -60,8 +60,12 @@ func _ready() -> void:
 	if entity != null:
 		_on_entity_changed()
 	
-	_ignore_collision = Settings.get_value(&"dungeon_editor", &"ignore_collision", true)
-	_ignore_transitions = Settings.get_value(&"dungeon_editor", &"ignore_transitions", false)
+	CrawlGlobals.crawl_config_loaded.connect(_on_config_changed)
+	CrawlGlobals.crawl_config_reset.connect(_on_config_changed)
+	CrawlGlobals.crawl_config_value_changed.connect(_on_config_value_changed)
+	
+	_ignore_collision = CrawlGlobals.Get_Config_Value("Dungeon_Editor", "ignore_collisions", true)
+	_ignore_transitions = CrawlGlobals.Get_Config_Value("Dungeon_Editor", "ignore_transitions", false)
 	var ref : MeshInstance3D = get_node_or_null("Reference")
 	if ref != null:
 		ref.queue_free() # This only exists to be able to see the player in the editor.
@@ -154,6 +158,20 @@ func _Dig(use_z : bool = false, z_surface : CrawlGlobals.SURFACE = CrawlGlobals.
 # ------------------------------------------------------------------------------
 # Handler Methods
 # ------------------------------------------------------------------------------
+func _on_config_changed(_section : String = "") -> void:
+	_ignore_collision = CrawlGlobals.Get_Config_Value("Dungeon_Editor", "ignore_collisions", true)
+	_ignore_transitions = CrawlGlobals.Get_Config_Value("Dungeon_Editor", "ignore_transitions", false)
+
+func _on_config_value_changed(section : String, key : String, value : Variant) -> void:
+	if section != "Dungeon_Editor": return
+	match key:
+		"ignore_collisions":
+			if typeof(value) == TYPE_BOOL:
+				_ignore_collision = value
+		"ignore_transitions":
+			if typeof(value) == TYPE_BOOL:
+				_ignore_transitions = value
+
 func _on_entity_changed() -> void:
 	entity.set_blocking(CrawlGlobals.SURFACE.Ground, false)
 	entity.set_blocking(CrawlGlobals.SURFACE.Ceiling, false)

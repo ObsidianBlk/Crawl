@@ -25,9 +25,9 @@ var _ops_visible : bool = false
 # Override Methods
 # ------------------------------------------------------------------------------
 func _ready() -> void:
-	Settings.config_loaded.connect(_on_config_changed)
-	Settings.config_reset_requested.connect(_on_config_changed)
-	Settings.config_value_changed.connect(_on_config_value_changed)
+	CrawlGlobals.crawl_config_loaded.connect(_on_config_changed)
+	CrawlGlobals.crawl_config_reset.connect(_on_config_changed)
+	CrawlGlobals.crawl_config_value_changed.connect(_on_config_value_changed)
 	
 	_gop_ssao.toggled.connect(_on_gop_pressed.bind("Graphics", "SSAO"))
 	_gop_ssil.toggled.connect(_on_gop_pressed.bind("Graphics", "SSIL"))
@@ -43,15 +43,15 @@ func _UpdateVisible() -> void:
 	_viz_toggle_btn.icon = ARROW_DOWN if _ops_visible else ARROW_RIGHT
 
 func _SetFromSettings() -> void:
-	_gop_ssao.button_pressed = Settings.get_value("Graphics", "SSAO", true)
-	_gop_ssil.button_pressed = Settings.get_value("Graphics", "SSIL", true)
-	_gop_fog.button_pressed = Settings.get_value("Graphics", "Fog", true)
-	_gop_vfog.button_pressed = Settings.get_value("Graphics", "VFog", true)
+	_gop_ssao.button_pressed = CrawlGlobals.Get_Config_Value("Graphics", "SSAO", true)
+	_gop_ssil.button_pressed = CrawlGlobals.Get_Config_Value("Graphics", "SSIL", true)
+	_gop_fog.button_pressed = CrawlGlobals.Get_Config_Value("Graphics", "Fog", true)
+	_gop_vfog.button_pressed = CrawlGlobals.Get_Config_Value("Graphics", "VFog", true)
 
 # ------------------------------------------------------------------------------
 # Handler Methods
 # ------------------------------------------------------------------------------
-func _on_config_changed() -> void:
+func _on_config_changed(section : String = "") -> void:
 	_SetFromSettings.call_deferred()
 
 func _on_config_value_changed(section : String, key : String, value : Variant) -> void:
@@ -74,7 +74,7 @@ func _on_viz_toggle_pressed():
 	_UpdateVisible()
 
 func _on_gop_pressed(button_pressed : bool, section : String, key : String) -> void:
-	Settings.set_value(section, key, button_pressed)
+	CrawlGlobals.Set_Config_Value(section, key, button_pressed)
 
 func _on_save_settings_pressed():
-	Settings.save_config()
+	CrawlGlobals.Save_Config()

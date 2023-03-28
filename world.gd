@@ -10,11 +10,9 @@ extends Node3D
 # Override Methods
 # ------------------------------------------------------------------------------
 func _ready() -> void:
-	Settings.config_reset_requested.connect(_on_config_reset_requested)
-	
-	if Settings.load_config() != OK:
-		Settings.reset()
-		Settings.save_config()
+	if CrawlGlobals.Load_Config() != OK:
+		CrawlGlobals.Reset_Config()
+		CrawlGlobals.Save_Config()
 	
 	if _dungeon.load_dungeon("user://map.tres") != OK:
 		_dungeon.create_default()
@@ -27,8 +25,3 @@ func _ready() -> void:
 # ------------------------------------------------------------------------------
 # Handler Methods
 # ------------------------------------------------------------------------------
-func _on_config_reset_requested() -> void:
-	Settings.set_value("Graphics", "SSAO", true)
-	Settings.set_value("Graphics", "SSIL", true)
-	Settings.set_value("Graphics", "Fog", true)
-	Settings.set_value("Graphics", "VFog", true)

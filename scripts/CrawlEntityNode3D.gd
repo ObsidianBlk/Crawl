@@ -181,7 +181,7 @@ func move(direction : StringName, ignore_collision : bool = false, ignore_transi
 	var end_on_stairs : bool = entity.on_stairs()
 	
 	var target : Vector3 = Vector3(entity.position) * CELL_SIZE
-	if end_on_stairs:
+	if end_on_stairs and not ignore_collision:
 		target += Vector3.UP * (CELL_SIZE * 0.5)
 	
 	var duration : float = 0.0

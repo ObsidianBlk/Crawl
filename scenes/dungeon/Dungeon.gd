@@ -21,8 +21,8 @@ var _entity_nodes : Dictionary = {}
 # Override Methods
 # ------------------------------------------------------------------------------
 func _ready() -> void:
-	Settings.config_value_changed.connect(_on_config_value_changed)
-	Settings.config_loaded.connect(_on_config_loaded)
+	CrawlGlobals.crawl_config_value_changed.connect(_on_config_value_changed)
+	CrawlGlobals.crawl_config_loaded.connect(_on_config_loaded)
 
 # ------------------------------------------------------------------------------
 # Override Methods
@@ -70,10 +70,10 @@ func _SetWorldEnvironment() -> void:
 	
 	# With a valid world environment object, enable/disable those values
 	# set in the game Settings file!
-	_UpdateEnvironment(env, "Graphics:SSAO", Settings.get_value("Graphics", "SSAO", true))
-	_UpdateEnvironment(env, "Graphics:SSIL", Settings.get_value("Graphics", "SSIL", true))
-	_UpdateEnvironment(env, "Graphics:FOG", Settings.get_value("Graphics", "FOG", true))
-	_UpdateEnvironment(env, "Graphics:VFog", Settings.get_value("Graphics", "VFog", true))
+	_UpdateEnvironment(env, "Graphics:SSAO", CrawlGlobals.Get_Config_Value("Graphics", "SSAO", true))
+	_UpdateEnvironment(env, "Graphics:SSIL", CrawlGlobals.Get_Config_Value("Graphics", "SSIL", true))
+	_UpdateEnvironment(env, "Graphics:FOG", CrawlGlobals.Get_Config_Value("Graphics", "FOG", true))
+	_UpdateEnvironment(env, "Graphics:VFog", CrawlGlobals.Get_Config_Value("Graphics", "VFog", true))
 	
 	_world_environment.environment = env
 
@@ -155,10 +155,10 @@ func _on_config_loaded() -> void:
 	if _world_environment == null: return
 	var env : Environment = _world_environment.environment
 	if env == null: return
-	_UpdateEnvironment(env, "Graphics:SSAO", Settings.get_value("Graphics", "SSAO", true))
-	_UpdateEnvironment(env, "Graphics:SSIL", Settings.get_value("Graphics", "SSIL", true))
-	_UpdateEnvironment(env, "Graphics:FOG", Settings.get_value("Graphics", "FOG", true))
-	_UpdateEnvironment(env, "Graphics:VFog", Settings.get_value("Graphics", "VFog", true))
+	_UpdateEnvironment(env, "Graphics:SSAO", CrawlGlobals.Get_Config_Value("Graphics", "SSAO", true))
+	_UpdateEnvironment(env, "Graphics:SSIL", CrawlGlobals.Get_Config_Value("Graphics", "SSIL", true))
+	_UpdateEnvironment(env, "Graphics:FOG", CrawlGlobals.Get_Config_Value("Graphics", "FOG", true))
+	_UpdateEnvironment(env, "Graphics:VFog", CrawlGlobals.Get_Config_Value("Graphics", "VFog", true))
 
 func _on_config_value_changed(section : String, key : String, value : Variant) -> void:
 	if typeof(value) != TYPE_BOOL: return

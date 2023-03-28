@@ -90,7 +90,6 @@ script = ExtResource("2_ikbiv")
 cell_size = 48.0
 background_color = Color(0, 0, 0, 0.156863)
 cell_color = Color(0.913725, 0.588235, 0.478431, 0.501961)
-stairs_color = null
 selection_color = Color(0.733333, 0.733333, 0.733333, 1)
 focus_icon = ExtResource("5_curq0")
 ignore_focus = false
