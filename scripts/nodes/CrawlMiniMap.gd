@@ -171,6 +171,8 @@ func _draw() -> void:
 			elif map.has_cell(map_position):
 				if canvas_region.encloses(Rect2(screen_position, Vector2(cell_size, cell_size))):
 					_DrawCell(map_position, screen_position)
+					if map.is_cell_stairs(map_position):
+						_DrawStairs(map_position, screen_position)
 			
 			# Draw mouse cursor if mouse in the scene...
 			if _selectors_visible and _mouse_entered and mouse_position == Vector2i(cx, cy):
@@ -226,6 +228,27 @@ func _notification(what : int) -> void:
 # ------------------------------------------------------------------------------
 # Private Methods
 # ------------------------------------------------------------------------------
+func _DrawStairs(map_position : Vector3i, screen_position : Vector2) -> void:
+	var cell_size_v : Vector2 = Vector2.ONE * cell_size
+	var step_size : Vector2 = cell_size_v * 0.3333
+	
+	var start : Vector2 = Vector2(
+		screen_position.x,
+		screen_position.y + (step_size.y * 2)
+	)
+	var color : Color = Color.YELLOW
+	draw_line(start, start + Vector2(step_size.x, 0), color, 1.0, true)
+	start.x += step_size.x
+	
+	draw_line(start, start - Vector2(0, step_size.y), color, 1.0, true)
+	start.y -= step_size.y
+	
+	draw_line(start, start + Vector2(step_size.x, 0), color, 1.0, true)
+	start.x += step_size.x
+	
+	draw_line(start, start - Vector2(0, step_size.y), color, 1.0, true)
+
+
 func _DrawCell(map_position : Vector3i, screen_position : Vector2) -> void:
 	var cell_size_v : Vector2 = Vector2.ONE * cell_size
 	var inner_size : Vector2 = cell_size_v * 0.3

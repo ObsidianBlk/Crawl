@@ -7,6 +7,7 @@ class_name CrawlEntityNode3D
 # ------------------------------------------------------------------------------
 signal entity_changing()
 signal entity_changed()
+signal transition_started(dir)
 signal transition_complete()
 signal movement_queue_update(remaining)
 
@@ -171,16 +172,16 @@ func move(direction : StringName, ignore_collision : bool = false, ignore_transi
 		_AddToQueue(move.bind(direction, ignore_collision, ignore_transition))
 		return
 	
+	var old_position : Vector3i = entity.position
 	var start_on_stairs : bool = entity.on_stairs()
-	var stair_direction : StringName = entity.stairs_ahead(direction)
 	
-	if ignore_collision == false and not entity.can_move(direction): return
-	entity.move(direction, ignore_collision)
+	var res : int = entity.move(direction, ignore_collision)
+	if ignore_collision == false and res != OK: return
 	
 	var end_on_stairs : bool = entity.on_stairs()
 	
 	var target : Vector3 = Vector3(entity.position) * CELL_SIZE
-	if not ignore_collision and end_on_stairs:
+	if end_on_stairs:
 		target += Vector3.UP * (CELL_SIZE * 0.5)
 	
 	var duration : float = 0.0
@@ -197,12 +198,39 @@ func move(direction : StringName, ignore_collision : bool = false, ignore_transi
 	if duration <= 0.0 or ignore_transition == true:
 		position = target
 	else:
+		var calc_sub_target : Callable = func(from : Vector3i, to : Vector3i, ignore_y : bool):
+			var xdiff : int = to.x - from.x
+			var ydiff : int = 0 if ignore_y else to.y - from.y
+			var zdiff : int = to.z - from.z
+			return Vector3(
+				position.x + (sign(xdiff) * CELL_SIZE * 0.5),
+				position.y + (sign(ydiff) * CELL_SIZE * 0.5),
+				position.z + (sign(zdiff) * CELL_SIZE * 0.5)
+			)
+			
+		var announce_direction : StringName = &""
+		if entity.position.y != old_position.y:
+			announce_direction = &"up" if entity.position.y > old_position.y else &"down"
+		transition_started.emit(announce_direction)
+		
+		_tween = create_tween()
 		# Whether we start/end on stairs or not, if both states are the same, it's a simple
 		# transition
 		if start_on_stairs == end_on_stairs:
-			_tween = create_tween()
+			if start_on_stairs:
+				duration = climb_time
 			_tween.tween_property(self, "position", target, duration)
-			_tween.finished.connect(_on_tween_completed.bind(entity.facing, target))
+		elif start_on_stairs: # We start of stairs and we climb off
+			var sub_target : Vector3 = calc_sub_target.call(old_position, entity.position, false)
+			_tween.tween_property(self, "position", sub_target, climb_time * 0.5)
+			_tween.chain()
+			_tween.tween_property(self, "position", target, h_move_time * 0.5)
+		elif end_on_stairs: # We start on ground and end on stairs.
+			var sub_target : Vector3 = calc_sub_target.call(old_position, entity.position, true)
+			_tween.tween_property(self, "position", sub_target, h_move_time * 0.5)
+			_tween.chain()
+			_tween.tween_property(self, "position", target, climb_time * 0.5)
+		_tween.finished.connect(_on_tween_completed.bind(entity.facing, target))
 
 # ------------------------------------------------------------------------------
 # Handler Methods
@@ -215,7 +243,7 @@ func _on_facing_changed(from : CrawlGlobals.SURFACE, to : CrawlGlobals.SURFACE) 
 	if not _entity_direct_update: return
 	face(to, true)
 
-func _on_tween_completed(surface : CrawlGlobals.SURFACE, target_position : Vector3i) -> void:
+func _on_tween_completed(surface : CrawlGlobals.SURFACE, target_position : Vector3) -> void:
 	_tween = null
 	var body : Node3D = _GetBodyNode()
 	

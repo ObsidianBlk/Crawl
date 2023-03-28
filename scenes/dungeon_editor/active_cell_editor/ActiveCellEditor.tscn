@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=3 uid="uid://cc4tyjtfkmn4g"]
+[gd_scene load_steps=6 format=3 uid="uid://cc4tyjtfkmn4g"]
 
 [ext_resource type="PackedScene" uid="uid://ct2dmvumoh544" path="res://objects/resource_viewer/ResourceViewer.tscn" id="1_e4ixk"]
 [ext_resource type="Script" path="res://scenes/dungeon_editor/active_cell_editor/ActiveCellEditor.gd" id="1_xe36s"]
 [ext_resource type="Texture2D" uid="uid://c8eypxhmjyi3n" path="res://assets/icons/arrow_up.svg" id="2_0gloc"]
 [ext_resource type="Texture2D" uid="uid://bvm4recij7qka" path="res://assets/icons/wall_blocking.svg" id="2_rgrof"]
+[ext_resource type="Texture2D" uid="uid://ccrsme6ixxdg8" path="res://assets/icons/arrow_down.svg" id="5_anfbe"]
 
 [node name="ActiveCellEditor" type="GridContainer"]
 offset_right = 40.0
@@ -67,11 +68,11 @@ size_flags_horizontal = 4
 icon = ExtResource("2_rgrof")
 icon_alignment = 1
 
-[node name="Facing" type="TextureRect" parent="."]
+[node name="BTN_Stairs" type="Button" parent="."]
 unique_name_in_owner = true
 layout_mode = 2
-texture = ExtResource("2_0gloc")
-stretch_mode = 3
+icon = ExtResource("5_anfbe")
+icon_alignment = 1
 
 [node name="east_cell" type="VBoxContainer" parent="."]
 layout_mode = 2
@@ -131,3 +132,4 @@ icon_alignment = 1
 initial_position = 2
 
 [connection signal="pressed" from="SetToDefaults" to="." method="_on_set_to_defaults_pressed"]
+[connection signal="pressed" from="BTN_Stairs" to="." method="_on_btn_stairs_pressed"]

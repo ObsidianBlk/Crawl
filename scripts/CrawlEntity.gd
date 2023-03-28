@@ -105,15 +105,57 @@ func _CanMove(dir : CrawlGlobals.SURFACE) -> bool:
 
 func _Move(dir : CrawlGlobals.SURFACE, ignore_map : bool) -> int:
 	var neighbor_position : Vector3i = position + CrawlGlobals.Get_Direction_From_Surface(dir)
-	if _mapref.get_ref() != null and not ignore_map:
-		if not _CanMove(dir):
-			return ERR_UNAVAILABLE
-	
 	var pold : Vector3i = position
-	position = neighbor_position
-	position_changed.emit(pold, position)
 	
+	if _mapref.get_ref() == null or ignore_map:
+		position = neighbor_position
+		position_changed.emit(pold, position)
+		return OK
+	
+	var move_allowed : bool = _CanMove(dir)
+	var stairs_ahead : StringName = _StairsAhead(dir)
+	if not move_allowed:
+		if stairs_ahead == &"up":
+			position = neighbor_position + CrawlGlobals.Get_Direction_From_Surface(CrawlGlobals.SURFACE.Ceiling)
+			position_changed.emit(pold, position)
+			return OK
+		return ERR_UNAVAILABLE
+	
+	if stairs_ahead == &"down":
+		position = neighbor_position + CrawlGlobals.Get_Direction_From_Surface(CrawlGlobals.SURFACE.Ground)
+	else:
+		position = neighbor_position
+	position_changed.emit(pold, position)
 	return OK
+
+func _StairsAhead(surface : CrawlGlobals.SURFACE) -> StringName:
+	if _mapref.get_ref() == null: return &""
+	var map : CrawlMap = _mapref.get_ref()
+	
+	var neighbor_position : Vector3i = position + CrawlGlobals.Get_Direction_From_Surface(surface)
+	
+	if _CanMove(surface):
+		# If the neighbor's ground is blocking, there are no stairs.
+		if map.is_cell_surface_blocking(neighbor_position, CrawlGlobals.SURFACE.Ground): return &""
+		
+		# Get the diagnal down position.
+		var diag_down_position = neighbor_position + CrawlGlobals.Get_Direction_From_Surface(CrawlGlobals.SURFACE.Ground)
+		# Is there a cell
+		if not map.has_cell(diag_down_position): return &""
+		# Does that cell have stairs
+		if not map.is_cell_stairs(diag_down_position): return &""
+		return &"down"
+
+	# If there a traversable space above...
+	if not _CanMove(CrawlGlobals.SURFACE.Ceiling): return &""
+	
+	# Get cell position diagnally up from current position.
+	var diag_up_position = neighbor_position + CrawlGlobals.Get_Direction_From_Surface(CrawlGlobals.SURFACE.Ceiling)
+	# If there a cell at the diagnal-up position
+	if not map.has_cell(diag_up_position): return &"" # If not, can't move
+	# We also can't move if we're not already ON stairs for upward transitions.
+	if not map.is_cell_stairs(position): return &""
+	return &"up"
 
 # ------------------------------------------------------------------------------
 # Public Methods
@@ -142,28 +184,9 @@ func is_blocking(surface : CrawlGlobals.SURFACE) -> bool:
 	var i : int = CrawlGlobals.SURFACE.values().find(surface)
 	return (blocking & (1 << i)) != 0
 
-# WARNING: This doesn't actually return the direction of the stairs.
-#  If there are stairs at the same Z level ahead, &"up" is returned
-#  If there are stairs ahead and below (with no ground ahead), &"down" is returned.
-# It's up to the entity doing the check to determine if directionality of the stairs is
-# important
 func stairs_ahead(dir : StringName) -> StringName:
-	# TODO: Not sure this is wholly accurate now.
-	if _mapref.get_ref() == null: return &""
-	var map : CrawlMap = _mapref.get_ref()
-	var is_on_stairs: bool = _mapref.get_ref().is_cell_stairs(position)
 	var direction_surface : CrawlGlobals.SURFACE = _DirectionNameToFacing(dir)
-	var neighbor_position : Vector3i = position + CrawlGlobals.Get_Direction_From_Surface(direction_surface)
-	if not map.has_cell(neighbor_position): return &""
-	if map.is_cell_stairs(neighbor_position) == false:
-		# This doesn't mean there's stairs, We could be walking into a cell just ABOVE stairs
-		# If the neighbor's ground IS blocking, then there are no stairs.
-		if map.is_cell_surface_blocking(neighbor_position, CrawlGlobals.SURFACE.Ground): return &""
-		# Otherwise, let's get the neighbors ground neighbor :)
-		var gn_position : Vector3i = neighbor_position + CrawlGlobals.Get_Direction_From_Surface(CrawlGlobals.SURFACE.Ground)
-		if map.has_cell(gn_position) and map.is_cell_stairs(gn_position) == false: return &""
-		return &"down"
-	return &"up"
+	return _StairsAhead(direction_surface)
 
 func on_stairs() -> bool:
 	if _mapref.get_ref() == null: return false
@@ -192,9 +215,9 @@ func can_move(dir : StringName) -> bool:
 	var d_facing : CrawlGlobals.SURFACE = _DirectionNameToFacing(dir)
 	return _CanMove(d_facing)
 
-func move(dir : StringName, ignore_map : bool = false) -> void:
+func move(dir : StringName, ignore_map : bool = false) -> int:
 	var d_facing : CrawlGlobals.SURFACE = _DirectionNameToFacing(dir)
-	_Move(d_facing, ignore_map)
+	return _Move(d_facing, ignore_map)
 
 func turn_left() -> void:
 	var ofacing : CrawlGlobals.SURFACE = facing

@@ -23,13 +23,7 @@ signal entity_removed(entity)
 const CELL_SCHEMA : Dictionary = {
 	&"blocking":{&"req":true, &"type":TYPE_INT, &"min":0, &"max":0x3F},
 	&"climbable":{&"req":false, &"type":TYPE_INT, &"min":0, &"max":0x3F},
-	&"stair":{&"req":false, &"type":TYPE_INT, &"one_of":[\
-		0, \
-		CrawlGlobals.SURFACE.North, \
-		CrawlGlobals.SURFACE.East, \
-		CrawlGlobals.SURFACE.South, \
-		CrawlGlobals.SURFACE.West \
-		]},
+	&"stair":{&"req":false, &"type":TYPE_BOOL},
 	&"rid":{&"req":true, &"type":TYPE_ARRAY, &"item":{&"type":TYPE_INT, &"min":-1}},
 	&"visited":{&"req":true, &"type":TYPE_BOOL}
 }
@@ -492,14 +486,12 @@ func remove_cell(position : Vector3i) -> void:
 	_grid.erase(position)
 	cell_removed.emit(position)
 
-func set_cell_stairs(position : Vector3i, top_surface : CrawlGlobals.SURFACE) -> void:
+func set_cell_stairs(position : Vector3i, has_stairs : bool) -> void:
 	if not position in _grid:
 		printerr("CrawlMap Error: No cell at position ", position)
 		return
-	if CrawlGlobals.ALL_COMPASS_SURFACES & top_surface == 0:
-		printerr("CrawlMap Error: Surface not valid for stairs.")
-		return
-	_grid[position][&"stair"] = top_surface
+	_grid[position][&"stair"] = has_stairs
+	cell_changed.emit(position)
 
 func clear_cell_stairs(position : Vector3i) -> void:
 	if not position in _grid:
@@ -507,14 +499,12 @@ func clear_cell_stairs(position : Vector3i) -> void:
 		return
 	if &"stair" in _grid[position]:
 		_grid[position].erase(&"stair")
-
-func get_cell_stairs(position : Vector3i) -> int:
-	if not position in _grid: return 0
-	if not &"stair" in _grid[position]: return 0
-	return _grid[position][&"stair"]
+		cell_changed.emit(position)
 
 func is_cell_stairs(position : Vector3i) -> bool:
-	return get_cell_stairs(position) != 0
+	if not position in _grid: return false
+	if not &"stair" in _grid[position]: return false
+	return _grid[position][&"stair"]
 
 func set_cell_surface(position : Vector3i, surface : CrawlGlobals.SURFACE, blocking : bool, resource_id : Variant, bi_directional : bool = false) -> void:
 	if not position in _grid:

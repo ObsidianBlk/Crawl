@@ -18,7 +18,7 @@ mesh = SubResource("CapsuleMesh_idpsr")
 [node name="Facing" type="Node3D" parent="."]
 
 [node name="Gimble_Yaw" type="Node3D" parent="Facing"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.8, -1.8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.8, -1.4)
 
 [node name="Gimble_Pitch" type="Node3D" parent="Facing/Gimble_Yaw"]
 

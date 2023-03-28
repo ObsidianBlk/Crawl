@@ -8,6 +8,9 @@ const arrow_south : Texture = preload("res://assets/icons/arrow_down.svg")
 const arrow_east : Texture = preload("res://assets/icons/arrow_right.svg")
 const arrow_west : Texture = preload("res://assets/icons/arrow_left.svg")
 
+const icon_no_stairs : Texture = arrow_south
+const icon_has_stairs : Texture = arrow_north
+
 const icon_blocking : Texture = preload("res://assets/icons/wall_blocking.svg")
 const icon_unblocked : Texture = preload("res://assets/icons/wall_unblocked.svg")
 
@@ -27,7 +30,8 @@ var _map_position : Vector3i = Vector3i.ZERO
 # ------------------------------------------------------------------------------
 # Onready Variables
 # ------------------------------------------------------------------------------
-@onready var _facing_rect : TextureRect = %Facing
+#@onready var _facing_rect : TextureRect = %Facing
+@onready var _btn_stairs : Button = %BTN_Stairs
 
 @onready var _ceiling_view : Control = %ceiling_view
 @onready var _ceiling_blocking : Button = %ceiling_blocking
@@ -164,8 +168,11 @@ func _UpdateResourceViews() -> void:
 		_ClearResourceViews()
 		return
 	if not map.has_cell(_map_position):
+		_btn_stairs.icon = icon_no_stairs
 		_ClearResourceViews()
 		return
+	
+	_btn_stairs.icon = icon_has_stairs if map.is_cell_stairs(_map_position) else icon_no_stairs
 	
 	var resource_name : StringName = map.get_cell_surface_resource(_map_position, CrawlGlobals.SURFACE.Ground)
 	if resource_name != &"":
@@ -237,17 +244,17 @@ func _on_focus_position_changed(from : Vector3i, to : Vector3i) -> void:
 		_map_position = to
 		_UpdateResourceViews()
 
-func _on_focus_facing_changed(from : CrawlGlobals.SURFACE, to : CrawlGlobals.SURFACE) -> void:
-	if _facing_rect == null: return
-	match to:
-		CrawlGlobals.SURFACE.North:
-			_facing_rect.texture = arrow_north
-		CrawlGlobals.SURFACE.South:
-			_facing_rect.texture = arrow_south
-		CrawlGlobals.SURFACE.East:
-			_facing_rect.texture = arrow_east
-		CrawlGlobals.SURFACE.West:
-			_facing_rect.texture = arrow_west
+#func _on_focus_facing_changed(from : CrawlGlobals.SURFACE, to : CrawlGlobals.SURFACE) -> void:
+#	if _facing_rect == null: return
+#	match to:
+#		CrawlGlobals.SURFACE.North:
+#			_facing_rect.texture = arrow_north
+#		CrawlGlobals.SURFACE.South:
+#			_facing_rect.texture = arrow_south
+#		CrawlGlobals.SURFACE.East:
+#			_facing_rect.texture = arrow_east
+#		CrawlGlobals.SURFACE.West:
+#			_facing_rect.texture = arrow_west
 
 func _on_block_btn_pressed(btn : Button, surface : CrawlGlobals.SURFACE) -> void:
 	if map == null or _focus_entity.get_ref() == null: return
@@ -292,3 +299,13 @@ func _on_resource_item_index_selected(idx : int) -> void:
 func _on_set_to_defaults_pressed():
 	if map == null: return
 	map.set_cell_surfaces_to_defaults(_map_position)
+
+
+func _on_btn_stairs_pressed():
+	if not map.has_cell(_map_position): return null
+	if map.is_cell_stairs(_map_position):
+		map.set_cell_stairs(_map_position, false)
+		_btn_stairs.icon = icon_no_stairs
+	else:
+		map.set_cell_stairs(_map_position, true)
+		_btn_stairs.icon = icon_has_stairs

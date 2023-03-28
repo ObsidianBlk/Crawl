@@ -9,6 +9,8 @@ extends CrawlEntityNode3D
 # ------------------------------------------------------------------------------
 # Constants
 # ------------------------------------------------------------------------------
+const VIEW_LERP_RATE_DEFAULT : float = 0.25
+const VIEW_LERP_RATE_STAIRS : float = 0.75
 
 # ------------------------------------------------------------------------------
 # Export Variables
@@ -24,6 +26,10 @@ extends CrawlEntityNode3D
 # ------------------------------------------------------------------------------
 var _map_position : Vector3i = Vector3i.ZERO
 var _freelook_enabled : bool = false
+
+var _force_pitch : bool = false
+var _forced_pitch_angle : float = 0.0
+var _view_lerp_rate : float = VIEW_LERP_RATE_DEFAULT
 
 # ------------------------------------------------------------------------------
 # Override Variables
@@ -91,21 +97,29 @@ func _unhandled_input(event : InputEvent) -> void:
 # ------------------------------------------------------------------------------
 # Private Methods
 # ------------------------------------------------------------------------------
-func _LerpLookAngle(deg : float, rest_deg : float, _delta : float) -> float:
+func _LerpLookAngle(deg : float, rest_deg : float) -> float:
 	var target : float = rest_deg if _freelook_enabled else 0.0
 	if abs(deg) > target:
 		var sn : float = sign(deg)
-		deg = lerp(deg, sn * target, 0.25)
+		deg = lerp(deg, sn * target, VIEW_LERP_RATE_DEFAULT)
 		if abs(deg) <= target + 0.01:
 			return sn * target
 	return deg
 
+func _LerpLookAtAngle(deg : float, target : float) -> float:
+	if abs(target - deg) <= 0.01: return deg
+	return lerp(deg, target, VIEW_LERP_RATE_STAIRS)
+
 func _SettleLookAngle(delta : float) -> void:
 	_gimble_yaw_node.rotation_degrees.y = _LerpLookAngle(
-		_gimble_yaw_node.rotation_degrees.y, rest_yaw, delta
+		_gimble_yaw_node.rotation_degrees.y, rest_yaw
 	)
+	if _force_pitch:
+		_gimble_pitch_node.rotation_degrees.x = _LerpLookAtAngle(
+			_gimble_pitch_node.rotation_degrees.x, _forced_pitch_angle
+		)
 	_gimble_pitch_node.rotation_degrees.x = _LerpLookAngle(
-		_gimble_pitch_node.rotation_degrees.x, rest_pitch, delta
+		_gimble_pitch_node.rotation_degrees.x, rest_pitch
 	)
 
 
@@ -122,13 +136,29 @@ func _on_editor_mode_changed(enabled : bool) -> void:
 	set_process_unhandled_input(not enabled)
 	set_process(not enabled)
 	if enabled:
+		if transition_started.is_connected(_on_transition_started):
+			transition_started.disconnect(_on_transition_started)
 		if transition_complete.is_connected(_on_transition_completed):
 			transition_complete.disconnect(_on_transition_completed)
 	else:
+		if not transition_started.is_connected(_on_transition_started):
+			transition_started.connect(_on_transition_started)
 		if not transition_complete.is_connected(_on_transition_completed):
 			transition_complete.connect(_on_transition_completed)
 
+func _on_transition_started(direction : StringName) -> void:
+	match direction:
+		&"up":
+			#_force_pitch = true
+			_view_lerp_rate = VIEW_LERP_RATE_STAIRS
+			_forced_pitch_angle = -max_pitch
+		&"down":
+			#_force_pitch = true
+			_view_lerp_rate = VIEW_LERP_RATE_STAIRS
+			_forced_pitch_angle = max_pitch
+
 func _on_transition_completed() -> void:
+	_force_pitch = false
 	if entity == null: return
 	if _entity_direct_update: return
 	if entity.can_move(&"down"):
