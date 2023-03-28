@@ -8,8 +8,8 @@ const arrow_south : Texture = preload("res://assets/icons/arrow_down.svg")
 const arrow_east : Texture = preload("res://assets/icons/arrow_right.svg")
 const arrow_west : Texture = preload("res://assets/icons/arrow_left.svg")
 
-const icon_no_stairs : Texture = arrow_south
-const icon_has_stairs : Texture = arrow_north
+const icon_no_stairs : Texture = preload("res://assets/icons/add_stairs.svg")
+const icon_has_stairs : Texture = preload("res://assets/icons/remove_stairs.svg")
 
 const icon_blocking : Texture = preload("res://assets/icons/wall_blocking.svg")
 const icon_unblocked : Texture = preload("res://assets/icons/wall_unblocked.svg")
@@ -296,13 +296,14 @@ func _on_resource_item_index_selected(idx : int) -> void:
 		meta[&"resource_name"]
 	)
 
-func _on_set_to_defaults_pressed():
+func _on_set_to_defaults_pressed() -> void:
 	if map == null: return
 	map.set_cell_surfaces_to_defaults(_map_position)
 
 
-func _on_btn_stairs_pressed():
-	if not map.has_cell(_map_position): return null
+func _on_btn_stairs_pressed() -> void:
+	if map == null: return
+	if not map.has_cell(_map_position): return
 	if map.is_cell_stairs(_map_position):
 		map.set_cell_stairs(_map_position, false)
 		_btn_stairs.icon = icon_no_stairs

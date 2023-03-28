@@ -36,6 +36,7 @@ script = ExtResource("2_ps7oh")
 background_color = Color(0, 0, 0, 0.784314)
 wall_color = Color(0.333333, 0.803922, 0.184314, 1)
 cell_color = Color(1, 0.74902, 0, 1)
+stairs_color = Color(1, 0.164706, 0, 1)
 focus_icon = ExtResource("3_37sat")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]

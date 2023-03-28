@@ -23,6 +23,7 @@ const SELECTION_BLINK_INTERVAL : float = 0.08
 @export var background_texture : Texture = null:				set = set_background_texture
 @export var wall_color : Color = Color.DARK_OLIVE_GREEN:		set = set_wall_color
 @export var cell_color : Color = Color.DARK_SALMON:				set = set_cell_color
+@export var stairs_color : Color = Color.YELLOW:				set = set_stairs_color
 @export var selection_color : Color = Color.WHITE:				set = set_selection_color
 @export var focus_icon : Texture = null:						set = set_focus_icon
 @export var ignore_focus : bool = true:							set = set_ignore_focus
@@ -89,6 +90,11 @@ func set_wall_color(c : Color) -> void:
 func set_cell_color(c : Color) -> void:
 	if cell_color != c:
 		cell_color = c
+		queue_redraw()
+
+func set_stairs_color(c : Color) -> void:
+	if stairs_color != c:
+		stairs_color = c
 		queue_redraw()
 
 func set_selection_color(c : Color) -> void:
@@ -236,17 +242,17 @@ func _DrawStairs(map_position : Vector3i, screen_position : Vector2) -> void:
 		screen_position.x,
 		screen_position.y + (step_size.y * 2)
 	)
-	var color : Color = Color.YELLOW
-	draw_line(start, start + Vector2(step_size.x, 0), color, 1.0, true)
+
+	draw_line(start, start + Vector2(step_size.x, 0), stairs_color, 1.0, true)
 	start.x += step_size.x
 	
-	draw_line(start, start - Vector2(0, step_size.y), color, 1.0, true)
+	draw_line(start, start - Vector2(0, step_size.y), stairs_color, 1.0, true)
 	start.y -= step_size.y
 	
-	draw_line(start, start + Vector2(step_size.x, 0), color, 1.0, true)
+	draw_line(start, start + Vector2(step_size.x, 0), stairs_color, 1.0, true)
 	start.x += step_size.x
 	
-	draw_line(start, start - Vector2(0, step_size.y), color, 1.0, true)
+	draw_line(start, start - Vector2(0, step_size.y), stairs_color, 1.0, true)
 
 
 func _DrawCell(map_position : Vector3i, screen_position : Vector2) -> void:
