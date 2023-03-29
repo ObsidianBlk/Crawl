@@ -7,6 +7,9 @@ class_name CrawlEntity
 signal position_changed(from, to)
 signal facing_changed(from, to)
 
+signal meta_value_changed(key)
+signal meta_value_removed(key)
+
 signal interaction(entity)
 signal attacked(dmg, type)
 
@@ -82,10 +85,10 @@ func _DirectionNameToFacing(dir : StringName) -> CrawlGlobals.SURFACE:
 			d_facing = CrawlGlobals.SURFACE.Ground
 	return d_facing
 
-func _EntitiesBlockingAt(position : Vector3i, surface : CrawlGlobals.SURFACE) -> bool:
+func _EntitiesBlockingAt(pos : Vector3i, surface : CrawlGlobals.SURFACE) -> bool:
 	if _mapref.get_ref() == null: return false
 	var map : CrawlMap = _mapref.get_ref()
-	var entities : Array = map.get_entities({&"position": position})
+	var entities : Array = map.get_entities({&"position": pos})
 	if entities.size() > 0:
 		for entity in entities:
 			if entity == self: continue # We can't block ourselves!
@@ -169,9 +172,29 @@ func clone() -> CrawlEntity:
 	ent.blocking = blocking
 	return ent
 
-
 func get_map() -> CrawlMap:
 	return _mapref.get_ref()
+
+func set_meta_value(key : String, value : Variant) -> void:
+	if key.is_empty(): return
+	meta[key] = value
+	meta_value_changed.emit(key)
+
+func get_meta_value(key : String, default : Variant = null) -> Variant:
+	if key in meta:
+		return meta[key]
+	return default
+
+func has_meta_key(key : String) -> bool:
+	return key in meta
+
+func get_meta_keys() -> PackedStringArray:
+	return PackedStringArray(meta.keys())
+
+func erase_meta_key(key : String) -> void:
+	if not key in meta: return
+	meta.erase(key)
+	meta_value_removed.emit(key)
 
 func set_blocking(surface : CrawlGlobals.SURFACE, enable : bool) -> void:
 	var i : int = CrawlGlobals.SURFACE.values().find(surface)
@@ -179,6 +202,9 @@ func set_blocking(surface : CrawlGlobals.SURFACE, enable : bool) -> void:
 		blocking = blocking | (1 << i)
 	else:
 		blocking = blocking & (~(1 << i))
+
+func set_block_all(enable : bool) -> void:
+	blocking = CrawlGlobals.ALL_SURFACES if enable else 0
 
 func is_blocking(surface : CrawlGlobals.SURFACE) -> bool:
 	var i : int = CrawlGlobals.SURFACE.values().find(surface)
@@ -197,9 +223,9 @@ func get_basetype() -> String:
 	return type.split(":")[0]
 
 func is_basetype(base_type : StringName) -> bool:
-	if not type.begins_with(base_type): return false
-	if type != base_type: return false
-	return true
+	if type.begins_with(&"%s:"%[base_type]): return true
+	if type == base_type: return true
+	return false
 
 func get_subtype() -> String:
 	if type == &"": return ""
@@ -229,9 +255,18 @@ func turn_right() -> void:
 	facing = CrawlGlobals.Get_Surface_90Deg(facing, -1)
 	facing_changed.emit(ofacing, facing)
 
-func get_entities() -> Array:
+func get_entities(options : Dictionary = {}) -> Array:
 	if _mapref.get_ref() == null: return []
-	return _mapref.get_ref().get_entities({&"position":position, &"type":&"item"})
+	return _mapref.get_ref().get_entities(options)
+
+func get_local_entities(options : Dictionary = {}) -> Array:
+	options[&"position"] = position
+	return get_entities(options)
+
+func get_adjacent_entities(options : Dictionary = {}) -> Array:
+	var neighbor_position : Vector3i = position + CrawlGlobals.Get_Direction_From_Surface(facing)
+	options[&"position"] = neighbor_position
+	return get_entities(options)
 
 func interact(entity : CrawlEntity) -> void:
 	interaction.emit(entity)

@@ -95,6 +95,8 @@ func _unhandled_input(event : InputEvent) -> void:
 			turn(COUNTERCLOCKWISE)
 		if event.is_action_pressed("turn_right"):
 			turn(CLOCKWISE)
+		if event.is_action_pressed("interact"):
+			_Interact()
 
 
 # ------------------------------------------------------------------------------
@@ -125,6 +127,18 @@ func _SettleLookAngle(delta : float) -> void:
 		_gimble_pitch_node.rotation_degrees.x, rest_pitch
 	)
 
+func _Interact() -> void:
+	if entity == null: return
+	var options : Dictionary = {&"primary_type":&"Door"}
+	var doors : Array = entity.get_local_entities(options)
+	doors.append_array(entity.get_adjacent_entities(options))
+	var adj_facing : CrawlGlobals.SURFACE = CrawlGlobals.Get_Adjacent_Surface(entity.facing)
+	for door in doors:
+		if door.position == entity.position and door.facing == entity.facing:
+			door.interact(entity)
+			return
+		if door.position != entity.position and door.facing == adj_facing:
+			door.interact(entity)
 
 # ------------------------------------------------------------------------------
 # Handler Methods

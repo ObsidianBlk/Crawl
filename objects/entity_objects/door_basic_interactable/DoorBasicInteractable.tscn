@@ -1,0 +1,234 @@
+[gd_scene load_steps=10 format=3 uid="uid://b0m54q2fim8yf"]
+
+[ext_resource type="PackedScene" uid="uid://2kyd2w0bsck0" path="res://assets/models/basic_dungeon/db_doorway.glb" id="1_kmrqr"]
+[ext_resource type="Script" path="res://objects/entity_objects/door_basic_interactable/DoorBasicInteractable.gd" id="1_y4ms0"]
+[ext_resource type="PackedScene" uid="uid://e3suxtnj1iw2" path="res://assets/models/basic_dungeon/db_door.glb" id="2_vpcng"]
+
+[sub_resource type="Animation" id="Animation_dgttx"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Gimble/Body/db_door_r:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0, 0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Gimble/Body/db_door_l:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_53vr1"]
+resource_name = "closing"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Gimble/Body/db_door_l:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 1),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(1.784, 0, 0), Vector3(0, 0, 0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Gimble/Body/db_door_r:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 1),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(-1.78421, 0, 0), Vector3(0, 0, 0)]
+}
+tracks/2/type = "method"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath(".")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0.5),
+"transitions": PackedFloat32Array(1),
+"values": [{
+"args": [],
+"method": &"_ChangeBlocking"
+}]
+}
+
+[sub_resource type="Animation" id="Animation_cs4mx"]
+resource_name = "idle_closed"
+length = 0.1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Gimble/Body/db_door_r:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0, 0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Gimble/Body/db_door_l:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0, 0)]
+}
+tracks/2/type = "method"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath(".")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"values": [{
+"args": [],
+"method": &"_ChangeBlocking"
+}]
+}
+
+[sub_resource type="Animation" id="Animation_cporm"]
+resource_name = "idle_open"
+length = 0.1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Gimble/Body/db_door_r:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(-1.78421, 0, 0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Gimble/Body/db_door_l:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(1.784, 0, 0)]
+}
+tracks/2/type = "method"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath(".")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"values": [{
+"args": [],
+"method": &"_ChangeBlocking"
+}]
+}
+
+[sub_resource type="Animation" id="Animation_v1eyf"]
+resource_name = "opening"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Gimble/Body/db_door_r:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 1),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0, 0, 0), Vector3(-1.78421, 0, 0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Gimble/Body/db_door_l:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 1),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0, 0, 0), Vector3(1.784, 0, 0)]
+}
+tracks/2/type = "method"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath(".")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0.6),
+"transitions": PackedFloat32Array(1),
+"values": [{
+"args": [],
+"method": &"_ChangeBlocking"
+}]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_whtrc"]
+_data = {
+"RESET": SubResource("Animation_dgttx"),
+"closing": SubResource("Animation_53vr1"),
+"idle_closed": SubResource("Animation_cs4mx"),
+"idle_open": SubResource("Animation_cporm"),
+"opening": SubResource("Animation_v1eyf")
+}
+
+[node name="DoorBasicInteractable" type="Node3D"]
+script = ExtResource("1_y4ms0")
+body_node_path = NodePath("Gimble")
+quarter_turn_time = 0.0
+h_move_time = 0.0
+climb_time = 0.0
+fall_time = 0.0
+
+[node name="Gimble" type="Node3D" parent="."]
+
+[node name="Body" type="Node3D" parent="Gimble"]
+unique_name_in_owner = true
+
+[node name="db_doorway" parent="Gimble/Body" instance=ExtResource("1_kmrqr")]
+
+[node name="db_door_r" parent="Gimble/Body" instance=ExtResource("2_vpcng")]
+
+[node name="db_door_l" parent="Gimble/Body" instance=ExtResource("2_vpcng")]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 0, 0)
+
+[node name="Anim" type="AnimationPlayer" parent="."]
+unique_name_in_owner = true
+autoplay = "idle_closed"
+libraries = {
+"": SubResource("AnimationLibrary_whtrc")
+}

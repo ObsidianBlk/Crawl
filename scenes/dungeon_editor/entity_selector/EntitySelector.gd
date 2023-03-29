@@ -13,8 +13,8 @@ const ENTITIES : Dictionary = {
 	&"Unique":{
 		&"Player Start":{&"entity_type":&"Player"}
 	},
-	&"Monsters":{
-		&"Big Monster":{&"entity_type":&"BMob"}
+	&"Door":{
+		&"Basic":{&"entity_type":&"Basic_Interactable"}
 	}
 }
 

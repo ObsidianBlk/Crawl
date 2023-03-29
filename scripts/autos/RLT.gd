@@ -69,6 +69,10 @@ const LOOKUP : Dictionary = {
 			&"src":"res://objects/player/Player.tscn",
 			&"description":"Player start"
 		},
+		&"Door:Basic_Interactable":{
+			&"src":"res://objects/entity_objects/door_basic_interactable/DoorBasicInteractable.tscn",
+			&"description":"Basic Interactable Door"
+		}
 	}
 }
 

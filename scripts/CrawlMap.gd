@@ -39,6 +39,8 @@ const RESOURCES_SCHEMA : Dictionary = {
 const ENTITY_SEARCH_SCHEMA : Dictionary = {
 	&"position":{&"req":false, &"type":TYPE_VECTOR3I},
 	&"type":{&"req":false, &"type":TYPE_STRING_NAME},
+	&"primary_type":{&"req":false, &"type":TYPE_STRING_NAME},
+	&"sub_type":{&"req":false, &"type":TYPE_STRING_NAME},
 	&"range":{&"req":false, &"type":TYPE_INT, &"min":0}
 }
 
@@ -397,6 +399,10 @@ func get_entities(options : Dictionary = {}) -> Array:
 				if _entities[uuid].position != options[&"position"]: continue
 		if &"type" in options:
 			if _entities[uuid].type != options[&"type"]: continue
+		elif &"primary_type" in options:
+			if not _entities[uuid].is_basetype(options[&"primary_type"]): continue
+		elif &"sub_type" in options:
+			if not _entities[uuid].is_subtype(options[&"sub_type"]): continue
 		earr.append(_entities[uuid])
 	return earr
 
