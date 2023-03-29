@@ -72,7 +72,11 @@ const LOOKUP : Dictionary = {
 		&"Door:Basic_Interactable":{
 			&"src":"res://objects/entity_objects/door_basic_interactable/DoorBasicInteractable.tscn",
 			&"description":"Basic Interactable Door"
-		}
+		},
+		&"Trigger:Gate_AND":{
+			&"src":"res://objects/entity_objects/crawl_AND_gate_3d/CrawlANDGate3D.tscn",
+			&"description":"AND Gate"
+		},
 	}
 }
 

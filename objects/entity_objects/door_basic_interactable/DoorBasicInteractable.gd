@@ -38,7 +38,7 @@ func _UpdateViz() -> void:
 
 func _UpdateIdleState() -> void:
 	if _anim == null or entity == null: return
-	var open : bool = entity.get_meta_value("active", false)
+	var open : bool = entity.get_meta_value(CrawlTriggerRelay.TRIGGER_ACTIVE_KEY, false)
 	if open:
 		_state_open = true
 		_anim.play("idle_open")
@@ -49,7 +49,7 @@ func _UpdateIdleState() -> void:
 func _ChangeBlocking() -> void:
 	# NOTE: Primarily called from the AnimationPlayer :)
 	if entity == null: return
-	var active = entity.get_meta_value("active", false)
+	var active = entity.get_meta_value(CrawlTriggerRelay.TRIGGER_ACTIVE_KEY, false)
 	entity.set_block_all(false)
 	if not active:
 		entity.set_blocking(entity.facing, true)
@@ -57,8 +57,8 @@ func _ChangeBlocking() -> void:
 func _CheckAnimationToActiveState() -> void:
 	if _transitioning: return # Don't do anything is already transitioning between states
 	if entity == null: return
-	if entity.has_meta_key("active") == false : return
-	var active : bool = entity.get_meta_value("active")
+	if entity.has_meta_key(CrawlTriggerRelay.TRIGGER_ACTIVE_KEY) == false : return
+	var active : bool = entity.get_meta_value(CrawlTriggerRelay.TRIGGER_ACTIVE_KEY)
 	if active:
 		if not _state_open:
 			_transitioning = true
@@ -84,12 +84,12 @@ func _on_animation_finished(anim_name : StringName) -> void:
 			_CheckAnimationToActiveState()
 
 func _on_door_meta_value_changed(key : String) -> void:
-	if key != "active": return
+	if key != CrawlTriggerRelay.TRIGGER_ACTIVE_KEY: return
 	_CheckAnimationToActiveState()
 
 func _on_door_interaction(interacting_entity : CrawlEntity) -> void:
-	var active : bool = entity.get_meta_value("active")
-	entity.set_meta_value("active", not active)
+	var active : bool = entity.get_meta_value(CrawlTriggerRelay.TRIGGER_ACTIVE_KEY)
+	entity.set_meta_value(CrawlTriggerRelay.TRIGGER_ACTIVE_KEY, not active)
 
 func _on_door_entity_changing() -> void:
 	if entity.interaction.is_connected(_on_door_interaction):

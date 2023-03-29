@@ -3,11 +3,6 @@ class_name CrawlTriggerNode3D
 
 
 # ------------------------------------------------------------------------------
-# Signals
-# ------------------------------------------------------------------------------
-signal trigger_state_changed(active)
-
-# ------------------------------------------------------------------------------
 # Constants
 # ------------------------------------------------------------------------------
 const TRIGGER_GROUP : StringName = &"Trigger"
@@ -16,7 +11,8 @@ const TRIGGER_GROUP : StringName = &"Trigger"
 # Variables
 # ------------------------------------------------------------------------------
 var _trigger_ready : bool = false
-var _calculated_this_cycle : bool = false
+
+var _connected_nodes : Dictionary = {}
 
 # ------------------------------------------------------------------------------
 # Override Methods
@@ -24,24 +20,9 @@ var _calculated_this_cycle : bool = false
 func _ready() -> void:
 	initialize_trigger()
 
-func _physics_process(_delta : float) -> void:
-	_calculated_this_cycle = false
-
 # ------------------------------------------------------------------------------
 # Private Methods
 # ------------------------------------------------------------------------------
-func _GetIncomingSignals() -> Array:
-	if entity == null: return []
-	var connections : Array = entity.get_meta_value("connections", [])
-	var results : Array = []
-	for uuid in connections:
-		var nlist = get_tree().get_nodes_in_group(uuid)
-		if nlist.size() > 0:
-			if is_instance_of(nlist[0], CrawlTriggerNode3D):
-				results.append(nlist[0].is_active())
-				continue
-		results.append(false) # The trigger node couldn't be found or recieved a non-trigger node.
-	return results
 
 # ------------------------------------------------------------------------------
 # Public Methods
@@ -58,15 +39,14 @@ func initialize_trigger() -> void:
 
 
 func is_active() -> bool:
-	_calculated_this_cycle = true
 	if entity == null: return false
-	return entity.get_meta_value("active", false)
+	return entity.get_meta_value(CrawlTriggerRelay.TRIGGER_ACTIVE_KEY, false)
 
 # ------------------------------------------------------------------------------
 # Handler Methods
 # ------------------------------------------------------------------------------
 func _on_editor_mode_changed(enabled : bool) -> void:
-	if entity != null:
+	if not _editor_mode and entity != null:
 		enabled = entity.get_meta_value("visible_in_play", false)
 	visible = enabled
 
@@ -79,4 +59,6 @@ func _on_entity_changed() -> void:
 	if entity != null:
 		add_to_group(entity.uuid)
 		add_to_group(TRIGGER_GROUP)
-		entity.set_meta_value("active", false)
+		if not entity.has_meta_key(CrawlTriggerRelay.TRIGGER_ACTIVE_KEY):
+			entity.set_meta_value(CrawlTriggerRelay.TRIGGER_ACTIVE_KEY, false)
+		CrawlTriggerRelay.register_trigger_entity(entity)

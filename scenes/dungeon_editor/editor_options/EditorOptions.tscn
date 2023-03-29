@@ -6,6 +6,7 @@
 [node name="EditorOptions" type="PopupPanel"]
 initial_position = 1
 size = Vector2i(405, 100)
+visible = true
 script = ExtResource("1_b6alx")
 
 [node name="Layout" type="VBoxContainer" parent="."]

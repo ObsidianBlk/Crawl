@@ -15,7 +15,10 @@ const ENTITIES : Dictionary = {
 	},
 	&"Door":{
 		&"Basic":{&"entity_type":&"Basic_Interactable"}
-	}
+	},
+	&"Trigger":{
+		&"AND Gate":{&"entity_type":&"Gate_AND"}
+	},
 }
 
 # ------------------------------------------------------------------------------

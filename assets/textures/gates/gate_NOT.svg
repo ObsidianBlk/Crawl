@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="1024"
+   height="1024"
+   viewBox="0 0 270.93333 270.93333"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.1 (9c6d41e410, 2022-07-14, custom)"
+   sodipodi:docname="gate_NOT.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#505050"
+     bordercolor="#eeeeee"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#505050"
+     inkscape:document-units="px"
+     showgrid="false"
+     inkscape:zoom="0.19977378"
+     inkscape:cx="-610.69075"
+     inkscape:cy="20.022648"
+     inkscape:window-width="1916"
+     inkscape:window-height="1033"
+     inkscape:window-x="0"
+     inkscape:window-y="18"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <path
+       id="path7673"
+       style="fill:#ffffff;stroke:#000000;stroke-width:5.38899;stroke-linecap:round;stroke-linejoin:bevel;stroke-dasharray:none;stroke-opacity:1;paint-order:normal;fill-opacity:1"
+       d="M 135.46666 5.3402424 A 130.12633 130.12634 0 0 0 5.3402424 135.46666 A 130.12633 130.12634 0 0 0 135.46666 265.59309 A 130.12633 130.12634 0 0 0 265.59309 135.46666 A 130.12633 130.12634 0 0 0 135.46666 5.3402424 z M 133.92774 18.613334 C 141.95395 18.537857 150.01598 19.259379 157.88287 20.775476 C 173.03529 23.721759 187.60426 29.752203 200.41309 38.31549 C 216.12986 48.764576 229.15341 63.157828 238.16375 79.728466 C 246.86632 95.612266 251.66747 113.61825 252.23215 131.69635 C 252.92791 151.49649 248.40459 171.38459 239.32389 188.97813 C 231.07568 205.09272 218.8886 219.224 204.27332 229.88829 C 185.18368 243.89999 161.70237 251.77707 138.1063 252.26625 C 122.2027 252.62257 106.30101 249.70661 91.548933 243.74016 C 71.084895 235.47384 53.057703 221.18735 40.252323 203.18966 C 31.131436 190.44465 24.704084 175.75782 21.353218 160.47289 C 18.821464 149.01199 18.050868 137.21151 19.055167 125.54014 C 20.399151 109.7628 25.022833 94.229518 32.460034 80.321194 C 41.740346 62.977984 55.492177 48.089089 71.998188 37.372912 C 90.360496 25.433009 112.12334 18.990096 133.92774 18.613334 z " />
+    <g
+       aria-label="NOT"
+       id="text7704"
+       style="font-size:88.9788px;line-height:1.25;font-family:'OpenDyslexicAlta Nerd Font';-inkscape-font-specification:'OpenDyslexicAlta Nerd Font';letter-spacing:0px;word-spacing:0px;stroke-width:0.46343">
+      <path
+         d="m 71.581367,160.38322 v -55.70073 h 5.605665 v 12.81295 l 22.244699,21.71083 v -34.52378 h 5.605669 v 55.70073 H 99.431731 V 147.57027 L 77.187032,125.85945 v 34.52377 z"
+         style="font-family:'TerminessTTF Nerd Font';-inkscape-font-specification:'TerminessTTF Nerd Font'"
+         id="path10666" />
+      <path
+         d="m 116.07077,111.44488 6.76239,-6.76239 h 19.93125 l 6.76238,6.76239 v 42.17595 l -6.76238,6.76239 h -19.93125 l -6.76239,-6.76239 z m 26.4267,41.90902 v -41.64208 l -18.0627,-1.6906 -3.02528,7.74116 1.6906,35.59152 z"
+         style="font-family:'TerminessTTF Nerd Font';-inkscape-font-specification:'TerminessTTF Nerd Font'"
+         id="path10668" />
+      <path
+         d="m 160.56017,110.28816 v -5.60567 h 33.45602 v 5.60567 h -13.96967 v 50.09506 h -5.51668 v -50.09506 z"
+         style="font-family:'TerminessTTF Nerd Font';-inkscape-font-specification:'TerminessTTF Nerd Font'"
+         id="path10670" />
+    </g>
+  </g>
+</svg>

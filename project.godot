@@ -21,6 +21,7 @@ UUID="*res://scripts/autos/UUID.gd"
 DSV="*res://scripts/autos/DSV.gd"
 RLT="*res://scripts/autos/RLT.gd"
 CrawlGlobals="*res://scripts/autos/CrawlGlobals.gd"
+CrawlTriggerRelay="*res://scripts/autos/CrawlTriggerRelay.gd"
 
 [input]
 
