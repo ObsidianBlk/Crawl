@@ -32,6 +32,14 @@ var _section_handlers : Dictionary = {
 				config.set_value(section, "VFog", true))
 	],
 	
+	"Gameplay":[
+		(func(config : ConfigFile, section : String, only_if_missing : bool = false):
+			if config == null: return
+			if section.is_empty(): return
+			if not config.has_section_key(section, "look_toward_stairs") or not only_if_missing:
+				config.set_value(section, "look_toward_stairs", true))	
+	],
+	
 	"Dungeon_Editor":[
 		(func(config : ConfigFile, section : String, only_if_missing : bool = false):
 			if config == null: return

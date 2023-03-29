@@ -12,6 +12,9 @@ extends CrawlEntityNode3D
 const VIEW_LERP_RATE_DEFAULT : float = 0.25
 const VIEW_LERP_RATE_STAIRS : float = 0.75
 
+const CONFIG_SECTION_GAMEPLAY : String = "Gameplay"
+const CONFIG_KEY_LOOK_TOWARDS_STAIRS : String = "look_toward_stairs"
+
 # ------------------------------------------------------------------------------
 # Export Variables
 # ------------------------------------------------------------------------------
@@ -149,11 +152,11 @@ func _on_editor_mode_changed(enabled : bool) -> void:
 func _on_transition_started(direction : StringName) -> void:
 	match direction:
 		&"up":
-			#_force_pitch = true
+			_force_pitch = CrawlGlobals.Get_Config_Value(CONFIG_SECTION_GAMEPLAY, CONFIG_KEY_LOOK_TOWARDS_STAIRS)
 			_view_lerp_rate = VIEW_LERP_RATE_STAIRS
 			_forced_pitch_angle = -max_pitch
 		&"down":
-			#_force_pitch = true
+			_force_pitch = CrawlGlobals.Get_Config_Value(CONFIG_SECTION_GAMEPLAY, CONFIG_KEY_LOOK_TOWARDS_STAIRS)
 			_view_lerp_rate = VIEW_LERP_RATE_STAIRS
 			_forced_pitch_angle = max_pitch
 
