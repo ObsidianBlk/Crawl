@@ -1,0 +1,36 @@
+[gd_scene load_steps=3 format=3 uid="uid://bpdj3ih3bxf7s"]
+
+[ext_resource type="PackedScene" uid="uid://bcspf72jwrp7" path="res://objects/entity_objects/DE_UI_Elements/entity_name_control/EntityNameControl.tscn" id="1_80omf"]
+[ext_resource type="PackedScene" path="res://objects/entity_objects/DE_UI_Elements/available_trigger_connections/AvailableTriggerConnections.tscn" id="2_y2hh3"]
+
+[node name="DE_ANDGateEditor" type="Window"]
+initial_position = 1
+title = "AND Gate Entity"
+size = Vector2i(384, 540)
+wrap_controls = true
+exclusive = true
+popup_window = true
+
+[node name="Body" type="PanelContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Layout" type="VBoxContainer" parent="Body"]
+layout_mode = 2
+
+[node name="EntityNameControl" parent="Body/Layout" instance=ExtResource("1_80omf")]
+layout_mode = 2
+
+[node name="HSeparator" type="HSeparator" parent="Body/Layout"]
+layout_mode = 2
+
+[node name="Label_Connections" type="Label" parent="Body/Layout"]
+layout_mode = 2
+text = "Input Connections:"
+
+[node name="AvailableTriggerConnections" parent="Body/Layout" instance=ExtResource("2_y2hh3")]
+layout_mode = 2
+size_flags_vertical = 3

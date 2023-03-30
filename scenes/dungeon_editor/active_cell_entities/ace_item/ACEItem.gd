@@ -19,6 +19,7 @@ const ARROW_WEST : Texture = preload("res://assets/icons/arrow_left.svg")
 # ------------------------------------------------------------------------------
 @export var uuid : StringName = &""
 @export var type : StringName = &"":										set = set_type
+@export var entity_name : String = "":										set = set_entity_name
 @export var facing : CrawlGlobals.SURFACE = CrawlGlobals.SURFACE.North:		set = set_facing
 
 # ------------------------------------------------------------------------------
@@ -33,6 +34,11 @@ const ARROW_WEST : Texture = preload("res://assets/icons/arrow_left.svg")
 func set_type(t : StringName) -> void:
 	if t != type:
 		type = t
+		_UpdateValues()
+
+func set_entity_name(en : String) -> void:
+	if en != entity_name:
+		entity_name = en
 		_UpdateValues()
 
 func set_facing(f : CrawlGlobals.SURFACE) -> void:
@@ -52,7 +58,10 @@ func _ready() -> void:
 # ------------------------------------------------------------------------------
 func _UpdateValues() -> void:
 	if _facing_indicator == null or _label_type == null: return
-	_label_type.text = type
+	if entity_name.is_empty():
+		_label_type.text = type
+	else:
+		_label_type.text = "%s [ %s ]"%[entity_name, type]
 	match facing:
 		CrawlGlobals.SURFACE.North:
 			_facing_indicator.texture = ARROW_NORTH

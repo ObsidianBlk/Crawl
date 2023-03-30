@@ -45,5 +45,7 @@ layout_mode = 2
 [node name="LabelType" type="Label" parent="Layout"]
 layout_mode = 2
 text = "Entity Type"
+vertical_alignment = 1
+text_overrun_behavior = 4
 
 [connection signal="toggled" from="Layout/SelectCheckBox" to="." method="_on_select_check_box_toggled"]

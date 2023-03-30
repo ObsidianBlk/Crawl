@@ -196,4 +196,10 @@ func _on_remove_entities_pressed() -> void:
 	for uuid in _selected:
 		map.remove_entity_by_uuid(uuid)
 
-
+func _on_settings_pressed():
+	if map == null: return
+	if _selected.size() != 1:
+		return # TODO: Popup a dialog stating only a single entity can be selected.
+	var entity : CrawlEntity = map.get_entity(_selected[0])
+	# TODO: Finish this!!
+	#var ctrl : Control = RLT.instantiate_entity_ui(entity.type)

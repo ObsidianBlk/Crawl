@@ -7,21 +7,6 @@ extends Window
 signal entity_created(entity)
 
 # ------------------------------------------------------------------------------
-# Constants
-# ------------------------------------------------------------------------------
-const ENTITIES : Dictionary = {
-	&"Unique":{
-		&"Player Start":{&"entity_type":&"Player"}
-	},
-	&"Door":{
-		&"Basic":{&"entity_type":&"Basic_Interactable"}
-	},
-	&"Trigger":{
-		&"AND Gate":{&"entity_type":&"Gate_AND"}
-	},
-}
-
-# ------------------------------------------------------------------------------
 # Onready Variables
 # ------------------------------------------------------------------------------
 @onready var entity_type_options : OptionButton = %EntityTypeOptions
@@ -33,7 +18,7 @@ const ENTITIES : Dictionary = {
 func _ready() -> void:
 	close_requested.connect(_on_close_requested)
 	entity_type_options.clear()
-	for key in ENTITIES.keys():
+	for key in RLT.get_entity_groups():
 		var idx : int = entity_type_options.item_count
 		entity_type_options.add_item(key)
 		entity_type_options.set_item_metadata(idx, StringName(key))
@@ -54,28 +39,21 @@ func _on_entity_type_selected(idx : int) -> void:
 	if typeof(key) != TYPE_STRING_NAME: return
 	
 	entity_list.clear()
-	for entity_name in ENTITIES[key].keys():
+	for entity_info in RLT.get_entity_info_in_group(key):
 		var eidx : int = entity_list.item_count
-		entity_list.add_item(entity_name)
-		entity_list.set_item_metadata(eidx, {&"type":key, &"entity_name":StringName(entity_name)})
+		entity_list.add_item(entity_info["name"])
+		entity_list.set_item_metadata(eidx, entity_info)
 
 func _on_entity_item_selected(idx : int) -> void:
 	if not (idx >= 0 and idx < entity_list.item_count): return
 	var meta = entity_list.get_item_metadata(idx)
 	if typeof(meta) != TYPE_DICTIONARY: return
 	
-	print("Selected ", meta[&"entity_name"], " (", meta[&"type"], ")")
-	if not meta[&"type"] in ENTITIES: return
-	if not meta[&"entity_name"] in ENTITIES[meta[&"type"]]: return
-	
 	# TODO: REALLY Fix up this bullshit!
 	var entity : CrawlEntity = CrawlEntity.new()
 	entity.uuid = UUID.v7()
-	if meta[&"type"] == &"Unique":
-		entity.type = ENTITIES[meta[&"type"]][meta[&"entity_name"]][&"entity_type"]
-	else:
-		entity.type = StringName("%s:%s"%[meta[&"type"], ENTITIES[meta[&"type"]][meta[&"entity_name"]][&"entity_type"]]) 
-
+	entity.type = meta[&"type"]
+	
 	entity_created.emit(entity)
 	
 	visible = false

@@ -4,6 +4,7 @@ class_name CrawlEntity
 # ------------------------------------------------------------------------------
 # Signals
 # ------------------------------------------------------------------------------
+signal name_changed(new_name)
 signal position_changed(from, to)
 signal facing_changed(from, to)
 
@@ -18,6 +19,7 @@ signal attacked(dmg, type)
 # Export Variables
 # ------------------------------------------------------------------------------
 @export var uuid : StringName = &"":									set = set_uuid
+@export var entity_name : String = ""
 @export var type : StringName = &"":									set = set_type
 @export var position : Vector3i = Vector3i.ZERO:						set = set_position
 @export var facing : CrawlGlobals.SURFACE = CrawlGlobals.SURFACE.North:	set = set_facing
@@ -44,6 +46,11 @@ func set_type(t : StringName) -> void:
 		if not (count >= 1 and count <= 2): return
 		if count == 2 and parts[1].is_empty(): return
 		type = t
+
+func set_entity_name(n : String) -> void:
+	if n != entity_name:
+		entity_name = n
+		name_changed.emit(entity_name)
 
 func set_position(pos : Vector3i) -> void:
 	if pos != position:

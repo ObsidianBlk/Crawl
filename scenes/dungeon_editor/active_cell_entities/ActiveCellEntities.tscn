@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://b0o3365842jt1"]
+[gd_scene load_steps=9 format=3 uid="uid://b0o3365842jt1"]
 
 [ext_resource type="Script" path="res://scenes/dungeon_editor/active_cell_entities/ActiveCellEntities.gd" id="1_86teg"]
 [ext_resource type="Texture2D" uid="uid://4wtfndv832mw" path="res://assets/icons/entity.svg" id="1_pj7vc"]
@@ -7,6 +7,7 @@
 [ext_resource type="Texture2D" uid="uid://vlgn82ydgkei" path="res://assets/icons/arrow_right.svg" id="5_o7sqw"]
 [ext_resource type="Texture2D" uid="uid://ccrsme6ixxdg8" path="res://assets/icons/arrow_down.svg" id="6_g16fk"]
 [ext_resource type="Texture2D" uid="uid://ddv2dxg8p6ppu" path="res://assets/icons/arrow_left.svg" id="7_gbmq7"]
+[ext_resource type="Texture2D" uid="uid://bblk5nu85ubp4" path="res://assets/icons/settings.svg" id="8_pa42k"]
 
 [node name="ActiveCellEntities" type="VBoxContainer"]
 offset_right = 187.0
@@ -25,10 +26,12 @@ layout_mode = 2
 
 [node name="RemoveEntities" type="Button" parent="Options"]
 layout_mode = 2
+tooltip_text = "Remove selected entities"
 icon = ExtResource("2_jn0by")
 
 [node name="EntityFacings" type="OptionButton" parent="Options"]
 layout_mode = 2
+tooltip_text = "Select the facing for the selected entities"
 item_count = 4
 popup/item_0/text = ""
 popup/item_0/icon = ExtResource("4_2hc3o")
@@ -42,6 +45,12 @@ popup/item_2/id = 2
 popup/item_3/text = ""
 popup/item_3/icon = ExtResource("7_gbmq7")
 popup/item_3/id = 3
+
+[node name="Settings" type="Button" parent="Options"]
+layout_mode = 2
+tooltip_text = "Open settings for selected entity (only one entity can be edited at a time)"
+icon = ExtResource("8_pa42k")
+icon_alignment = 1
 
 [node name="HSeparator" type="HSeparator" parent="."]
 layout_mode = 2
@@ -62,3 +71,4 @@ layout_mode = 2
 [connection signal="pressed" from="Options/AddEntity" to="." method="_on_add_entity_pressed"]
 [connection signal="pressed" from="Options/RemoveEntities" to="." method="_on_remove_entities_pressed"]
 [connection signal="item_selected" from="Options/EntityFacings" to="." method="_on_entity_facings_item_selected"]
+[connection signal="pressed" from="Options/Settings" to="." method="_on_settings_pressed"]

@@ -12,6 +12,21 @@ const ENV_LOOKUP : Dictionary = {
 	},
 }
 
+const ENTITIES_LOOKUP : Dictionary = {
+	&"Unique":{
+		&"Player":{&"name":&"Player Start"}
+	},
+	&"Door":{
+		&"Basic_Interactable":{&"name":&"Basic Door"}
+	},
+	&"Trigger":{
+		&"Gate_AND":{
+			&"name":&"AND Gate",
+			&"ui":"res://objects/entity_objects/crawl_AND_gate_3d/DE_AND_gate_editor/DE_ANDGateEditor.tscn"
+		}
+	},
+}
+
 const LOOKUP : Dictionary = {
 	&"ground":{
 		&"tileA":{
@@ -116,6 +131,41 @@ func get_environment_list() -> Array:
 		list.append(item)
 	return list
 
+func get_entity_groups() -> Array:
+	return ENTITIES_LOOKUP.keys()
+
+func get_entity_info_in_group(group : StringName) -> Array:
+	if not group in ENTITIES_LOOKUP: return []
+	var tlist : Array = []
+	for key in ENTITIES_LOOKUP[group].keys():
+		var type : StringName = &""
+		type = key if group == &"Unique" else StringName("%s:%s"%[group, key])
+		tlist.append({
+			&"type": type,
+			&"name": ENTITIES_LOOKUP[group][key]["name"],
+			&"ui": &"" if not "ui" in ENTITIES_LOOKUP[group] else ENTITIES_LOOKUP[group]["ui"]
+		})
+	return tlist
+
+func get_entity_ui_from_type(entity_type : StringName) -> String:
+	if entity_type == &"": return &""
+	var parts : PackedStringArray = entity_type.split(":")
+	var psize : int = parts.size()
+	if not (psize >= 1 and psize <= 2): return &""
+	var base : StringName = parts[0]
+	var sub : StringName = &""
+	if parts.size() == 1:
+		base = &"Unique"
+		sub = parts[0]
+	else:
+		sub = parts[1]
+	
+	if not base in ENTITIES_LOOKUP: return &""
+	if not sub in ENTITIES_LOOKUP[base]: return &""
+	
+	return &"" if not "ui" in ENTITIES_LOOKUP[base][sub] else ENTITIES_LOOKUP[base][sub]["ui"]
+
+
 func instantiate_resource(section : StringName, resource_name : StringName) -> Node3D:
 	if not section in LOOKUP: return null
 	if not resource_name in LOOKUP[section]: return null
@@ -128,3 +178,12 @@ func instantiate_environment(environment_name : StringName) -> Environment:
 	var env = ResourceLoader.load(ENV_LOOKUP[environment_name][&"src"])
 	if not is_instance_of(env, Environment): return null
 	return env
+
+func instantiate_entity_ui(entity_type : StringName) -> Control:
+	var ui_src : String = get_entity_ui_from_type(entity_type)
+	if ui_src.is_empty(): return null
+	var CTRL : PackedScene = load(ui_src)
+	if CTRL == null: return null
+	return CTRL.instantiate()
+
+
