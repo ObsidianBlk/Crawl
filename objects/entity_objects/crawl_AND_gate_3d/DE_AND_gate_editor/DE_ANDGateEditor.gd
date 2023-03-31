@@ -11,7 +11,6 @@ extends Control
 # ------------------------------------------------------------------------------
 # Onready Variables
 # ------------------------------------------------------------------------------
-@onready var _entity_name_control : Control = $EntityNameControl
 @onready var _available_trigger_connections : Control = $AvailableTriggerConnections
 
 
@@ -34,6 +33,5 @@ func _ready() -> void:
 # Private Methods
 # ------------------------------------------------------------------------------
 func _UpdateControls() -> void:
-	if _entity_name_control == null or _available_trigger_connections == null: return
-	_entity_name_control.entity = entity
+	if _available_trigger_connections == null: return
 	_available_trigger_connections.entity = entity

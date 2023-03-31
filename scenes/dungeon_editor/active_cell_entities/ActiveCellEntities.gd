@@ -33,9 +33,7 @@ var _selected : Array = []
 # Onready Variables
 # ------------------------------------------------------------------------------
 @onready var _entity_list_container : VBoxContainer = %EntityListContainer
-
 @onready var _entity_settings : Window = $EntitySettings
-@onready var _entity_settings_panel : PanelContainer = $EntitySettings/ESPanel
 
 # ------------------------------------------------------------------------------
 # Setters
@@ -214,14 +212,14 @@ func _on_settings_pressed():
 	if _selected.size() != 1:
 		return # TODO: Popup a dialog stating only a single entity can be selected.
 	var entity : CrawlEntity = map.get_entity(_selected[0])
+	_entity_settings.entity = entity
+	
 	var ctrl : Control = RLT.instantiate_entity_ui(entity.type)
-	if ctrl == null: return
-	ctrl.entity = entity
-	_entity_settings_panel.add_child(ctrl)
+	if ctrl != null:
+		_entity_settings.attach_control(ctrl)
+	
 	_entity_settings.popup_centered()
 
 func _on_entity_settings_close_requested() -> void:
 	if not _entity_settings.visible: return
 	_entity_settings.visible = false
-	for child in _entity_settings_panel.get_children():
-		_entity_settings_panel.remove_child(child)

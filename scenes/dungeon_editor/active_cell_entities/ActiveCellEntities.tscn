@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://b0o3365842jt1"]
+[gd_scene load_steps=10 format=3 uid="uid://b0o3365842jt1"]
 
 [ext_resource type="Script" path="res://scenes/dungeon_editor/active_cell_entities/ActiveCellEntities.gd" id="1_86teg"]
 [ext_resource type="Texture2D" uid="uid://4wtfndv832mw" path="res://assets/icons/entity.svg" id="1_pj7vc"]
@@ -8,6 +8,7 @@
 [ext_resource type="Texture2D" uid="uid://ccrsme6ixxdg8" path="res://assets/icons/arrow_down.svg" id="6_g16fk"]
 [ext_resource type="Texture2D" uid="uid://ddv2dxg8p6ppu" path="res://assets/icons/arrow_left.svg" id="7_gbmq7"]
 [ext_resource type="Texture2D" uid="uid://bblk5nu85ubp4" path="res://assets/icons/settings.svg" id="8_pa42k"]
+[ext_resource type="PackedScene" uid="uid://dh6p21m1sb8xk" path="res://scenes/dungeon_editor/active_cell_entities/entity_settings/EntitySettings.tscn" id="9_sxur2"]
 
 [node name="ActiveCellEntities" type="VBoxContainer"]
 offset_right = 187.0
@@ -68,21 +69,8 @@ size_flags_horizontal = 3
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="EntitySettings" type="Window" parent="."]
-initial_position = 1
-title = "Entity Settings"
-size = Vector2i(384, 540)
+[node name="EntitySettings" parent="." instance=ExtResource("9_sxur2")]
 visible = false
-wrap_controls = true
-exclusive = true
-popup_window = true
-
-[node name="ESPanel" type="PanelContainer" parent="EntitySettings"]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
 
 [connection signal="pressed" from="Options/AddEntity" to="." method="_on_add_entity_pressed"]
 [connection signal="pressed" from="Options/RemoveEntities" to="." method="_on_remove_entities_pressed"]

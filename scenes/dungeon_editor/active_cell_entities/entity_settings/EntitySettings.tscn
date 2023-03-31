@@ -1,0 +1,53 @@
+[gd_scene load_steps=2 format=3 uid="uid://dh6p21m1sb8xk"]
+
+[ext_resource type="Script" path="res://scenes/dungeon_editor/active_cell_entities/entity_settings/EntitySettings.gd" id="1_6omru"]
+
+[node name="EntitySettings" type="Window"]
+initial_position = 1
+title = "Entity Settings"
+size = Vector2i(384, 540)
+wrap_controls = true
+exclusive = true
+popup_window = true
+script = ExtResource("1_6omru")
+
+[node name="Body" type="PanelContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Layout" type="VBoxContainer" parent="Body"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="NameFields" type="GridContainer" parent="Body/Layout"]
+layout_mode = 2
+columns = 2
+
+[node name="Label_Type" type="Label" parent="Body/Layout/NameFields"]
+layout_mode = 2
+text = "Type:"
+
+[node name="LineEdit_Type" type="LineEdit" parent="Body/Layout/NameFields"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Entity Type"
+editable = false
+
+[node name="Label_Name" type="Label" parent="Body/Layout/NameFields"]
+layout_mode = 2
+text = "Name: "
+
+[node name="LineEdit_Name" type="LineEdit" parent="Body/Layout/NameFields"]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "Entity Name"
+
+[node name="Seperator" type="HSeparator" parent="Body/Layout"]
+visible = false
+layout_mode = 2
+
+[connection signal="text_submitted" from="Body/Layout/NameFields/LineEdit_Name" to="." method="_on_line_edit_name_text_submitted"]
