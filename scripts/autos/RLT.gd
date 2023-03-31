@@ -20,6 +20,10 @@ const ENTITIES_LOOKUP : Dictionary = {
 		&"Basic_Interactable":{&"name":&"Basic Door"}
 	},
 	&"Trigger":{
+		&"Light":{
+			&"name":&"Triggerable Light",
+			&"ui":"res://objects/entity_objects/trigger_light/DE_trigger_light_editor/DE_TriggerLightEditor.tscn"
+		},
 		&"Gate_AND":{
 			&"name":&"AND Gate",
 			&"ui":"res://objects/entity_objects/crawl_AND_gate_3d/DE_AND_gate_editor/DE_ANDGateEditor.tscn"
@@ -91,6 +95,10 @@ const LOOKUP : Dictionary = {
 		&"Trigger:Gate_AND":{
 			&"src":"res://objects/entity_objects/crawl_AND_gate_3d/CrawlANDGate3D.tscn",
 			&"description":"AND Gate"
+		},
+		&"Trigger:Light":{
+			&"src":"res://objects/entity_objects/trigger_light/TriggerLight.tscn",
+			&"description":"Triggerable Light"
 		},
 	}
 }

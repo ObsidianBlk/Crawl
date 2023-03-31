@@ -1,0 +1,23 @@
+[gd_scene load_steps=4 format=3 uid="uid://dwyarmk6gicnn"]
+
+[ext_resource type="Script" path="res://objects/entity_objects/trigger_light/DE_trigger_light_editor/DE_TriggerLightEditor.gd" id="1_j1ll5"]
+[ext_resource type="PackedScene" uid="uid://bcspf72jwrp7" path="res://objects/entity_objects/DE_UI_Elements/entity_name_control/EntityNameControl.tscn" id="1_oxd0e"]
+[ext_resource type="PackedScene" uid="uid://cq87lj6f3n5mh" path="res://objects/entity_objects/DE_UI_Elements/available_trigger_connections/AvailableTriggerConnections.tscn" id="2_662ds"]
+
+[node name="DE_TriggerLightEditor" type="VBoxContainer"]
+offset_right = 40.0
+offset_bottom = 40.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("1_j1ll5")
+
+[node name="EntityNameControl" parent="." instance=ExtResource("1_oxd0e")]
+layout_mode = 2
+
+[node name="HSeparator" type="HSeparator" parent="."]
+layout_mode = 2
+
+[node name="AvailableTriggerConnections" parent="." instance=ExtResource("2_662ds")]
+layout_mode = 2
+size_flags_vertical = 3
+max_connections = 1

@@ -21,6 +21,7 @@ corner_radius_bottom_left = 4
 offset_left = 118.0
 offset_right = 118.0
 offset_bottom = 40.0
+size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_84enc")
 script = ExtResource("1_1p8r7")
 
@@ -44,6 +45,7 @@ layout_mode = 2
 
 [node name="LabelType" type="Label" parent="Layout"]
 layout_mode = 2
+size_flags_horizontal = 3
 text = "Entity Type"
 vertical_alignment = 1
 text_overrun_behavior = 4

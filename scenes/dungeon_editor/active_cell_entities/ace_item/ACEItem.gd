@@ -59,7 +59,7 @@ func _ready() -> void:
 func _UpdateValues() -> void:
 	if _facing_indicator == null or _label_type == null: return
 	if entity_name.is_empty():
-		_label_type.text = type
+		_label_type.text = String(type)
 	else:
 		_label_type.text = "%s [ %s ]"%[entity_name, type]
 	match facing:

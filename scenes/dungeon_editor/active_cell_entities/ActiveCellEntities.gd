@@ -34,6 +34,8 @@ var _selected : Array = []
 # ------------------------------------------------------------------------------
 @onready var _entity_list_container : VBoxContainer = %EntityListContainer
 
+@onready var _entity_settings : Window = $EntitySettings
+@onready var _entity_settings_panel : PanelContainer = $EntitySettings/ESPanel
 
 # ------------------------------------------------------------------------------
 # Setters
@@ -80,6 +82,7 @@ func set_follow_map_focus(f : bool) -> void:
 # Override Methods
 # ------------------------------------------------------------------------------
 func _ready() -> void:
+	_entity_settings.close_requested.connect(_on_entity_settings_close_requested)
 	_AssignEntitiesAt(map_position)
 
 # ------------------------------------------------------------------------------
@@ -110,6 +113,7 @@ func _UpdateACEItem(entity : CrawlEntity) -> void:
 		item.selection_changed.connect(_on_item_selection_changed)
 		item.uuid = entity.uuid
 		item.type = entity.type
+	item.entity_name = entity.entity_name
 	item.facing = entity.facing
 
 func _AddSelected(uuid : StringName) -> void:
@@ -155,6 +159,8 @@ func _on_entity_added(entity : CrawlEntity) -> void:
 		entity.position_changed.connect(_on_entity_position_changed.bind(entity))
 	if not entity.facing_changed.is_connected(_on_entity_facing_changed.bind(entity)):
 		entity.facing_changed.connect(_on_entity_facing_changed.bind(entity))
+	if not entity.name_changed.is_connected(_on_entity_name_changed.bind(entity)):
+		entity.name_changed.connect(_on_entity_name_changed.bind(entity))
 	
 	_UpdateACEItem(entity)
 
@@ -163,6 +169,8 @@ func _on_entity_removed(entity : CrawlEntity) -> void:
 		entity.position_changed.disconnect(_on_entity_position_changed.bind(entity))
 	if entity.facing_changed.is_connected(_on_entity_facing_changed.bind(entity)):
 		entity.facing_changed.disconnect(_on_entity_facing_changed.bind(entity))
+	if entity.name_changed.is_connected(_on_entity_name_changed.bind(entity)):
+		entity.name_changed.disconnect(_on_entity_name_changed.bind(entity))
 	
 	_RemoveACEItem(entity.uuid)
 
@@ -171,6 +179,10 @@ func _on_entity_position_changed(from : Vector3i, to : Vector3i, entity : CrawlE
 	_on_entity_removed(entity)
 
 func _on_entity_facing_changed(from : CrawlGlobals.SURFACE, to : CrawlGlobals.SURFACE, entity : CrawlEntity) -> void:
+	_UpdateACEItem(entity)
+
+func _on_entity_name_changed(new_name : String, entity : CrawlEntity) -> void:
+	print("The Name was CHANGED!!")
 	_UpdateACEItem(entity)
 
 func _on_item_selection_changed(uuid : StringName, selected : bool) -> void:
@@ -198,8 +210,18 @@ func _on_remove_entities_pressed() -> void:
 
 func _on_settings_pressed():
 	if map == null: return
+	if _entity_settings.visible == true: return
 	if _selected.size() != 1:
 		return # TODO: Popup a dialog stating only a single entity can be selected.
 	var entity : CrawlEntity = map.get_entity(_selected[0])
-	# TODO: Finish this!!
-	#var ctrl : Control = RLT.instantiate_entity_ui(entity.type)
+	var ctrl : Control = RLT.instantiate_entity_ui(entity.type)
+	if ctrl == null: return
+	ctrl.entity = entity
+	_entity_settings_panel.add_child(ctrl)
+	_entity_settings.popup_centered()
+
+func _on_entity_settings_close_requested() -> void:
+	if not _entity_settings.visible: return
+	_entity_settings.visible = false
+	for child in _entity_settings_panel.get_children():
+		_entity_settings_panel.remove_child(child)

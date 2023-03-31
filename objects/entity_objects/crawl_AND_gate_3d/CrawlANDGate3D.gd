@@ -5,6 +5,7 @@ extends CrawlTriggerNode3D
 # Constants
 # ------------------------------------------------------------------------------
 const META_KEY_CONNECTIONS : String = "connections"
+const META_KEY_VIZ_IN_PLAY : String = ""
 
 # ------------------------------------------------------------------------------
 # Variables

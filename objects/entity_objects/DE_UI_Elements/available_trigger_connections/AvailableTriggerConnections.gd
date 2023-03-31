@@ -12,8 +12,9 @@ const TRIGGER_TYPES : Array = [
 # ------------------------------------------------------------------------------
 # Export Variables
 # ------------------------------------------------------------------------------
-@export var entity : CrawlEntity = null:			set = set_entity
-@export var max_connections : int = 0:				set = set_max_connections
+@export var entity : CrawlEntity = null:				set = set_entity
+@export var max_connections : int = 0:					set = set_max_connections
+@export var selected_color : Color = Color.CADET_BLUE:	set = set_selected_color
 
 # ------------------------------------------------------------------------------
 # Variables
@@ -41,11 +42,16 @@ func set_max_connections(mc : int) -> void:
 		max_connections = mc
 		_UpdateSelectedItems()
 
+func set_selected_color(c : Color) -> void:
+	if c != selected_color:
+		selected_color = c
+		_UpdateSelectedItems()
+
 # ------------------------------------------------------------------------------
 # Override Methods
 # ------------------------------------------------------------------------------
 func _ready() -> void:
-	_tree.multi_selected.connect(_on_tree_multi_selected)
+	_tree.item_selected.connect(_on_item_selected)
 	_BuildTree()
 
 # ------------------------------------------------------------------------------
@@ -71,7 +77,7 @@ func _UpdateSectionItems(section : TreeItem) -> void:
 		var uuid = child.get_metadata(0)
 		if tlist.any(func(ent): ent.uuid == uuid):
 			if connections.find(uuid) >= 0:
-				child.select(0)
+				child.set_custom_bg_color(0, selected_color)
 		else:
 			section.remove_child(child)
 	
@@ -94,7 +100,7 @@ func _UpdateSectionItems(section : TreeItem) -> void:
 		item.set_metadata(0, tentity.uuid)
 		item.set_selectable(0, true)
 		if connections.find(tentity.uuid) >= 0:
-			item.select(0)
+			item.set_custom_bg_color(0, selected_color)
 
 func _UpdateSelectedItems() -> void:
 	if entity == null: return
@@ -110,9 +116,9 @@ func _UpdateSelectedItems() -> void:
 		for child in section.get_children():
 			var uuid : StringName = child.get_metadata(0)
 			if connections.find(uuid) >= 0:
-				child.select(0)
+				child.set_custom_bg_color(0, selected_color)
 			else:
-				child.deselect(0)
+				child.clear_custom_bg_color(0)
 
 
 func _BuildTree() -> void:
@@ -139,18 +145,21 @@ func clear() -> void:
 # ------------------------------------------------------------------------------
 # Handler Methods
 # ------------------------------------------------------------------------------
-func _on_tree_multi_selected(item : TreeItem, column : int, selected : bool) -> void:
+func _on_item_selected() -> void:
 	if entity == null:
-		item.deselect(column)
+		_tree.deselect_all()
 		return
 	
-	var connections : Array = entity.get_meta_value(META_KEY_CONNECTIONS, [])
-	if max_connections != 0 and connections.size() >= max_connections:
-		item.deselect(column)
-		return
-	
+	var item : TreeItem = _tree.get_selected()
 	var uuid = item.get_metadata(0)
-	if connections.find(uuid) < 0:
-		connections.append(uuid)
-		entity.set_meta_value(META_KEY_CONNECTIONS, connections)
+	var clist : Array = entity.get_meta_value(META_KEY_CONNECTIONS, [])
+	
+	var idx : int = clist.find(uuid)
+	if idx >= 0:
+		clist.remove_at(idx)
+	elif max_connections == 0 or clist.size() < max_connections:
+		clist.append(uuid)
+	
+	entity.set_meta_value(META_KEY_CONNECTIONS, clist)
+	_UpdateSelectedItems()
 

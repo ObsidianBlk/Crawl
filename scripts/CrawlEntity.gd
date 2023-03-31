@@ -19,7 +19,7 @@ signal attacked(dmg, type)
 # Export Variables
 # ------------------------------------------------------------------------------
 @export var uuid : StringName = &"":									set = set_uuid
-@export var entity_name : String = ""
+@export var entity_name : String = "":									set = set_entity_name
 @export var type : StringName = &"":									set = set_type
 @export var position : Vector3i = Vector3i.ZERO:						set = set_position
 @export var facing : CrawlGlobals.SURFACE = CrawlGlobals.SURFACE.North:	set = set_facing
