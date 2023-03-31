@@ -144,9 +144,27 @@ size_flags_vertical = 3
 [node name="Layout" type="VBoxContainer" parent="UI/Editor/Body/SideBar/CellConf/LocalConf"]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="UI/Editor/Body/SideBar/CellConf/LocalConf/Layout"]
+[node name="Heading" type="HBoxContainer" parent="UI/Editor/Body/SideBar/CellConf/LocalConf/Layout"]
 layout_mode = 2
-text = "Active Cell"
+
+[node name="Label" type="Label" parent="UI/Editor/Body/SideBar/CellConf/LocalConf/Layout/Heading"]
+layout_mode = 2
+text = "Active Cell - "
+
+[node name="Label_LocalCoord" type="Label" parent="UI/Editor/Body/SideBar/CellConf/LocalConf/Layout/Heading"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "0, 0, 0"
+
+[node name="Spacer" type="Control" parent="UI/Editor/Body/SideBar/CellConf/LocalConf/Layout/Heading"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Texture_Facing" type="TextureRect" parent="UI/Editor/Body/SideBar/CellConf/LocalConf/Layout/Heading"]
+unique_name_in_owner = true
+layout_mode = 2
+texture = ExtResource("5_curq0")
+stretch_mode = 3
 
 [node name="HSeparator" type="HSeparator" parent="UI/Editor/Body/SideBar/CellConf/LocalConf/Layout"]
 layout_mode = 2

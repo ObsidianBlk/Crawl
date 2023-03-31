@@ -1,5 +1,12 @@
 extends Node3D
 
+# ------------------------------------------------------------------------------
+# Constants
+# ------------------------------------------------------------------------------
+const ARROW_NORTH : Texture = preload("res://assets/icons/arrow_up.svg")
+const ARROW_EAST : Texture = preload("res://assets/icons/arrow_right.svg")
+const ARROW_SOUTH : Texture = preload("res://assets/icons/arrow_down.svg")
+const ARROW_WEST : Texture = preload("res://assets/icons/arrow_left.svg")
 
 # ------------------------------------------------------------------------------
 # Variables
@@ -26,6 +33,10 @@ var _entity_nodes : Dictionary = {}
 @onready var _active_cell_entities : Control = %Entities
 
 @onready var _label_mapname : Label = %MapName
+
+@onready var _label_localcoord : Label = %Label_LocalCoord
+@onready var _texture_facing : TextureRect = %Texture_Facing
+
 
 # ------------------------------------------------------------------------------
 # Override Methods
@@ -212,12 +223,28 @@ func _on_entity_removed(entity : CrawlEntity) -> void:
 	_entity_container.remove_child(node)
 	node.queue_free()
 
+func _on_focus_position_changed(focus_position : Vector3i) -> void:
+	_label_localcoord.text = "%d, %d, %d"%[focus_position.x, focus_position.y, focus_position.z]
+
+func _on_focus_facing_changed(surface : CrawlGlobals.SURFACE) -> void:
+	match surface:
+		CrawlGlobals.SURFACE.North:
+			_texture_facing.texture = ARROW_NORTH
+		CrawlGlobals.SURFACE.East:
+			_texture_facing.texture = ARROW_EAST
+		CrawlGlobals.SURFACE.South:
+			_texture_facing.texture = ARROW_SOUTH
+		CrawlGlobals.SURFACE.West:
+			_texture_facing.texture = ARROW_WEST
+
 func _on_new_map_pressed():
 	_RemoveMap()
 	
 	_active_map = CrawlMap.new()
 	_active_map.entity_added.connect(_on_entity_added)
 	_active_map.entity_removed.connect(_on_entity_removed)
+	_active_map.focus_position_changed.connect(_on_focus_position_changed)
+	_active_map.focus_facing_changed.connect(_on_focus_facing_changed)
 	_on_resource_changed()
 	_active_map.add_cell(Vector3.ZERO)
 	
@@ -266,6 +293,8 @@ func _on_load_pressed():
 	_active_map = map
 	_active_map.entity_added.connect(_on_entity_added)
 	_active_map.entity_removed.connect(_on_entity_removed)
+	_active_map.focus_position_changed.connect(_on_focus_position_changed)
+	_active_map.focus_facing_changed.connect(_on_focus_facing_changed)
 	
 	_SetWorldEnvironment()
 	_UpdateMapName()
