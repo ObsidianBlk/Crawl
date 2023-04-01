@@ -1,15 +1,15 @@
 extends CrawlTriggerNode3D
 
-
 # ------------------------------------------------------------------------------
 # Constants
 # ------------------------------------------------------------------------------
 const META_KEY_CONNECTIONS : String = "connections"
+const META_KEY_INIT_MEMORY : String = "initial_memory"
 
 # ------------------------------------------------------------------------------
 # Variables
 # ------------------------------------------------------------------------------
-var _cstates : Dictionary = {}
+var _connection_uuid : StringName = &""
 
 # ------------------------------------------------------------------------------
 # Override Methods
@@ -28,29 +28,23 @@ func _ready() -> void:
 func _UpdateActiveState() -> void:
 	if entity == null: return
 	var init_state = entity.get_meta_value(CrawlTriggerRelay.TRIGGER_ACTIVE_KEY)
-	var new_state : bool = true
-	for uuid in _cstates:
-		if _cstates[uuid] == false:
-			new_state = false
-	if init_state != new_state:
-		entity.set_meta_value(CrawlTriggerRelay.TRIGGER_ACTIVE_KEY, new_state)
+	var new_state : bool = false
+	if _connection_uuid != &"":
+		new_state = not CrawlTriggerRelay.is_trigger_active(_connection_uuid)
+	if new_state:
+		entity.set_meta_value(CrawlTriggerRelay.TRIGGER_ACTIVE_KEY, not init_state)
 
 func _UpdateConnections() -> void:
 	if entity == null: return
-	var changed : bool = false
+	var old_uuid : StringName = _connection_uuid
 	
 	var connections : Array = entity.get_meta_value(META_KEY_CONNECTIONS, [])
-	for uuid in _cstates:
-		if connections.find(uuid) >= 0: continue
-		_cstates.erase(uuid)
-		changed = true
+	if connections.size() <= 0:
+		_connection_uuid = &""
+	else:
+		_connection_uuid = connections[0]
 	
-	for uuid in connections:
-		if uuid in _cstates: continue
-		_cstates[uuid] = CrawlTriggerRelay.is_trigger_active(uuid)
-		changed = true
-	
-	if changed:
+	if old_uuid != _connection_uuid:
 		_UpdateActiveState()
 
 # ------------------------------------------------------------------------------
@@ -65,8 +59,7 @@ func is_active() -> bool:
 # Handler Methods
 # ------------------------------------------------------------------------------
 func _on_trigger_state_changed(uuid : StringName, active : bool) -> void:
-	if uuid in _cstates:
-		_cstates[uuid] = active
+	if uuid == _connection_uuid:
 		_UpdateActiveState()
 
 func _on_gate_entity_meta_value_changed(key : String) -> void:
@@ -83,6 +76,11 @@ func _on_gate_entity_changed() -> void:
 	entity.set_block_all(false)
 	if not entity.has_meta_key(META_KEY_CONNECTIONS):
 		entity.set_meta_value(META_KEY_CONNECTIONS, [])
+	if not entity.has_meta_key(META_KEY_INIT_MEMORY):
+		entity.set_meta_value(META_KEY_INIT_MEMORY, false)
+	else:
+		entity.get_meta_value(CrawlTriggerRelay.TRIGGER_ACTIVE_KEY, 
+		entity.get_meta_value(META_KEY_INIT_MEMORY))
 	if not entity.meta_value_changed.is_connected(_on_gate_entity_meta_value_changed):
 		entity.meta_value_changed.connect(_on_gate_entity_meta_value_changed)
 	_UpdateConnections()

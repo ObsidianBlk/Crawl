@@ -1,6 +1,5 @@
 extends CrawlTriggerNode3D
 
-
 # ------------------------------------------------------------------------------
 # Constants
 # ------------------------------------------------------------------------------
@@ -28,10 +27,10 @@ func _ready() -> void:
 func _UpdateActiveState() -> void:
 	if entity == null: return
 	var init_state = entity.get_meta_value(CrawlTriggerRelay.TRIGGER_ACTIVE_KEY)
-	var new_state : bool = true
+	var new_state : bool = false
 	for uuid in _cstates:
-		if _cstates[uuid] == false:
-			new_state = false
+		if _cstates[uuid] == true:
+			new_state = true
 	if init_state != new_state:
 		entity.set_meta_value(CrawlTriggerRelay.TRIGGER_ACTIVE_KEY, new_state)
 

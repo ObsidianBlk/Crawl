@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3 uid="uid://blnf6q7b66j2v"]
+
+[ext_resource type="Script" path="res://objects/entity_objects/crawl_OR_gate_3d/CrawlORGate3D.gd" id="1_41qdx"]
+[ext_resource type="Texture2D" uid="uid://bnmv27x43ybke" path="res://assets/textures/gates/gate_OR.svg" id="2_v4hcm"]
+
+[node name="CrawlORGate3D" type="Node3D"]
+script = ExtResource("1_41qdx")
+
+[node name="Sprite3D" type="Sprite3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+offset = Vector2(0, 512)
+pixel_size = 0.0009
+billboard = 2
+texture = ExtResource("2_v4hcm")

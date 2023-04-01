@@ -28,10 +28,11 @@ func _ready() -> void:
 func _UpdateActiveState() -> void:
 	if entity == null: return
 	var init_state = entity.get_meta_value(CrawlTriggerRelay.TRIGGER_ACTIVE_KEY)
-	var new_state : bool = true
-	for uuid in _cstates:
-		if _cstates[uuid] == false:
-			new_state = false
+	var new_state : bool = false
+	if _cstates.size() == 2:
+		var vals : Array = _cstates.values()
+		new_state = vals[0] != vals[1]
+	
 	if init_state != new_state:
 		entity.set_meta_value(CrawlTriggerRelay.TRIGGER_ACTIVE_KEY, new_state)
 
@@ -45,10 +46,11 @@ func _UpdateConnections() -> void:
 		_cstates.erase(uuid)
 		changed = true
 	
-	for uuid in connections:
-		if uuid in _cstates: continue
-		_cstates[uuid] = CrawlTriggerRelay.is_trigger_active(uuid)
-		changed = true
+	for i in range(connections.size()):
+		if i >= 2: break
+		if not connections[i] in _cstates:
+			_cstates[connections[i]] = CrawlTriggerRelay.is_trigger_active(connections[i])
+			changed = true
 	
 	if changed:
 		_UpdateActiveState()

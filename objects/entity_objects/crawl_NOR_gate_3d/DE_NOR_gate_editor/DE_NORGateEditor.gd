@@ -1,8 +1,7 @@
 extends Control
 
-
 # --
-# AND Gate
+# NOR Gate
 # --
 
 # ------------------------------------------------------------------------------
@@ -39,3 +38,4 @@ func _ready() -> void:
 func _UpdateControls() -> void:
 	if _available_trigger_connections == null: return
 	_available_trigger_connections.entity = entity
+

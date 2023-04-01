@@ -1,5 +1,6 @@
 extends Node
 
+
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 # DUNGEON MAP CELL SURFACE CONSTANTS & HELPER METHODS
@@ -276,3 +277,17 @@ func Get_Angle_From_Surface_To_Surface(from : SURFACE, to : SURFACE) -> float:
 			return deg90 * 2 if to == SURFACE.Ground else deg90
 	return 0.0
 
+
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+# DUNGEON EDITOR IDENTIFIER
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+
+var _editor_mode: bool = false
+
+func Set_Editor_Mode(enable : bool) -> void:
+	_editor_mode = enable
+
+func In_Editor_Mode() -> bool:
+	return _editor_mode

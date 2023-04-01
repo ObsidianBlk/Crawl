@@ -27,7 +27,35 @@ const ENTITIES_LOOKUP : Dictionary = {
 		&"Gate_AND":{
 			&"name":&"AND Gate",
 			&"ui":"res://objects/entity_objects/crawl_AND_gate_3d/DE_AND_gate_editor/DE_ANDGateEditor.tscn"
-		}
+		},
+		&"Gate_OR":{
+			&"name":&"OR Gate",
+			&"ui":"res://objects/entity_objects/crawl_OR_gate_3d/DE_OR_gate_editor/DE_ORGateEditor.tscn"
+		},
+		&"Gate_NOT":{
+			&"name":&"NOT Gate",
+			&"ui":"res://objects/entity_objects/crawl_NOT_gate_3d/DE_NOT_gate_editor/DE_NOTGateEditor.tscn"
+		},
+		&"Gate_NAND":{
+			&"name":&"NAND Gate",
+			&"ui":"res://objects/entity_objects/crawl_NAND_gate_3d/DE_NAND_gate_editor/DE_NANDGateEditor.tscn"
+		},
+		&"Gate_NOR":{
+			&"name":&"NOR Gate",
+			&"ui":"res://objects/entity_objects/crawl_NOR_gate_3d/DE_NOR_gate_editor/DE_NORGateEditor.tscn"
+		},
+		&"Gate_XOR":{
+			&"name":&"XOR Gate",
+			&"ui":"res://objects/entity_objects/crawl_XOR_gate_3d/DE_XOR_gate_editor/DE_XORGateEditor.tscn"
+		},
+		&"Logic_Memory":{
+			&"name":&"Logical Memory",
+			&"ui":"res://objects/entity_objects/crawl_memory_logic_3d/DE_memory_logic_editor/DE_MemoryLogicEditor.tscn"
+		},
+		&"Logic_Timer":{
+			&"name":&"Logical Timer",
+			&"ui":"res://objects/entity_objects/crawl_timer_logic_3d/DE_timer_logic_editor/DE_TimerLogicEditor.tscn"
+		},
 	},
 }
 
@@ -95,6 +123,34 @@ const LOOKUP : Dictionary = {
 		&"Trigger:Gate_AND":{
 			&"src":"res://objects/entity_objects/crawl_AND_gate_3d/CrawlANDGate3D.tscn",
 			&"description":"AND Gate"
+		},
+		&"Trigger:Gate_OR":{
+			&"src":"res://objects/entity_objects/crawl_OR_gate_3d/CrawlORGate3D.tscn",
+			&"description":"OR Gate"
+		},
+		&"Trigger:Gate_NOT":{
+			&"src":"res://objects/entity_objects/crawl_NOT_gate_3d/CrawlNOTGate3D.tscn",
+			&"description":"NOT Gate"
+		},
+		&"Trigger:Gate_NAND":{
+			&"src":"res://objects/entity_objects/crawl_NAND_gate_3d/CrawlNANDGate3D.tscn",
+			&"description":"NAND Gate"
+		},
+		&"Trigger:Gate_NOR":{
+			&"src":"res://objects/entity_objects/crawl_NOR_gate_3d/CrawlNORGate3D.tscn",
+			&"description":"NOR Gate"
+		},
+		&"Trigger:Gate_XOR":{
+			&"src":"res://objects/entity_objects/crawl_XOR_gate_3d/CrawlXORGate3D.tscn",
+			&"description":"XOR Gate"
+		},
+		&"Trigger:Logic_Memory":{
+			&"src":"res://objects/entity_objects/crawl_memory_logic_3d/CrawlMemoryLogic3D.tscn",
+			&"description":"Logical Memory"
+		},
+		&"Trigger:Logic_Timer":{
+			&"src":"res://objects/entity_objects/crawl_timer_logic_3d/CrawlTimerLogic3D.tscn",
+			&"description":"Logic Timer"
 		},
 		&"Trigger:Light":{
 			&"src":"res://objects/entity_objects/trigger_light/TriggerLight.tscn",

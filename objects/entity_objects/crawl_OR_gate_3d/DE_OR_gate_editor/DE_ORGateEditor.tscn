@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3 uid="uid://bfc0sr8xykcj1"]
+
+[ext_resource type="Script" path="res://objects/entity_objects/crawl_OR_gate_3d/DE_OR_gate_editor/DE_ORGateEditor.gd" id="1_bifuw"]
+[ext_resource type="PackedScene" uid="uid://cq87lj6f3n5mh" path="res://objects/entity_objects/DE_UI_Elements/available_trigger_connections/AvailableTriggerConnections.tscn" id="1_ikxms"]
+
+[node name="DE_ORGateEditor" type="VBoxContainer"]
+offset_right = 40.0
+offset_bottom = 40.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("1_bifuw")
+
+[node name="Label_Connections" type="Label" parent="."]
+layout_mode = 2
+text = "Input Connections:"
+
+[node name="AvailableTriggerConnections" parent="." instance=ExtResource("1_ikxms")]
+layout_mode = 2
+size_flags_vertical = 3

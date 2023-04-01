@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3 uid="uid://ccnpfdkgp44d1"]
+
+[ext_resource type="Texture2D" uid="uid://bncygiyjta3ev" path="res://assets/textures/gates/gate_NAND.svg" id="1_cw00q"]
+[ext_resource type="Script" path="res://objects/entity_objects/crawl_NAND_gate_3d/CrawlNANDGate3D.gd" id="1_lhlyw"]
+
+[node name="CrawlNANDGate3D" type="Node3D"]
+script = ExtResource("1_lhlyw")
+
+[node name="Sprite3D" type="Sprite3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+offset = Vector2(0, 512)
+pixel_size = 0.0009
+billboard = 2
+texture = ExtResource("1_cw00q")

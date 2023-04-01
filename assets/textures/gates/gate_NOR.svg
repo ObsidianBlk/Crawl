@@ -8,7 +8,7 @@
    version="1.1"
    id="svg5"
    inkscape:version="1.2.1 (9c6d41e410, 2022-07-14, custom)"
-   sodipodi:docname="gate_NOT.svg"
+   sodipodi:docname="gate_NOR.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -24,9 +24,9 @@
      inkscape:deskcolor="#505050"
      inkscape:document-units="px"
      showgrid="false"
-     inkscape:zoom="0.39954756"
-     inkscape:cx="-68.827851"
-     inkscape:cy="725.82098"
+     inkscape:zoom="0.56504558"
+     inkscape:cx="292.89673"
+     inkscape:cy="582.25391"
      inkscape:window-width="1916"
      inkscape:window-height="1033"
      inkscape:window-x="0"
@@ -43,22 +43,24 @@
        id="path7673"
        style="fill:#ffffff;stroke:#000000;stroke-width:5.38899;stroke-linecap:round;stroke-linejoin:bevel;stroke-dasharray:none;stroke-opacity:1;paint-order:normal;fill-opacity:1"
        d="M 135.46666 5.3402424 A 130.12633 130.12634 0 0 0 5.3402424 135.46666 A 130.12633 130.12634 0 0 0 135.46666 265.59309 A 130.12633 130.12634 0 0 0 265.59309 135.46666 A 130.12633 130.12634 0 0 0 135.46666 5.3402424 z M 133.92774 18.613334 C 141.95395 18.537857 150.01598 19.259379 157.88287 20.775476 C 173.03529 23.721759 187.60426 29.752203 200.41309 38.31549 C 216.12986 48.764576 229.15341 63.157828 238.16375 79.728466 C 246.86632 95.612266 251.66747 113.61825 252.23215 131.69635 C 252.92791 151.49649 248.40459 171.38459 239.32389 188.97813 C 231.07568 205.09272 218.8886 219.224 204.27332 229.88829 C 185.18368 243.89999 161.70237 251.77707 138.1063 252.26625 C 122.2027 252.62257 106.30101 249.70661 91.548933 243.74016 C 71.084895 235.47384 53.057703 221.18735 40.252323 203.18966 C 31.131436 190.44465 24.704084 175.75782 21.353218 160.47289 C 18.821464 149.01199 18.050868 137.21151 19.055167 125.54014 C 20.399151 109.7628 25.022833 94.229518 32.460034 80.321194 C 41.740346 62.977984 55.492177 48.089089 71.998188 37.372912 C 90.360496 25.433009 112.12334 18.990096 133.92774 18.613334 z " />
+    <path
+       id="path524"
+       style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:5.38899;stroke-linecap:round;stroke-linejoin:bevel;stroke-dasharray:none;stroke-opacity:1;paint-order:normal"
+       d="m 134.06836,36.125 c -12.3734,0.268983 -24.65759,2.782453 -36.169586,7.461775 -16.510731,6.625007 -31.090515,17.973921 -41.787748,32.220583 -9.088672,12.03179 -15.354045,26.088712 -18.154757,40.857562 -3.31784,17.15909 -2.001068,35.19201 3.8367,51.73156 5.044942,14.41133 13.431782,27.61842 24.44178,38.23356 11.598546,11.23483 25.842851,19.67371 41.373431,24.15916 19.18614,5.58914 40.07137,5.29947 59.10051,-1.05496 13.39908,-4.44221 25.87669,-11.73878 36.20346,-21.38176 14.55739,-13.48376 25.0194,-31.40675 29.38146,-50.71327 3.45351,-15.26554 3.3315,-31.34485 -0.53663,-46.54066 C 227.92135,95.865582 220.36412,81.45677 209.89972,69.687831 199.38365,57.778927 185.92608,48.402941 171.17593,42.753899 159.36201,38.227421 146.73667,36.000464 134.06836,36.125 Z" />
     <g
-       aria-label="NOT"
-       id="text7704"
-       style="font-size:88.9788px;line-height:1.25;font-family:'OpenDyslexicAlta Nerd Font';-inkscape-font-specification:'OpenDyslexicAlta Nerd Font';letter-spacing:0px;word-spacing:0px;stroke-width:0.46343;fill:#ffffff">
+       aria-label="NOR"
+       transform="scale(1.0134416,0.98673669)"
+       id="text418"
+       style="font-size:86.8195px;line-height:1.25;font-family:'TerminessTTF Nerd Font';-inkscape-font-specification:'TerminessTTF Nerd Font';letter-spacing:0px;word-spacing:0px;stroke-width:0.452184">
       <path
-         d="m 71.581367,160.38322 v -55.70073 h 5.605665 v 12.81295 l 22.244699,21.71083 v -34.52378 h 5.605669 v 55.70073 H 99.431731 V 147.57027 L 77.187032,125.85945 v 34.52377 z"
-         style="font-family:'TerminessTTF Nerd Font';-inkscape-font-specification:'TerminessTTF Nerd Font';fill:#ffffff"
-         id="path10666" />
+         d="m 70.175999,164.50346 v -54.34901 h 5.469629 v 12.50201 l 21.704876,21.18396 v -33.68597 h 5.469626 v 54.34901 H 97.350504 V 152.00145 L 75.645628,130.8175 v 33.68596 z"
+         id="path5654" />
       <path
-         d="m 116.07077,111.44488 6.76239,-6.76239 h 19.93125 l 6.76238,6.76239 v 42.17595 l -6.76238,6.76239 h -19.93125 l -6.76239,-6.76239 z m 26.4267,41.90902 v -41.64208 l -18.0627,-1.6906 -3.02528,7.74116 1.6906,35.59152 z"
-         style="font-family:'TerminessTTF Nerd Font';-inkscape-font-specification:'TerminessTTF Nerd Font';fill:#ffffff"
-         id="path10668" />
+         d="m 113.58575,116.75274 6.59828,-6.59829 h 19.44757 l 6.59828,6.59829 v 41.15244 l -6.59828,6.59828 h -19.44757 l -6.59828,-6.59828 z m 25.78539,40.89198 v -40.63153 l -17.62436,-1.64957 -2.95186,7.5533 1.64957,34.7278 z"
+         id="path5656" />
       <path
-         d="m 160.56017,110.28816 v -5.60567 h 33.45602 v 5.60567 h -13.96967 v 50.09506 h -5.51668 v -50.09506 z"
-         style="font-family:'TerminessTTF Nerd Font';-inkscape-font-specification:'TerminessTTF Nerd Font';fill:#ffffff"
-         id="path10670" />
+         d="m 156.9955,164.50346 v -54.34901 h 26.04585 l 6.59829,6.59829 v 19.44756 l -6.59829,6.59829 h -10.76561 l 18.40573,18.92665 -3.82006,3.82006 -24.39628,-23.87537 v 22.83353 z m 25.7854,-28.56361 v -18.92666 l -20.31577,-1.64957 v 22.2258 z"
+         id="path5658" />
     </g>
   </g>
 </svg>

@@ -1,0 +1,20 @@
+[gd_scene load_steps=3 format=3 uid="uid://bwux7oj7ktf7q"]
+
+[ext_resource type="PackedScene" uid="uid://cq87lj6f3n5mh" path="res://objects/entity_objects/DE_UI_Elements/available_trigger_connections/AvailableTriggerConnections.tscn" id="1_0jf4p"]
+[ext_resource type="Script" path="res://objects/entity_objects/crawl_NOT_gate_3d/DE_NOT_gate_editor/DE_NOTGateEditor.gd" id="1_hhkhf"]
+
+[node name="DE_NOTGateEditor" type="VBoxContainer"]
+offset_right = 40.0
+offset_bottom = 40.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("1_hhkhf")
+
+[node name="Label_Connection" type="Label" parent="."]
+layout_mode = 2
+text = "Input Connection:"
+
+[node name="AvailableTriggerConnections" parent="." instance=ExtResource("1_0jf4p")]
+layout_mode = 2
+size_flags_vertical = 3
+max_connections = 1

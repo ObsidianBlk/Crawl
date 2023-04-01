@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="1024"
+   height="1024"
+   viewBox="0 0 270.93333 270.93333"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.1 (9c6d41e410, 2022-07-14, custom)"
+   sodipodi:docname="gate_NAND.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#505050"
+     bordercolor="#eeeeee"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#505050"
+     inkscape:document-units="px"
+     showgrid="false"
+     inkscape:zoom="0.56504558"
+     inkscape:cx="308.82464"
+     inkscape:cy="653.04466"
+     inkscape:window-width="1916"
+     inkscape:window-height="1033"
+     inkscape:window-x="0"
+     inkscape:window-y="18"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <path
+       id="rect7482"
+       style="fill:#ffffff;stroke:#000000;stroke-width:5.53588;stroke-linecap:round;stroke-linejoin:bevel;stroke-dasharray:none;stroke-opacity:1;paint-order:normal;fill-opacity:1"
+       d="M 5.413623 5.413623 L 5.413623 265.51971 L 265.51971 265.51971 L 265.51971 5.413623 L 5.413623 5.413623 z M 16.529223 16.529223 L 254.40411 16.529223 L 254.40411 254.40411 L 16.529223 254.40411 L 16.529223 16.529223 z " />
+    <path
+       id="path3598"
+       style="fill:#ffffff;stroke:#000000;stroke-width:5.53588;stroke-linecap:round;stroke-linejoin:bevel;stroke-dasharray:none;stroke-opacity:1;paint-order:normal"
+       d="m 31.878906,239.05469 c 69.058594,0 138.117184,0 207.175784,0 0,-69.0586 0,-138.11719 0,-207.175784 -69.0586,0 -138.11719,0 -207.175784,0 0,69.058594 0,138.117184 0,207.175784 z" />
+    <g
+       aria-label="NAND"
+       id="text4747"
+       style="font-size:96.3355px;line-height:1.25;font-family:'TerminessTTF Nerd Font';-inkscape-font-specification:'TerminessTTF Nerd Font';letter-spacing:0px;word-spacing:0px;stroke-width:0.501747">
+      <path
+         d="M 45.993889,157.19892 V 96.892891 h 6.069136 V 110.7652 l 24.083876,23.50587 V 96.892891 h 6.069137 V 157.19892 H 76.146901 V 143.3266 L 52.063025,119.82074 v 37.37818 z"
+         id="path4749" />
+      <path
+         d="m 94.16164,104.21439 7.3215,-7.321499 h 21.57915 l 7.3215,7.321499 v 52.98453 h -6.06914 v -24.08388 h -24.08387 v 24.08388 h -6.06914 z m 30.44202,22.83151 -1.83038,-22.5425 -18.30374,-1.83038 -4.23876,4.23876 v 20.13412 z"
+         id="path4751" />
+      <path
+         d="M 142.32939,157.19892 V 96.892891 h 6.06914 V 110.7652 l 24.08387,23.50587 V 96.892891 h 6.06914 V 157.19892 H 172.4824 V 143.3266 l -24.08387,-23.50586 v 37.37818 z"
+         id="path4753" />
+      <path
+         d="M 190.49714,157.19892 V 96.892891 h 24.08387 l 12.13828,12.138269 v 36.02948 l -12.13828,12.13828 z m 30.15301,-47.01173 -7.22516,-7.22516 h -16.85871 v 48.16775 h 16.85871 l 7.22516,-7.22516 z"
+         id="path4755" />
+    </g>
+  </g>
+</svg>

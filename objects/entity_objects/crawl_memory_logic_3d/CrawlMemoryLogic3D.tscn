@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3 uid="uid://bogbh8csjs6ov"]
+
+[ext_resource type="Texture2D" uid="uid://c1gof8c5gcucd" path="res://assets/textures/gates/logic_memory.svg" id="1_7ivub"]
+[ext_resource type="Script" path="res://objects/entity_objects/crawl_memory_logic_3d/CrawlMemoryLogic3D.gd" id="1_awyb6"]
+
+[node name="CrawlMemoryLogic3D" type="Node3D"]
+script = ExtResource("1_awyb6")
+
+[node name="Sprite3D" type="Sprite3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+offset = Vector2(0, 512)
+pixel_size = 0.0009
+billboard = 2
+texture = ExtResource("1_7ivub")

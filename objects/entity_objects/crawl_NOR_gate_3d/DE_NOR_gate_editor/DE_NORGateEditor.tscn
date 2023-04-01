@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3 uid="uid://wxm3dam6kwgt"]
+
+[ext_resource type="Script" path="res://objects/entity_objects/crawl_NOR_gate_3d/DE_NOR_gate_editor/DE_NORGateEditor.gd" id="1_4evpx"]
+[ext_resource type="PackedScene" uid="uid://cq87lj6f3n5mh" path="res://objects/entity_objects/DE_UI_Elements/available_trigger_connections/AvailableTriggerConnections.tscn" id="1_i5b7d"]
+
+[node name="DE_NORGateEditor" type="VBoxContainer"]
+offset_right = 40.0
+offset_bottom = 40.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("1_4evpx")
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 2
+text = "Input Connections:"
+
+[node name="AvailableTriggerConnections" parent="." instance=ExtResource("1_i5b7d")]
+layout_mode = 2
+size_flags_vertical = 3

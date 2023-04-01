@@ -28,10 +28,10 @@ func _ready() -> void:
 func _UpdateActiveState() -> void:
 	if entity == null: return
 	var init_state = entity.get_meta_value(CrawlTriggerRelay.TRIGGER_ACTIVE_KEY)
-	var new_state : bool = true
+	var new_state : bool = false
 	for uuid in _cstates:
 		if _cstates[uuid] == false:
-			new_state = false
+			new_state = true
 	if init_state != new_state:
 		entity.set_meta_value(CrawlTriggerRelay.TRIGGER_ACTIVE_KEY, new_state)
 
@@ -86,3 +86,5 @@ func _on_gate_entity_changed() -> void:
 	if not entity.meta_value_changed.is_connected(_on_gate_entity_meta_value_changed):
 		entity.meta_value_changed.connect(_on_gate_entity_meta_value_changed)
 	_UpdateConnections()
+
+

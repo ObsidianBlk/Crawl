@@ -2,8 +2,13 @@ extends Control
 
 
 # --
-# AND Gate
+# Memory Logic
 # --
+
+# ------------------------------------------------------------------------------
+# Constants
+# ------------------------------------------------------------------------------
+const META_KEY_INIT_MEMORY : String = "initial_memory"
 
 # ------------------------------------------------------------------------------
 # Export Variables
@@ -16,6 +21,7 @@ extends Control
 # Onready Variables
 # ------------------------------------------------------------------------------
 @onready var _available_trigger_connections : Control = $AvailableTriggerConnections
+@onready var _check_init_memory_state : CheckButton = $Check_InitMemoryState
 
 
 # ------------------------------------------------------------------------------
@@ -39,3 +45,14 @@ func _ready() -> void:
 func _UpdateControls() -> void:
 	if _available_trigger_connections == null: return
 	_available_trigger_connections.entity = entity
+	if entity == null:
+		_check_init_memory_state.button_pressed = false
+	else:
+		_check_init_memory_state.button_pressed = entity.get_meta_value(META_KEY_INIT_MEMORY, false)
+
+# ------------------------------------------------------------------------------
+# Handler Methods
+# ------------------------------------------------------------------------------
+func _on_check_init_memory_state_toggled(button_pressed : bool) -> void:
+	if entity == null: return
+	entity.set_meta_value(META_KEY_INIT_MEMORY, button_pressed)

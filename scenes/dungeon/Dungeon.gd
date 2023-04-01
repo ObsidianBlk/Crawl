@@ -21,6 +21,7 @@ var _entity_nodes : Dictionary = {}
 # Override Methods
 # ------------------------------------------------------------------------------
 func _ready() -> void:
+	CrawlGlobals.Set_Editor_Mode(false)
 	CrawlGlobals.crawl_config_value_changed.connect(_on_config_value_changed)
 	CrawlGlobals.crawl_config_loaded.connect(_on_config_loaded)
 

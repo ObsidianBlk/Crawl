@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3 uid="uid://b17mf5yw8s833"]
+
+[ext_resource type="Script" path="res://objects/entity_objects/crawl_NOR_gate_3d/CrawlNORGate3D.gd" id="1_ribdl"]
+[ext_resource type="Texture2D" uid="uid://dqp4w2bh35nc" path="res://assets/textures/gates/gate_NOR.svg" id="1_ylbi2"]
+
+[node name="CrawlNORGate3D" type="Node3D"]
+script = ExtResource("1_ribdl")
+
+[node name="Sprite3D" type="Sprite3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+offset = Vector2(0, 512)
+pixel_size = 0.0009
+billboard = 2
+texture = ExtResource("1_ylbi2")

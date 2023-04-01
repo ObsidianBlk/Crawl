@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3 uid="uid://ct1p8q62xwvbl"]
+
+[ext_resource type="Script" path="res://objects/entity_objects/crawl_NAND_gate_3d/DE_NAND_gate_editor/DE_NANDGateEditor.gd" id="1_cgfuf"]
+[ext_resource type="PackedScene" uid="uid://cq87lj6f3n5mh" path="res://objects/entity_objects/DE_UI_Elements/available_trigger_connections/AvailableTriggerConnections.tscn" id="1_fg1vl"]
+
+[node name="DE_NANDGateEditor" type="VBoxContainer"]
+offset_right = 40.0
+offset_bottom = 40.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("1_cgfuf")
+
+[node name="Label_Connections" type="Label" parent="."]
+layout_mode = 2
+text = "Input Connections:"
+
+[node name="AvailableTriggerConnections" parent="." instance=ExtResource("1_fg1vl")]
+layout_mode = 2
+size_flags_vertical = 3

@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=3 uid="uid://d67xa3hygxij"]
+
+[ext_resource type="Script" path="res://objects/entity_objects/crawl_timer_logic_3d/CrawlTimerLogic3D.gd" id="1_i22yv"]
+[ext_resource type="Texture2D" uid="uid://dcrgvnsb3w6ru" path="res://assets/textures/gates/logic_timer.svg" id="1_sfa6l"]
+
+[node name="CrawlTimerLogic3D" type="Node3D"]
+script = ExtResource("1_i22yv")
+
+[node name="Sprite3D" type="Sprite3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+offset = Vector2(0, 512)
+pixel_size = 0.0009
+billboard = 2
+texture = ExtResource("1_sfa6l")
+
+[node name="Timer" type="Timer" parent="."]
+one_shot = true

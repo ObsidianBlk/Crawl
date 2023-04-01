@@ -1,0 +1,20 @@
+[gd_scene load_steps=3 format=3 uid="uid://b1a3pj5sumc"]
+
+[ext_resource type="PackedScene" uid="uid://cq87lj6f3n5mh" path="res://objects/entity_objects/DE_UI_Elements/available_trigger_connections/AvailableTriggerConnections.tscn" id="1_dnykl"]
+[ext_resource type="Script" path="res://objects/entity_objects/crawl_XOR_gate_3d/DE_XOR_gate_editor/DE_XORGateEditor.gd" id="1_oepvp"]
+
+[node name="DE_XORGateEditor" type="VBoxContainer"]
+offset_right = 40.0
+offset_bottom = 40.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("1_oepvp")
+
+[node name="Label_Connections" type="Label" parent="."]
+layout_mode = 2
+text = "Input Connections:"
+
+[node name="AvailableTriggerConnections" parent="." instance=ExtResource("1_dnykl")]
+layout_mode = 2
+size_flags_vertical = 3
+max_connections = 2

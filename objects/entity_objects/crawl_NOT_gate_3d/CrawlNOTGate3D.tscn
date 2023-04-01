@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3 uid="uid://d3lvb0eyiwgum"]
+
+[ext_resource type="Texture2D" uid="uid://dnsyy0xaffpjg" path="res://assets/textures/gates/gate_NOT.svg" id="1_8f51j"]
+[ext_resource type="Script" path="res://objects/entity_objects/crawl_NOT_gate_3d/CrawlNOTGate3D.gd" id="1_kc7x2"]
+
+[node name="CrawlNOTGate3D" type="Node3D"]
+script = ExtResource("1_kc7x2")
+
+[node name="Sprite3D" type="Sprite3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+offset = Vector2(0, 512)
+pixel_size = 0.0009
+billboard = 2
+texture = ExtResource("1_8f51j")

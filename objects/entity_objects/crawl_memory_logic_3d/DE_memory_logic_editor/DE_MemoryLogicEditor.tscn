@@ -1,0 +1,29 @@
+[gd_scene load_steps=3 format=3 uid="uid://dw5lbojy60ujn"]
+
+[ext_resource type="Script" path="res://objects/entity_objects/crawl_memory_logic_3d/DE_memory_logic_editor/DE_MemoryLogicEditor.gd" id="1_7quax"]
+[ext_resource type="PackedScene" uid="uid://cq87lj6f3n5mh" path="res://objects/entity_objects/DE_UI_Elements/available_trigger_connections/AvailableTriggerConnections.tscn" id="1_pilja"]
+
+[node name="DE_MemoryLogicEditor" type="VBoxContainer"]
+offset_right = 40.0
+offset_bottom = 40.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("1_7quax")
+
+[node name="Check_InitMemoryState" type="CheckButton" parent="."]
+layout_mode = 2
+text = "Initial Memory State:"
+
+[node name="HSeparator" type="HSeparator" parent="."]
+layout_mode = 2
+
+[node name="Label_Connections" type="Label" parent="."]
+layout_mode = 2
+text = "Input Connection:"
+
+[node name="AvailableTriggerConnections" parent="." instance=ExtResource("1_pilja")]
+layout_mode = 2
+size_flags_vertical = 3
+max_connections = 1
+
+[connection signal="toggled" from="Check_InitMemoryState" to="." method="_on_check_init_memory_state_toggled"]

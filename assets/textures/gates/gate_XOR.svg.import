@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bnmv27x43ybke"
-path.s3tc="res://.godot/imported/gate_OR.svg-5b4dd012abd49b1dfeaaa3d0c083db9d.s3tc.ctex"
+uid="uid://cakuc4u7m15ci"
+path.s3tc="res://.godot/imported/gate_XOR.svg-94f8a39e9b1e9b233bbf5da2b6de103a.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
@@ -11,8 +11,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/textures/gates/gate_OR.svg"
-dest_files=["res://.godot/imported/gate_OR.svg-5b4dd012abd49b1dfeaaa3d0c083db9d.s3tc.ctex"]
+source_file="res://assets/textures/gates/gate_XOR.svg"
+dest_files=["res://.godot/imported/gate_XOR.svg-94f8a39e9b1e9b233bbf5da2b6de103a.s3tc.ctex"]
 
 [params]
 
